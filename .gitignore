@@ -1,4 +1,6 @@
-# Ignore everything except README and .gitignore
+# Ignore everything except README, .gitignore, and docs
 *
 !.gitignore
 !README.md
+!docs/
+!docs/**

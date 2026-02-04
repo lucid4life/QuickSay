@@ -23,6 +23,21 @@ Click the link above, then download **QuickSay_Setup_v2.3.exe** from the Assets 
 5. Click **Test Key** to verify it works, then click **Continue**
 6. Click **Launch QuickSay** -- you're ready to go
 
+## Windows SmartScreen Warning
+
+When you first run the installer, Windows may show a SmartScreen warning that says **"Windows protected your PC"**. This is completely normal for new applications that haven't been submitted for Microsoft code signing yet. QuickSay is safe to install.
+
+![Windows SmartScreen Warning](docs/smartscreen-warning.png)
+
+**To proceed with the installation:**
+
+1. Click **"More info"** (the text link under the warning message)
+2. Click **"Run anyway"**
+
+The installer will then start normally.
+
+---
+
 ## Usage
 
 1. **Press `Ctrl+Win`** to start recording
