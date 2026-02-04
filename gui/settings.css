@@ -1,0 +1,655 @@
+        /* INLINE STYLES FOR IE COMPATIBILITY (Fixed Position Layout) */
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            cursor: default;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            color: #333333;
+            overflow: hidden;
+            display: block;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 200px;
+            height: 100%;
+            background: #ffffff;
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 24px 16px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FF6B35;
+            margin-bottom: 24px;
+            padding-left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666666;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            width: 100%;
+            display: block;
+        }
+
+        .tab-btn:hover {
+            background: rgba(0, 0, 0, 0.03);
+            color: #FF6B35;
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 107, 53, 0.1);
+            color: #FF6B35;
+            font-weight: 600;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            position: fixed;
+            left: 200px;
+            top: 0;
+            right: 0;
+            bottom: 0px;
+            /* Changed from 90px to 0 for glassmorphism */
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 32px 40px 40px 40px;
+            background: #fafafa;
+        }
+
+        /* Force scrollbar always visible in WebView2 */
+        .main-content {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+
+        /* MODERN SCROLLBAR - APPEARS ON HOVER */
+        .main-content::-webkit-scrollbar {
+            width: 12px;
+            /* Changed from 10px */
+        }
+
+        .main-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .main-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 53, 0.3);
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .main-content:hover::-webkit-scrollbar-thumb {
+            background: #FF6B35;
+        }
+
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: #e55a2b;
+        }
+
+        h2 {
+            margin: 0 0 28px 0;
+            font-size: 26px;
+            font-weight: 600;
+            color: #222222;
+        }
+
+        h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #999999;
+            margin: 0 0 18px 0;
+            font-weight: 600;
+        }
+
+        .section {
+            margin-bottom: 36px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 14px;
+            padding: 28px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #444444;
+        }
+
+        .sub-text {
+            display: block;
+            font-size: 12px;
+            color: #888888;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        /* --- CONTROLS --- */
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 10px;
+            border: 1.5px solid #e0e0e0;
+            background: #ffffff;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+            cursor: text;
+            margin-bottom: 4px;
+            box-sizing: border-box;
+        }
+
+        .password-wrapper input[type="password"],
+        .password-wrapper input[type="text"] {
+            padding-right: 44px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+        }
+
+        /* MODERN SELECT DROPDOWN */
+        select {
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23666666" d="M6 9L1 4h10z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        select::-ms-expand {
+            display: none;
+        }
+
+        select:hover {
+            border-color: #FF6B35;
+        }
+
+        select:focus {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23FF6B35" d="M6 9L1 4h10z"/></svg>');
+        }
+
+        .display-box {
+            padding: 12px 18px;
+            background: #f8f9fa;
+            border: 1.5px dashed #d0d0d0;
+            border-radius: 10px;
+            font-family: Consolas, monospace;
+            color: #555;
+            font-size: 14px;
+            min-width: 140px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            border: none;
+            padding: 13px 26px;
+            border-radius: 10px;
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .btn-sm {
+            padding: 9px 16px;
+            font-size: 12.5px;
+            border-radius: 8px;
+        }
+
+        .btn-primary {
+            background: #FF6B35;
+            color: white;
+            box-shadow: 0 4px 14px rgba(255, 107, 53, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(255, 107, 53, 0.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-secondary-orange {
+            background: rgba(255, 107, 53, 0.12);
+            color: #FF6B35;
+            font-weight: 600;
+        }
+
+        .btn-secondary-orange:hover {
+            background: rgba(255, 107, 53, 0.2);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.12);
+            color: #EF4444;
+            font-weight: 600;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* --- MODERN TOGGLE SWITCH (replaces checkbox) --- */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d1d5db;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked+.toggle-slider {
+            background-color: #FF6B35;
+        }
+
+        input:checked+.toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            /* gap: 20px; - Not supported in IE11 */
+            /* Changed from 14px */
+            padding: 10px 8px;
+            border-radius: 8px;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+
+        /* IE11 Fix for gap */
+        .toggle-item .toggle-switch {
+            margin-right: 20px;
+        }
+
+        .toggle-item:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .toggle-item label:not(.toggle-switch) {
+            flex: 1;
+            cursor: pointer;
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* --- RADIO BUTTONS (Keep these styled) --- */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 10px;
+            transition: background 0.15s;
+            border: 1.5px solid transparent;
+        }
+
+        .radio-item:hover {
+            background: rgba(255, 107, 53, 0.05);
+            border-color: rgba(255, 107, 53, 0.2);
+        }
+
+        input[type="radio"] {
+            margin-top: 3px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #FF6B35;
+        }
+
+        /* --- DICTIONARY --- */
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 12px;
+            color: #aaa;
+            font-size: 16px;
+        }
+
+        .search-input {
+            padding-left: 42px !important;
+        }
+
+        .dict-container {
+            border: 1.5px solid #e8e8e8;
+            border-radius: 12px;
+            max-height: 340px;
+            overflow-y: auto;
+            background: #fafbfc;
+        }
+
+        .dict-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
+            transition: background 0.15s;
+        }
+
+        .dict-row:hover {
+            background: rgba(255, 107, 53, 0.04);
+        }
+
+        .dict-row:last-child {
+            border-bottom: none;
+        }
+
+        .dict-col-spoken {
+            width: 40%;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .dict-col-arrow {
+            width: 10%;
+            color: #ccc;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .dict-col-written {
+            width: 40%;
+            color: #FF6B35;
+            font-weight: 500;
+        }
+
+        .dict-col-action {
+            width: 10%;
+            text-align: right;
+        }
+
+        .delete-icon {
+            color: #ccc;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 6px;
+            transition: color 0.15s;
+        }
+
+        .delete-icon:hover {
+            color: #EF4444;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 200px;
+            right: 0;
+            height: 90px;
+            /* Changed from 85px */
+            background: rgba(255, 255, 255, 0.98);
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px 40px;
+            /* gap: 20px; - Not supported in IE11 */
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        /* IE11 Fix for gap */
+        .footer .btn+.btn {
+            margin-left: 20px;
+        }
+
+        .footer .btn {
+            min-width: 115px;
+            /* Changed from 110px */
+            min-width: 115px;
+            /* Changed from 110px */
+            padding: 10px 24px;
+            /* Reduced padding to prevent cutoff */
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        }
+
+        /* --- TABS --- */
+        .tab-content {
+            display: none;
+            padding-bottom: 80px;
+            /* Extra clearance */
+        }
+
+        .tab-content.active {
+            display: block;
+            /* animation: fadeIn 0.3s; - Removed to prevent potential rendering glitches */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- TOAST --- */
+        .toast {
+            position: fixed;
+            bottom: 130px;
+            /* Above footer */
+            right: 40px;
+            background: #333;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 999;
+            pointer-events: none;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: #10B981;
+        }
+
+        .toast.error {
+            background: #EF4444;
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            width: 440px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            text-transform: none;
+            letter-spacing: normal;
+            margin-bottom: 20px;
+            color: #222;
+        }
+
+        .modal-actions {
+            margin-top: 24px;
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* API STATUS */
+        .status-text {
+            margin-top: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            color: #10B981;
+        }
+
+        .status-error {
+            color: #EF4444;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            margin-top: -12px;
+            cursor: pointer;
+            opacity: 0.5;
+            font-size: 18px;
+            transition: opacity 0.2s;
+        }
+
+        .toggle-password:hover {
+            opacity: 0.8;
+        }
+
+        /* Test Box Styling */
+        .test-box {
+            background: linear-gradient(135deg, #ffe6e6 0%, #fff0e6 100%);
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 24px;
+        }
