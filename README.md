@@ -4,127 +4,66 @@
 
 QuickSay uses Groq's Whisper API for fast, accurate speech-to-text transcription with optional AI-powered text cleanup that adds punctuation, fixes grammar, and removes filler words.
 
+---
+
+## Download
+
+**[Download QuickSay v2.3 Installer](https://github.com/lucid4life/QuickSay/releases/latest)**
+
+Click the link above, then download **QuickSay_Setup_v2.3.exe** from the Assets section.
+
+---
+
+## Installation
+
+1. Download and run **QuickSay_Setup_v2.3.exe**
+2. Follow the installer prompts (installs to your user folder -- no admin required)
+3. The onboarding wizard will launch automatically
+4. Get a free API key from [Groq Console](https://console.groq.com/keys) and paste it in
+5. Click **Test Key** to verify it works, then click **Continue**
+6. Click **Launch QuickSay** -- you're ready to go
+
+## Usage
+
+1. **Press `Ctrl+Win`** to start recording
+2. **Speak naturally** -- say whatever you want to type
+3. **Press `Ctrl+Win` again** to stop recording
+4. Your transcribed text appears at the cursor position in any application
+
+### Settings
+
+Right-click the **QuickSay** icon in your system tray to access Settings, where you can:
+
+- Change the hotkey
+- Select your microphone (USB, Bluetooth, headset, or built-in)
+- Toggle AI text cleanup (punctuation, grammar, filler word removal)
+- Add custom dictionary words
+- Adjust recording quality
+- Enable/disable sound effects
+- Set QuickSay to launch at startup
+
 ## Features
 
-- **Global hotkey activation** - Press `Ctrl+Win` (customizable) from any application
-- **Fast transcription** - Powered by Groq's Whisper Large V3 Turbo model
-- **AI text cleanup** - Automatic punctuation, grammar fixes, and filler word removal
-- **Works with any microphone** - Built-in, USB, Bluetooth, or headset
-- **Audio device selection** - Choose your preferred microphone in Settings
-- **Visual overlay** - Shows recording status with a floating indicator
-- **Custom dictionary** - Map spoken words to specific written forms (e.g., "groq" -> "Groq")
-- **Sound feedback** - Audio cues for recording start, stop, and errors
-- **System tray integration** - Runs quietly in the background
-- **Onboarding wizard** - Guided setup for first-time users
+- **Global hotkey** -- works from any application
+- **Fast transcription** -- powered by Groq's Whisper Large V3 Turbo
+- **AI text cleanup** -- smart punctuation, grammar fixes, filler word removal
+- **Any microphone** -- USB, Bluetooth, built-in, or headset
+- **Custom dictionary** -- map spoken words to specific spellings
+- **Sound feedback** -- audio cues for start, stop, and errors
+- **Visual overlay** -- floating indicator shows recording status
+- **System tray** -- runs quietly in the background
 
 ## Requirements
 
 - Windows 10 or Windows 11
-- A [Groq API key](https://console.groq.com/keys) (free tier available)
 - A microphone
+- Internet connection
+- A [Groq API key](https://console.groq.com/keys) (free tier available)
 
-## Installation
+## Feedback
 
-1. Download the latest installer from the [Releases](https://github.com/lucid4life/QuickSay/releases) page
-2. Run `QuickSay_Setup_v2.3.exe`
-3. Follow the onboarding wizard to enter your Groq API key
-4. Start dictating with `Ctrl+Win`
-
-The installer bundles FFmpeg (for audio device support) and will automatically install the WebView2 runtime if needed (Windows 10).
-
-## Usage
-
-1. **Start recording**: Press `Ctrl+Win` (or your custom hotkey)
-2. **Speak**: Talk naturally - QuickSay will transcribe your speech
-3. **Stop recording**: Press the hotkey again or release after a pause
-4. **Text appears**: Your transcribed text is typed at the cursor position
-
-### Settings
-
-Right-click the system tray icon and select **Settings** to configure:
-
-- **API Key** - Your Groq API key
-- **Hotkey** - Custom keyboard shortcut
-- **Audio Device** - Select your microphone
-- **AI Cleanup** - Toggle smart punctuation and grammar fixes
-- **Recording Quality** - Low, medium, or high
-- **Sound Effects** - Enable/disable audio feedback
-- **Custom Dictionary** - Add word mappings
-- **Launch at Startup** - Auto-start with Windows
-
-## How It Works
-
-1. QuickSay captures audio using FFmpeg (DirectShow) or Windows MCI
-2. Audio is sent to Groq's Whisper API for transcription
-3. Optionally, the transcript is cleaned up by Groq's LLM (Llama 3.3 70B)
-4. The final text is typed into the active application via simulated keystrokes
-
-## Project Structure
-
-```
-QuickSay-Launcher.ahk    # App launcher and tray menu
-QuickSay-Next.ahk        # Core engine (recording, transcription, text output)
-onboarding_ui.ahk        # First-run setup wizard
-settings_ui.ahk          # Settings panel
-config.example.json      # Default configuration template
-dictionary.json          # Custom word mappings
-setup.iss                # Inno Setup installer script
-build_release.ps1        # Build automation
-record.bat               # FFmpeg recording helper
-gui/
-  onboarding.html         # Onboarding wizard UI
-  settings.html           # Settings panel UI
-  settings.css            # Settings styles
-  styles.css              # Shared styles
-  assets/                 # Icons and logos
-lib/
-  WebView2.ahk            # WebView2 integration
-  WebView2Loader.dll      # WebView2 native loader
-  web-overlay.ahk         # Recording overlay
-  GDI.ahk                 # Graphics helpers
-  JSON.ahk                # JSON parser
-  ComVar.ahk              # COM variant helpers
-  Promise.ahk             # Async helpers
-sounds/
-  start.wav               # Recording start sound
-  stop.wav                # Recording stop sound
-  error.wav               # Error sound
-```
-
-## Building from Source
-
-### Prerequisites
-
-- [AutoHotkey v2.0](https://www.autohotkey.com/) (64-bit)
-- [Inno Setup 6](https://jrsoftware.org/isinfo.php)
-- [FFmpeg](https://www.gyan.dev/ffmpeg/builds/) (essentials build)
-- [WebView2 Evergreen Bootstrapper](https://developer.microsoft.com/en-us/microsoft-edge/webview2/)
-
-### Build Steps
-
-1. Download FFmpeg essentials and place `ffmpeg.exe` in `ffmpeg/`
-2. Download WebView2 bootstrapper and place it in `redist/`
-3. Run the build script:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File build_release.ps1
-   ```
-4. The installer will be created in `installer/`
-
-## Tech Stack
-
-- **AutoHotkey v2.0** - Application framework and hotkey management
-- **WebView2** - Modern HTML/CSS/JS UI rendering
-- **Groq API** - Speech-to-text (Whisper) and text cleanup (Llama)
-- **FFmpeg** - Audio capture from any device via DirectShow
-- **Windows MCI** - Fallback audio recording for default device
-- **Inno Setup** - Windows installer packaging
+Found a bug or have a suggestion? [Open an issue](https://github.com/lucid4life/QuickSay/issues) and let us know.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
-
-## Acknowledgments
-
-- [Groq](https://groq.com/) for lightning-fast AI inference
-- [AutoHotkey](https://www.autohotkey.com/) community
-- [FFmpeg](https://ffmpeg.org/) project
+MIT License
