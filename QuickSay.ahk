@@ -981,7 +981,10 @@ TranscribeFile(*) {
                 SafePrompt := StrReplace(SafePrompt, "`r", "")
                 SafePrompt := StrReplace(SafePrompt, "`t", " ")
 
-                GroqPayload := '{"model": "' . safeLlmModel . '", "temperature": 0.3, "messages": [{"role": "system", "content": "' . SafePrompt . '"}, {"role": "user", "content": "<transcript>' . SafeText . '</transcript>"}]}'
+                GroqPayload := '{"model": "' . safeLlmModel . '", "temperature": 0.3, "include_reasoning": false, "reasoning_effort": "low", "messages": [{"role": "system", "content": "' . SafePrompt . '"}, {"role": "user", "content": "<transcript>' . SafeText . '</transcript>"}]}'
+
+                if (dbg)
+                    try FileAppend("[" A_Now "] LLM cleanup using model: " . llmModel . "`n", ScriptDir . "\debug_log.txt")
 
                 GroqLLMURL := "https://api.groq.com/openai/v1/chat/completions"
                 llmResult := HttpPostJson(GroqLLMURL, GroqAPIKey, GroqPayload, 30)
@@ -3022,7 +3025,10 @@ StopAndProcess() {
                     SafePrompt := StrReplace(SafePrompt, "`r", "")
                     SafePrompt := StrReplace(SafePrompt, "`t", " ")
 
-                    GroqPayload := '{"model": "' . safeLlmModel . '", "temperature": 0.3, "messages": [{"role": "system", "content": "' . SafePrompt . '"}, {"role": "user", "content": "<transcript>' . SafeText . '</transcript>"}]}'
+                    GroqPayload := '{"model": "' . safeLlmModel . '", "temperature": 0.3, "include_reasoning": false, "reasoning_effort": "low", "messages": [{"role": "system", "content": "' . SafePrompt . '"}, {"role": "user", "content": "<transcript>' . SafeText . '</transcript>"}]}'
+
+                    if (dbg)
+                        FileAppend("[" A_Now "] LLM cleanup using model: " . llmModel . "`n", ScriptDir . "\debug_log.txt")
 
                     ; Use secure WinHTTP COM instead of curl (API key never on command line)
                     GroqLLMURL := "https://api.groq.com/openai/v1/chat/completions"
