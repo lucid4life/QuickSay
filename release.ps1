@@ -660,6 +660,36 @@ if (Test-Path $gsFile) {
     Write-Warn "beta/getting-started.astro not found — skipping"
 }
 
+# ── BetaSignupForm.astro — download link ───────────────────────────────────
+$signupFormFile = Join-Path $websiteSrcDir "components\beta\BetaSignupForm.astro"
+if (Test-Path $signupFormFile) {
+    $sfContent = Get-Content $signupFormFile -Raw -Encoding UTF8
+    if ($sfContent -match 'href="/downloads/QuickSay_Beta_v[\d.]+_Setup\.exe"') {
+        $sfContent = $sfContent -replace 'href="/downloads/QuickSay_Beta_v[\d.]+_Setup\.exe"', "href=`"/downloads/QuickSay_Beta_v${shortVer}_Setup.exe`""
+        [System.IO.File]::WriteAllText($signupFormFile, $sfContent, [System.Text.UTF8Encoding]::new($false))
+        Write-OK "BetaSignupForm.astro — download link → QuickSay_Beta_v${shortVer}_Setup.exe"
+    } else {
+        Write-Warn "BetaSignupForm.astro — download link pattern not found"
+    }
+} else {
+    Write-Warn "BetaSignupForm.astro not found — skipping"
+}
+
+# ── beta-welcome.html — email download link ────────────────────────────────
+$welcomeEmailFile = Join-Path $websiteSrcDir "content\emails\beta-welcome.html"
+if (Test-Path $welcomeEmailFile) {
+    $weContent = Get-Content $welcomeEmailFile -Raw -Encoding UTF8
+    if ($weContent -match 'quicksay\.app/downloads/QuickSay_Beta_v[\d.]+_Setup\.exe') {
+        $weContent = $weContent -replace 'quicksay\.app/downloads/QuickSay_Beta_v[\d.]+_Setup\.exe', "quicksay.app/downloads/QuickSay_Beta_v${shortVer}_Setup.exe"
+        [System.IO.File]::WriteAllText($welcomeEmailFile, $weContent, [System.Text.UTF8Encoding]::new($false))
+        Write-OK "beta-welcome.html — email download link → QuickSay_Beta_v${shortVer}_Setup.exe"
+    } else {
+        Write-Warn "beta-welcome.html — email download link pattern not found"
+    }
+} else {
+    Write-Warn "beta-welcome.html not found — skipping"
+}
+
 # ── beta/changelog.astro — prepend new entry to entries array ────────────────
 $betaChangelogFile = Join-Path $websiteSrcDir "pages\beta\changelog.astro"
 if (Test-Path $betaChangelogFile) {
