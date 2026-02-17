@@ -509,6 +509,45 @@ if (-not $SkipCompile) {
 }
 
 # =============================================================================
+# STEP 5b: Upload installer to R2 for website downloads
+# =============================================================================
+if (-not $SkipCompile) {
+    Write-Step "STEP 5b: Uploading installer to Cloudflare R2"
+
+    $r2InstallerName = "QuickSay_Beta_v${shortVer}_Setup.exe"
+    $localInstallerPath = Join-Path $installerDir $r2InstallerName
+    if (-not (Test-Path $localInstallerPath)) {
+        # Fallback: try the displayVer naming
+        $localInstallerPath = Join-Path $installerDir "QuickSay_Beta_${displayVer}_Setup.exe"
+    }
+
+    if (Test-Path $localInstallerPath) {
+        $npxCmd = Get-Command npx -ErrorAction SilentlyContinue
+        if ($npxCmd) {
+            Push-Location $websiteDir
+            $oldEAP = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            npx wrangler r2 object put "quicksay-downloads/$r2InstallerName" --file="$localInstallerPath" --content-type="application/x-msdownload" --remote 2>&1 | Out-Null
+            $r2Result = $LASTEXITCODE
+            $ErrorActionPreference = $oldEAP
+            Pop-Location
+
+            if ($r2Result -eq 0) {
+                Write-OK "R2 upload: $r2InstallerName"
+            } else {
+                Write-Warn "R2 upload failed — upload manually: npx wrangler r2 object put quicksay-downloads/$r2InstallerName --file=$localInstallerPath --remote"
+            }
+        } else {
+            Write-Warn "npx not found — skipping R2 upload. Upload manually."
+        }
+    } else {
+        Write-Warn "Installer not found for R2 upload — skipping"
+    }
+} else {
+    Write-Host "   [SKIP] R2 upload (--SkipCompile)" -ForegroundColor Gray
+}
+
+# =============================================================================
 # STEP 6: Create/update Website version.json for auto-update
 # =============================================================================
 Write-Step "STEP 6: Creating version.json for auto-update"
@@ -606,6 +645,16 @@ if (Test-Path $gsFile) {
         Write-OK "beta/getting-started.astro — Beta v$semVer"
     } else {
         Write-Warn "beta/getting-started.astro — version pattern not found"
+    }
+
+    # Update download link to match versioned installer filename
+    $gsContent = Get-Content $gsFile -Raw -Encoding UTF8
+    if ($gsContent -match 'href="/downloads/QuickSay_Beta_v[\d.]+_Setup\.exe"') {
+        $gsContent = $gsContent -replace 'href="/downloads/QuickSay_Beta_v[\d.]+_Setup\.exe"', "href=`"/downloads/QuickSay_Beta_v${shortVer}_Setup.exe`""
+        [System.IO.File]::WriteAllText($gsFile, $gsContent, [System.Text.UTF8Encoding]::new($false))
+        Write-OK "beta/getting-started.astro — download link → QuickSay_Beta_v${shortVer}_Setup.exe"
+    } else {
+        Write-Warn "beta/getting-started.astro — download link pattern not found"
     }
 } else {
     Write-Warn "beta/getting-started.astro not found — skipping"
@@ -943,7 +992,7 @@ if ($Changelog -ne "") {
 Write-Host ""
 Write-Host "   Website updated:" -ForegroundColor White
 Write-Host "     - Footer.astro          (version link)" -ForegroundColor Gray
-Write-Host "     - getting-started.astro  (version badge)" -ForegroundColor Gray
+Write-Host "     - getting-started.astro  (version badge + download link)" -ForegroundColor Gray
 Write-Host "     - beta/changelog.astro  (new entry)" -ForegroundColor Gray
 Write-Host "     - changelog/v$semVer.mdx (release notes)" -ForegroundColor Gray
 Write-Host "     - version.json          (auto-update)" -ForegroundColor Gray
@@ -958,6 +1007,7 @@ if (-not $SkipCompile) {
     if (-not $SkipSign) {
         Write-Host "     (All signed with Azure Trusted Signing)" -ForegroundColor Gray
     }
+    Write-Host "     - R2: QuickSay_Beta_v${shortVer}_Setup.exe (website download)" -ForegroundColor Gray
 }
 
 if (-not $SkipGitHub -and -not $SkipCompile) {
