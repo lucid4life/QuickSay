@@ -142,7 +142,12 @@ if ($currentVersion -eq $semVer) {
 }
 
 if (-not $DryRun) {
-    $confirm = Read-Host "Proceed with release $currentVersion -> ${displayVer}? (y/N)"
+    # Support piped input (e.g., echo y | release.ps1) and interactive prompts
+    if ([Console]::IsInputRedirected) {
+        $confirm = [Console]::In.ReadLine()
+    } else {
+        $confirm = Read-Host "Proceed with release $currentVersion -> ${displayVer}? (y/N)"
+    }
     if ($confirm -ne 'y') {
         Write-Host "Aborted." -ForegroundColor Yellow
         exit 0
@@ -692,47 +697,123 @@ if (Test-Path $mdxFile) {
     }
 }
 
-# ── Git commit & push website changes ────────────────────────────────────────
-Write-Step "STEP 7b: Committing and deploying website changes"
+# ── Git commit & push changes ─────────────────────────────────────────────
+Write-Step "STEP 7b: Committing and deploying changes"
 
-Push-Location $websiteDir
+# Find the git repo that has a remote configured
+# Development/ has the GitHub remote; Website/ is a subdirectory of the parent repo
+# which may not have a remote. Use the Development repo if it's the one with the remote.
+$gitRepoDir = $null
+$gitWebPrefix = ""
 
-# Check if there are changes to commit
-$gitStatus = git status --porcelain 2>&1
-if ($gitStatus) {
-    git add `
-        "public/version.json" `
-        "public/pad.xml" `
-        "src/components/Footer.astro" `
-        "src/pages/beta/getting-started.astro" `
-        "src/pages/beta/changelog.astro" `
-        "src/content/changelog/v$semVer.mdx" `
-        2>&1 | Out-Null
+Push-Location $devDir
+$devRemote = git remote get-url origin 2>$null
+Pop-Location
 
-    git commit -m "release: $displayVer" 2>&1 | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-        Write-OK "Committed website changes"
+if ($devRemote) {
+    # Development repo has a remote — check if website is reachable from its root
+    Push-Location $devDir
+    $devRoot = (git rev-parse --show-toplevel 2>$null)
+    Pop-Location
 
-        git push 2>&1 | Out-Null
-        if ($LASTEXITCODE -eq 0) {
-            Write-OK "Pushed to remote (deploy triggered)"
-        } else {
-            Write-Warn "Git push failed — push manually: cd $websiteDir && git push"
+    if ($devRoot) {
+        $devRoot = $devRoot.Trim().Replace('/', '\')
+        $relWeb = $websiteDir.Replace($devRoot, '').TrimStart('\').Replace('\', '/')
+        if ($relWeb -ne $websiteDir) {
+            $gitRepoDir = $devRoot
+            $gitWebPrefix = $relWeb
         }
-    } else {
-        Write-Warn "Git commit failed — commit manually"
     }
-} else {
-    Write-Host "   No website changes to commit" -ForegroundColor Gray
 }
 
-Pop-Location
+# Fallback: try the Website directory itself
+if (-not $gitRepoDir) {
+    Push-Location $websiteDir
+    $webRemote = git remote get-url origin 2>$null
+    Pop-Location
+    if ($webRemote) {
+        $gitRepoDir = $websiteDir
+        $gitWebPrefix = ""
+    }
+}
+
+# Fallback: try parent project root
+if (-not $gitRepoDir) {
+    Push-Location $projectRoot
+    $rootRemote = git remote get-url origin 2>$null
+    Pop-Location
+    if ($rootRemote) {
+        $gitRepoDir = $projectRoot
+        $gitWebPrefix = "Website"
+    }
+}
+
+if (-not $gitRepoDir) {
+    Write-Warn "No git remote found for website files — commit and push manually"
+} else {
+    Push-Location $gitRepoDir
+
+    # Build file paths relative to the git repo root
+    $webFiles = @()
+    $prefixSlash = if ($gitWebPrefix) { "$gitWebPrefix/" } else { "" }
+    foreach ($f in @("public/version.json", "public/pad.xml", "src/components/Footer.astro",
+                     "src/pages/beta/getting-started.astro", "src/pages/beta/changelog.astro",
+                     "src/content/changelog/v$semVer.mdx")) {
+        $webFiles += "${prefixSlash}${f}"
+    }
+
+    # Stage files — redirect stderr to suppress CRLF warnings (git writes them to stderr
+    # and PowerShell's $ErrorActionPreference=Stop treats any stderr output as a terminating error)
+    $oldEAP = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    git add $webFiles 2>$null
+    $addResult = $LASTEXITCODE
+    $ErrorActionPreference = $oldEAP
+
+    if ($addResult -ne 0) {
+        Write-Warn "git add returned non-zero — some files may not have been staged"
+    }
+
+    $oldEAP = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    git commit -m "release: $displayVer" 2>$null | Out-Null
+    $commitResult = $LASTEXITCODE
+    $ErrorActionPreference = $oldEAP
+
+    if ($commitResult -eq 0) {
+        Write-OK "Committed website changes"
+
+        $ErrorActionPreference = "Continue"
+        git push 2>$null | Out-Null
+        $pushResult = $LASTEXITCODE
+        $ErrorActionPreference = "Stop"
+
+        if ($pushResult -eq 0) {
+            Write-OK "Pushed to remote (deploy triggered)"
+        } else {
+            Write-Warn "Git push failed — push manually: cd $gitRepoDir && git push"
+        }
+    } else {
+        # Check if nothing to commit
+        $statusCheck = git status --porcelain 2>$null
+        if (-not $statusCheck) {
+            Write-Host "   No website changes to commit (already up-to-date)" -ForegroundColor Gray
+        } else {
+            Write-Warn "Git commit failed — commit manually from: $gitRepoDir"
+        }
+    }
+
+    Pop-Location
+}
 
 # =============================================================================
 # STEP 8: Create GitHub Release and Upload Installer
 # =============================================================================
 if (-not $SkipGitHub -and -not $SkipCompile) {
     Write-Step "STEP 8: Creating GitHub release and uploading installer"
+
+    # Ensure we're in the Development directory (where the GitHub remote is)
+    Push-Location $devDir
 
     # Check if gh CLI is installed
     $ghInstalled = $null -ne (Get-Command gh -ErrorAction SilentlyContinue)
@@ -816,6 +897,8 @@ if (-not $SkipGitHub -and -not $SkipCompile) {
             }
         }
     }
+
+    Pop-Location
 } elseif ($SkipGitHub) {
     Write-Step "STEP 8: Skipping GitHub release (--SkipGitHub)"
 } else {
