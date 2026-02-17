@@ -2,7 +2,7 @@
 ; Beta v1.8 Release — Visual overhaul + installer branding
 
 #define MyAppName "QuickSay Beta"
-#define MyAppVersion "1.8.0"
+#define MyAppVersion "1.8.1"
 #define MyAppVerName "QuickSay Beta v1.8"
 #define MyAppPublisher "QuickSay"
 #define MyAppURL "https://quicksay.app"

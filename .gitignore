@@ -1,6 +1,25 @@
-# Ignore everything except README, .gitignore, and docs
-*
-!.gitignore
-!README.md
-!docs/
-!docs/**
+# Compiled binaries and runtime
+*.exe
+*.dll
+64bit/
+redist/
+
+# User data and runtime files
+config.json
+config.json.bak*
+data/
+debug_log.txt
+hotkey_debug.log
+raw.wav
+response.txt
+clean_response.txt
+payload.json
+ffmpeg_stdout.txt
+
+# Build and signing
+signing/
+installer/output/
+
+# Lib runtime binaries
+lib/64bit/
+lib/*.dll

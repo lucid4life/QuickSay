@@ -340,6 +340,20 @@ Update-FileVersion $issFile `
     $shortVer `
     "setup.iss — WelcomeLabel2"
 
+# ── docs/LICENSE_AGREEMENT.rtf ──────────────────────────────────────────────
+$licenseRtf = Join-Path $devDir "docs\LICENSE_AGREEMENT.rtf"
+
+Update-FileVersion $licenseRtf `
+    '(?<=Version )\d+\.\d+(\.\d+)?' `
+    $semVer `
+    "LICENSE_AGREEMENT.rtf — version number"
+
+$monthYear = (Get-Date).ToString("MMMM yyyy")
+Update-FileVersion $licenseRtf `
+    '(?<=Version \d+\.\d+(\.\d+)? \| )\w+ \d{4}' `
+    $monthYear `
+    "LICENSE_AGREEMENT.rtf — date ($monthYear)"
+
 # ── data/changelog.json (add new version entry) ─────────────────────────────
 if ($Changelog -ne "") {
     Write-Step "Updating changelog.json"
@@ -919,6 +933,7 @@ Write-Host "     - settings_ui.ahk       (6 locations)" -ForegroundColor Gray
 Write-Host "     - lib/settings-ui.ahk   (3 locations)" -ForegroundColor Gray
 Write-Host "     - gui/settings.html     (1 location)" -ForegroundColor Gray
 Write-Host "     - setup.iss             (6 locations)" -ForegroundColor Gray
+Write-Host "     - LICENSE_AGREEMENT.rtf (2 locations)" -ForegroundColor Gray
 Write-Host "     - version.json          (created)" -ForegroundColor Gray
 Write-Host "     - pad.xml              (updated)" -ForegroundColor Gray
 if ($Changelog -ne "") {

@@ -1,8 +1,8 @@
 ;@Ahk2Exe-SetCompanyName QuickSay
 ;@Ahk2Exe-SetDescription QuickSay Beta v1.8 Setup
-;@Ahk2Exe-SetFileVersion 1.8.0.0
+;@Ahk2Exe-SetFileVersion 1.8.1.0
 ;@Ahk2Exe-SetProductName QuickSay Beta v1.8
-;@Ahk2Exe-SetProductVersion 1.8.0.0
+;@Ahk2Exe-SetProductVersion 1.8.1.0
 ;@Ahk2Exe-SetCopyright Copyright (c) 2024-2026 QuickSay
 ;@Ahk2Exe-SetOrigFilename QuickSay-Setup.exe
 ;@Ahk2Exe-SetMainIcon gui\assets\icon.ico
