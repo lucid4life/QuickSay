@@ -1,0 +1,3626 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QuickSay Settings</title>
+    <!-- Fonts: uses system fonts (Segoe UI, Cascadia Code) — no external requests -->
+    <link rel="stylesheet" href="settings.css">
+    <style>
+        .search-highlight {
+            animation: searchHighlight 2s ease;
+            border-radius: 8px;
+        }
+        @keyframes searchHighlight {
+            0%, 30% { box-shadow: 0 0 0 2px var(--accent-primary), 0 0 12px rgba(34, 211, 197, 0.3); }
+            100% { box-shadow: none; }
+        }
+
+        /* F74/F75/F80: Dark theme for native controls */
+        select, select option {
+            background-color: var(--bg-surface);
+            color: var(--text-primary);
+            border-color: var(--border-subtle);
+        }
+
+        /* Scrollbar styling for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-subtle);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-quaternary);
+        }
+
+        /* F10: Sidebar minimum width */
+        .sidebar {
+            min-width: 180px;
+        }
+
+        /* F32: Filter bar responsive behavior */
+        .filter-bar {
+            flex-wrap: wrap;
+        }
+        .search-wrapper {
+            min-width: 0;
+        }
+        .search-wrapper .search-input {
+            min-width: 120px;
+            width: 100%;
+        }
+
+        /* F13: Distinct circular styling for radio buttons */
+        .toggle-switch input[type="radio"] + .toggle-slider {
+            border-radius: 22px;
+        }
+        .toggle-switch input[type="radio"] + .toggle-slider:before {
+            border-radius: 50%;
+        }
+
+        /* F21: Section divider for Data & Debugging on Processing tab */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 28px 0 8px;
+            color: var(--text-quaternary);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-subtle);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" role="navigation" aria-label="Settings navigation">
+        <div class="logo">
+            <img src="assets/logo_128.png" alt="QuickSay">
+            <span>QuickSay</span>
+        </div>
+        <input type="text" class="sidebar-search" placeholder="Search settings..." id="sidebarSearch" aria-label="Search settings">
+
+        <div class="sidebar-section-label">Settings</div>
+        <button class="tab-btn active" data-tab="general" aria-current="page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            General
+        </button>
+        <button class="tab-btn" data-tab="audio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            Audio
+        </button>
+        <button class="tab-btn" data-tab="processing">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"/></svg>
+            Processing
+        </button>
+        <button class="tab-btn" data-tab="modes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            Modes
+        </button>
+        <button class="tab-btn" data-tab="dictionary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Dictionary <span class="tab-badge" id="dictCountBadge"></span>
+        </button>
+
+        <div class="sidebar-section-label">Data</div>
+        <button class="tab-btn" data-tab="view-history">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            History
+        </button>
+        <button class="tab-btn" data-tab="view-statistics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Statistics
+        </button>
+
+        <div class="sidebar-section-label">App</div>
+        <button class="tab-btn" data-tab="about">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            About
+            <span class="whatsnew-dot" id="whatsNewDot"></span>
+        </button>
+
+        <div class="sidebar-tour-replay">
+            <a href="#" onclick="startGuidedTour(); return false;" class="sidebar-tour-replay-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                Replay tour
+            </a>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" role="main" aria-label="Settings content">
+
+        <!-- GENERAL TAB -->
+        <div id="general" class="tab-content active">
+            <h2>General Settings</h2>
+
+            <!-- API KEY -->
+            <div class="section">
+                <h3>API Key</h3>
+                <label>API Key <a href="#" onclick="postToAHK('openUrl', 'https://console.groq.com/keys'); return false;" class="sub-text" style="text-decoration: none; margin-left: 8px; display: inline; margin-top: 0;">Get your free Groq key</a></label>
+                <div class="flex-row gap-sm">
+                    <div class="password-wrapper flex-1">
+                        <input type="password" id="groqApiKey" placeholder="gsk_...">
+                        <span class="toggle-password" id="btnTogglePass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                    </div>
+                    <button class="btn btn-primary btn-sm nowrap flex-shrink-0" id="btnTestApi">Test</button>
+                </div>
+                <div class="status-text" id="apiStatusMessage"></div>
+            </div>
+
+            <!-- HOTKEY -->
+            <div class="section-divider">Hotkey</div>
+            <div class="section">
+                <h3>Activation Hotkey</h3>
+                <div class="hotkey-options">
+                    <!-- Default Option -->
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="radio" name="hotkey-choice" class="hotkey-radio" value="default" id="hkDefault">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="hkDefault" class="cursor-pointer">
+                            <div class="toggle-label-primary">
+                                Ctrl + Win
+                                <span class="badge" style="margin-left: 8px; vertical-align: middle;">RECOMMENDED</span>
+                            </div>
+                            <span class="sub-text">Recommended for seamless system-wide access</span>
+                        </label>
+                    </div>
+
+                    <!-- Custom Option -->
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="radio" name="hotkey-choice" class="hotkey-radio" value="custom" id="hkCustom">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="hkCustom" class="cursor-pointer">
+                            <div class="toggle-label-primary">Custom</div>
+                            <span class="sub-text">Set your own hotkey combination</span>
+                        </label>
+                    </div>
+
+                    <!-- Custom Controls -->
+                    <div id="customHotkeyControls" class="custom-hotkey-controls">
+                        <div class="hotkey-display">
+                            <input type="text" id="hotkeyDisplay" readonly placeholder="No hotkey set"
+                                style="width: 240px; margin-right: 10px;">
+                            <button class="btn btn-secondary-orange nowrap" id="btnChangeHotkey">Change</button>
+                            <button class="btn btn-secondary btn-sm nowrap" id="btnTestCurrentHotkey" style="margin-left: 6px;">Test</button>
+                        </div>
+                        <div class="status-text" id="hotkeyTestMessage"></div>
+                    </div>
+                </div>
+
+                <!-- Toggle Mode -->
+                <div class="toggle-item mt-md" id="stickyModeToggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="stickyMode">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="stickyMode">
+                        <div class="toggle-label-primary">Toggle Mode</div>
+                        <span class="sub-text">Tap hotkey to start, tap again to stop (instead of hold)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- BEHAVIOR -->
+            <div class="section-divider">Behavior</div>
+            <div class="section">
+                <h3>Behavior</h3>
+                <div class="flex-col gap-lg">
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoPaste" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="autoPaste">
+                            <div class="toggle-label-primary">Auto-paste after recording</div>
+                            <span class="sub-text">Automatically paste transcribed text. When off, text is copied to clipboard only.</span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="showOverlay">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="showOverlay">Show overlay during recording</label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="showWidget">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="showWidget">
+                            <div class="toggle-label-primary">Show floating widget</div>
+                            <span class="sub-text">Small floating button for quick recording access</span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="launchAtStartup">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="launchAtStartup">Launch at Windows startup</label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="accessibilityMode">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="accessibilityMode">
+                            <div class="toggle-label-primary">Accessibility Mode</div>
+                            <span class="sub-text">Extended recording timeout (120s) and larger visual indicators for RSI users</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FEEDBACK -->
+            <div class="section-divider">Feedback</div>
+            <div class="section">
+                <h3>Sound</h3>
+                <div class="toggle-item">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="playSounds">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="playSounds">
+                        <div class="toggle-label-primary">Play sound on start/stop</div>
+                        <span class="sub-text">Audio feedback when recording starts and stops. Configure the sound theme in Audio settings.</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- LANGUAGE -->
+            <div class="section-divider">Language</div>
+            <div class="section">
+                <h3>Dictation Language</h3>
+                <label>Language</label>
+                <select id="language" style="width: 280px;">
+                    <option value="en">English</option>
+                    <option value="es">Spanish (Espa&#241;ol)</option>
+                    <option value="fr">French (Fran&#231;ais)</option>
+                    <option value="de">German (Deutsch)</option>
+                    <option value="it">Italian (Italiano)</option>
+                    <option value="pt">Portuguese (Portugu&#234;s)</option>
+                    <option value="nl">Dutch (Nederlands)</option>
+                    <option value="ru">Russian (&#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;)</option>
+                    <option value="zh">Chinese (&#20013;&#25991;)</option>
+                    <option value="ja">Japanese (&#26085;&#26412;&#35486;)</option>
+                    <option value="ko">Korean (&#54620;&#44397;&#50612;)</option>
+                    <option value="ar">Arabic (&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;)</option>
+                    <option value="hi">Hindi (&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;)</option>
+                    <option value="pl">Polish (Polski)</option>
+                    <option value="tr">Turkish (T&#252;rk&#231;e)</option>
+                    <option value="vi">Vietnamese (Ti&#7871;ng Vi&#7879;t)</option>
+                    <option value="th">Thai (&#3616;&#3634;&#3625;&#3634;&#3652;&#3607;&#3618;)</option>
+                    <option value="id">Indonesian (Bahasa Indonesia)</option>
+                    <option value="sv">Swedish (Svenska)</option>
+                    <option value="da">Danish (Dansk)</option>
+                    <option value="no">Norwegian (Norsk)</option>
+                    <option value="fi">Finnish (Suomi)</option>
+                    <option value="cs">Czech (&#268;e&#353;tina)</option>
+                    <option value="ro">Romanian (Rom&#226;n&#259;)</option>
+                    <option value="uk">Ukrainian (&#1059;&#1082;&#1088;&#1072;&#1111;&#1085;&#1089;&#1100;&#1082;&#1072;)</option>
+                </select>
+                <span class="sub-text mt-sm">The language QuickSay listens for when you dictate.</span>
+            </div>
+
+            <!-- DATA & STORAGE -->
+            <div class="section-divider">Data &amp; Storage</div>
+            <div class="section">
+                <h3>Backup</h3>
+                <p class="sub-text" style="margin-bottom: 12px;">Export your settings to a file or import from a previous backup.</p>
+                <div class="flex-row gap-lg">
+                    <button class="btn btn-secondary" onclick="postToAHK('exportConfig')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export Settings
+                    </button>
+                    <button class="btn btn-secondary" onclick="postToAHK('importConfig')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:middle"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Import Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUDIO TAB -->
+        <div id="audio" class="tab-content">
+            <h2>Audio Settings</h2>
+            <div class="section">
+                <h3>Device Selection</h3>
+                <label>Microphone Device</label>
+                <div class="flex-row gap-lg">
+                    <select id="audioDevice" class="flex-1">
+                        <option value="Default">Default - System Device</option>
+                    </select>
+                    <button class="btn btn-secondary-orange nowrap" id="btnRefreshAudio">Refresh</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Recording Quality</h3>
+                <div class="flex-col gap-lg">
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="radio" name="recording-quality" class="quality-radio" data-quality="high" id="qualityHigh">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="qualityHigh">
+                            <div class="toggle-label-primary">High</div>
+                            <span class="sub-text">Best accuracy for complex speech — slower upload</span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="radio" name="recording-quality" class="quality-radio" data-quality="medium" id="qualityMedium">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="qualityMedium">
+                            <div class="toggle-label-primary">Medium</div>
+                            <span class="sub-text">Recommended — good balance of speed and accuracy</span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="radio" name="recording-quality" class="quality-radio" data-quality="low" id="qualityLow">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="qualityLow">
+                            <div class="toggle-label-primary">Low</div>
+                            <span class="sub-text">Fastest upload — may reduce accuracy for complex speech</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Sound Theme</h3>
+                <p class="sub-text" style="margin-bottom: 12px;">Choose a sound theme for recording start, stop, and error alerts.</p>
+                <div class="sound-theme-row">
+                    <select id="soundTheme" class="flex-1">
+                        <option value="default">Default</option>
+                        <option value="subtle">Subtle</option>
+                        <option value="click">Click</option>
+                        <option value="crystal">Crystal</option>
+                        <option value="neon">Neon</option>
+                        <option value="bloom">Bloom</option>
+                        <option value="silent">Silent</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="previewSound()" title="Preview current theme">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.08"></path></svg>
+                        Preview
+                    </button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Storage</h3>
+                <div class="toggle-item">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="saveAudioRecordings">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="saveAudioRecordings">Save audio recordings <span class="sub-text" style="display:inline; margin:0;">Keep recordings for troubleshooting issues</span></label>
+                </div>
+                <div class="storage-controls" id="storageControls">
+                    <span class="storage-label">Keep last:</span>
+                    <select class="storage-select" id="keepLastRecordings">
+                        <option value="10">10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span class="storage-label">recordings</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODES TAB -->
+        <div id="modes" class="tab-content">
+            <h2>Custom Modes</h2>
+            <p class="hint-text">Modes change how QuickSay cleans up your dictation. Each mode uses a different AI prompt tailored for specific use cases.</p>
+            <div id="modeList" class="mode-list"></div>
+            <button class="btn btn-primary mt-lg" id="btnAddMode">+ Add Custom Mode</button>
+        </div>
+
+        <!-- DICTIONARY TAB -->
+        <div id="dictionary" class="tab-content">
+            <h2>Custom Dictionary</h2>
+            <div class="search-wrapper">
+                <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                <input type="text" class="search-input" placeholder="Search terms..." id="dictSearch">
+            </div>
+            <p class="hint-text">Tip: Select corrected text anywhere and press <kbd class="kbd">Ctrl+Shift+D</kbd> to auto-learn</p>
+            <div id="dictBulkBar" class="dict-bulk-bar" style="display:none;">
+                <span id="dictBulkCount">0 selected</span>
+                <button class="btn btn-sm btn-danger" onclick="bulkDeleteDict()">Delete Selected</button>
+            </div>
+            <div class="dict-container" id="dictList"></div>
+            <div class="flex-row gap-md mt-lg">
+                <button class="btn btn-primary" id="btnAddEntryModal">+ Add Entry</button>
+                <button class="btn btn-secondary-orange" id="btnImportDict">Import</button>
+                <button class="btn btn-secondary-orange" id="btnExportDict">Export</button>
+            </div>
+        </div>
+
+        <!-- PROCESSING TAB -->
+        <div id="processing" class="tab-content">
+            <h2>Processing Settings</h2>
+            <div class="section">
+                <h3>Text Processing</h3>
+                <div class="flex-col gap-lg">
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enableLLMCleanup">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="enableLLMCleanup">AI text cleanup <span class="sub-text" style="display:inline; margin:0;">Fix grammar, punctuation, and remove filler words</span></label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoRemoveFillers">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="autoRemoveFillers">Auto-remove fillers (um, uh)</label>
+                    </div>
+
+                    <div class="toggle-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="smartPunctuation">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <label for="smartPunctuation">Smart punctuation <span class="sub-text" style="display:inline; margin:0;">Automatically adds proper punctuation marks. When enabled, you can also say punctuation names like "period", "comma", "question mark".</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Context-Aware Modes</h3>
+                <div class="toggle-item">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="contextAwareModes">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="contextAwareModes">Auto-detect app context
+                        <span class="sub-text" style="display:inline; margin:0;">Automatically use the best mode for the active app (e.g., Code mode in VS Code, Email mode in Gmail)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section-divider">Data &amp; Debugging</div>
+
+            <div class="section">
+                <h3>History</h3>
+                <label>Keep history for</label>
+                <div class="flex-row gap-lg">
+                    <select id="historyRetention" style="width: 160px;">
+                        <option value="100">100 entries</option>
+                        <option value="500">500 entries</option>
+                        <option value="0">Unlimited</option>
+                    </select>
+                    <button class="btn btn-danger" id="btnClearHistory">Clear History</button>
+                </div>
+                <div class="sub-text mt-md" id="historyCountDisplay">Loading...</div>
+            </div>
+
+            <div class="section">
+                <h3>Debug</h3>
+                <div class="toggle-item">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="debugLogging">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="debugLogging">Enable debug logging</label>
+                </div>
+                <button class="btn btn-secondary mt-md" id="btnViewLogs">View Logs Folder</button>
+            </div>
+
+            <div class="section" id="voiceCommandsSection">
+                <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleVoiceCommands()">
+                    <h3 style="margin:0;">Voice Commands Reference</h3>
+                    <span id="voiceCmdToggleIcon" style="color:var(--text-tertiary);font-size:18px;transition:transform 0.2s;">&#9662;</span>
+                </div>
+                <div id="voiceCmdContent" style="display:none;">
+                    <p class="sub-text" style="margin-bottom:12px;">Say these phrases while dictating to control text input</p>
+                    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                        <tr style="border-bottom:1px solid var(--border-subtle);"><th style="text-align:left;padding:6px 8px;color:var(--text-secondary);">Say</th><th style="text-align:left;padding:6px 8px;color:var(--text-secondary);">Action</th></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"period" / "full stop"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>.</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"comma"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>,</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"question mark"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>?</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"exclamation mark"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>!</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"colon"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>:</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"semicolon"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>;</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"dash"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>&mdash;</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"hyphen"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>-</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"open quote" / "close quote"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>&ldquo; &rdquo;</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"apostrophe"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>'</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"new line"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Line break</td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"new paragraph"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Double line break</td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"tab"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Tab character</td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"open paren" / "close paren"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>( )</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"open bracket" / "close bracket"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>[ ]</strong></td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-primary);font-family:'Cascadia Code',monospace;">"open brace" / "close brace"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Inserts <strong>{ }</strong></td></tr>
+                        <tr style="border-top:1px solid var(--border-subtle);"><td style="padding:5px 8px;color:var(--accent-secondary);font-family:'Cascadia Code',monospace;">"copy that"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Copy selection</td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-secondary);font-family:'Cascadia Code',monospace;">"paste that"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Paste clipboard</td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-secondary);font-family:'Cascadia Code',monospace;">"undo that"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Undo last action</td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-secondary);font-family:'Cascadia Code',monospace;">"redo that"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Redo last action</td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-secondary);font-family:'Cascadia Code',monospace;">"select all"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Select all text</td></tr>
+                        <tr><td style="padding:5px 8px;color:var(--accent-secondary);font-family:'Cascadia Code',monospace;">"delete that"</td><td style="padding:5px 8px;color:var(--text-tertiary);">Undo last input</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY TAB -->
+        <div id="view-history" class="tab-content">
+            <h2>Transcription History</h2>
+            <div class="search-wrapper">
+                <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                <input type="text" class="search-input" placeholder="Search history..." id="historySearch"
+                    onkeyup="searchHistory()">
+            </div>
+            <div class="filter-bar" id="historyFilterBar">
+                <select id="filterDate" onchange="applyHistoryFilters()">
+                    <option value="all">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
+                <select id="filterApp" onchange="applyHistoryFilters()">
+                    <option value="all">All Apps</option>
+                </select>
+                <div class="btn-group">
+                    <button class="btn btn-sm active" data-wc="all" onclick="setWordCountFilter(this)">All</button>
+                    <button class="btn btn-sm" data-wc="short" onclick="setWordCountFilter(this)">Short</button>
+                    <button class="btn btn-sm" data-wc="medium" onclick="setWordCountFilter(this)">Medium</button>
+                    <button class="btn btn-sm" data-wc="long" onclick="setWordCountFilter(this)">Long</button>
+                </div>
+                <span class="filter-count" id="filterCount"></span>
+            </div>
+            <div class="dict-container" id="historyList"></div>
+            <div class="flex-row gap-md mt-lg">
+                <span id="historyTabCount" class="sub-text ml-auto" style="margin-top: 0;"></span>
+                <button class="btn btn-secondary" id="btnExportHistory">Export</button>
+                <button class="btn btn-secondary-orange" id="btnRefreshHistory">Refresh</button>
+                <button class="btn btn-danger" id="btnClearFullHistory">Clear All</button>
+            </div>
+        </div>
+
+        <!-- STATISTICS TAB -->
+        <div id="view-statistics" class="tab-content">
+            <h2>Usage Statistics</h2>
+
+            <!-- Empty State -->
+            <div id="statsEmptyState" class="empty-state" style="display:none;">
+                <div class="empty-state-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                </div>
+                <div class="empty-state-heading">No usage data yet</div>
+                <div class="empty-state-text">Start dictating to see your stats</div>
+            </div>
+
+            <!-- Period Selector -->
+            <div class="stats-period-selector" id="statsPeriodSelector">
+                <button class="period-btn active" data-period="all" onclick="setStatsPeriod('all', this)">All Time</button>
+                <button class="period-btn" data-period="month" onclick="setStatsPeriod('month', this)">This Month</button>
+                <button class="period-btn" data-period="week" onclick="setStatsPeriod('week', this)">This Week</button>
+                <button class="period-btn" data-period="today" onclick="setStatsPeriod('today', this)">Today</button>
+            </div>
+
+            <div id="statsContent">
+                <!-- KPI Cards -->
+                <div class="section section-flush">
+                    <h3>Overview</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon-container stat-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                            <div class="stat-value" id="statTotalWords" style="color: var(--accent-primary);">0</div>
+                            <div class="stat-label">Total Words</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon-container stat-icon-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                            <div class="stat-value" id="statWPM" style="color: var(--accent-secondary);">0</div>
+                            <div class="stat-label">Avg WPM</div>
+                            <div class="sub-text mt-sm" id="statWPMContext"></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon-container stat-icon-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></div>
+                            <div class="stat-value" id="statStreak" style="color: var(--success);">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon-container stat-icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"/><path d="M6 8h.001"/><path d="M10 8h.001"/><path d="M14 8h.001"/><path d="M18 8h.001"/><path d="M8 12h.001"/><path d="M12 12h.001"/><path d="M16 12h.001"/><path d="M7 16h10"/></svg></div>
+                            <div class="stat-value" id="statKeystrokes" style="color: var(--accent-primary);">0</div>
+                            <div class="stat-label">Keystrokes Saved</div>
+                            <div class="sub-text mt-sm" id="statTypingTime"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7-Day Word Count Chart -->
+                <div class="section">
+                    <h3>7-Day Activity</h3>
+                    <div id="weeklyChart" class="chart-container"></div>
+                </div>
+
+                <!-- Dashboard Row: Time Saved + Most Used Apps -->
+                <div class="stats-dashboard-row">
+                    <div class="section flex-1">
+                        <h3>Time Saved</h3>
+                        <div class="stat-value stat-value-lg" id="statTimeSaved" style="color: var(--accent-secondary);">0m</div>
+                        <div class="sub-text" id="statTimeSavedDesc">Based on 40 WPM average typing speed</div>
+                        <div class="trend-indicator" id="statTrend"></div>
+                    </div>
+                    <div class="section flex-1">
+                        <h3>Most Used In</h3>
+                        <div id="topApps" class="flex-col gap-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="section">
+                    <h3>Achievements</h3>
+                    <div id="achievementsList" class="flex-col gap-md"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABOUT & LEGAL TAB -->
+        <div id="about" class="tab-content">
+            <h2>About QuickSay</h2>
+
+            <!-- What's New Section -->
+            <div class="section" id="whatsNewSection" style="display: none;">
+                <h3><span class="whatsnew-heading-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"/></svg></span>What's New</h3>
+                <div class="whatsnew-header">
+                    <span class="whatsnew-version" id="whatsNewVersion"></span>
+                    <span class="whatsnew-date" id="whatsNewDate"></span>
+                </div>
+                <ul class="whatsnew-list" id="whatsNewList"></ul>
+            </div>
+
+            <!-- App Info Section -->
+            <div class="section">
+                <h3>Application</h3>
+                <div class="about-app-info">
+                    <img src="assets/logo_128.png" alt="QuickSay">
+                    <div>
+                        <div class="about-app-name">QuickSay</div>
+                        <div class="about-app-version">Beta v1.8.0</div>
+                        <div class="about-app-desc">Voice-to-text for Windows</div>
+                        <div class="about-app-desc" style="color:var(--text-quaternary);font-style:italic;margin-top:2px;">Speak. QuickSay types.</div>
+                    </div>
+                </div>
+                <div class="flex-row gap-md">
+                    <button class="btn btn-secondary-orange" onclick="postToAHK('openUrl', 'https://quicksay.app')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Visit QuickSay.app
+                    </button>
+                    <button class="btn btn-secondary" onclick="postToAHK('openUrl', 'https://quicksay.app/changelog')">
+                        Check for Updates
+                    </button>
+                </div>
+            </div>
+
+            <!-- Keyboard Shortcuts Section -->
+            <div class="section">
+                <h3>Keyboard Shortcuts</h3>
+                <table class="shortcuts-table">
+                    <tbody>
+                        <tr>
+                            <td><kbd class="kbd" id="shortcutHotkey">Ctrl+Win</kbd> <span class="sub-text">(hold)</span></td>
+                            <td><span class="shortcut-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></span>Record and transcribe</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="kbd">Ctrl+Shift+D</kbd></td>
+                            <td><span class="shortcut-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>Learn word from selection (Dictionary)</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="kbd">Ctrl+S</kbd></td>
+                            <td><span class="shortcut-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></span>Save settings</td>
+                        </tr>
+                        <tr>
+                            <td><kbd class="kbd">Escape</kbd></td>
+                            <td><span class="shortcut-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Cancel recording / Close modal</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Legal Documents Section -->
+            <div class="section">
+                <h3>Legal</h3>
+                <div class="flex-col gap-md">
+                    <div class="legal-link-row" onclick="showLegalDoc('privacy')">
+                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                        <div class="flex-1">
+                            <div class="legal-title">Privacy Policy</div>
+                            <span class="sub-text">How QuickSay handles your data</span>
+                        </div>
+                        <span class="legal-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                    </div>
+                    <div class="legal-link-row" onclick="showLegalDoc('terms')">
+                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                        <div class="flex-1">
+                            <div class="legal-title">Terms of Service</div>
+                            <span class="sub-text">Usage terms and conditions</span>
+                        </div>
+                        <span class="legal-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                    </div>
+                    <div class="legal-link-row" onclick="showLegalDoc('licenses')">
+                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                        <div class="flex-1">
+                            <div class="legal-title">Open Source Licenses</div>
+                            <span class="sub-text">Third-party component licenses</span>
+                        </div>
+                        <span class="legal-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credits Section -->
+            <div class="section">
+                <h3>Credits &amp; Acknowledgments</h3>
+                <div class="credits-grid">
+                    <div class="credit-item">
+                        <div class="credit-name"><div class="credit-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>Groq</div>
+                        <span class="sub-text">Fast AI inference API</span>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-name"><div class="credit-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div>FFmpeg</div>
+                        <span class="sub-text">Audio processing (GPL v3)</span>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-name"><div class="credit-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>thqby</div>
+                        <span class="sub-text">AHK2 WebView2 library</span>
+                    </div>
+                    <div class="credit-item">
+                        <div class="credit-name"><div class="credit-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>Microsoft</div>
+                        <span class="sub-text">WebView2 Runtime</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessibility -->
+            <div class="section">
+                <h3>Accessibility</h3>
+                <p class="support-text">
+                    QuickSay can help reduce repetitive strain injury (RSI) by replacing keyboard typing with voice input. Enable Accessibility Mode in General settings for extended recording timeouts and larger visual indicators.
+                </p>
+            </div>
+
+            <!-- Support Section -->
+            <div class="section">
+                <h3>Support</h3>
+                <p class="support-text">
+                    Need help or want to share feedback?
+                </p>
+                <div class="flex-row gap-md">
+                    <button class="btn btn-secondary" onclick="postToAHK('openUrl', 'https://quicksay.app/feedback')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Send Feedback
+                    </button>
+                    <button class="btn btn-secondary" onclick="postToAHK('openUrl', 'https://quicksay.app')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Website
+                    </button>
+                </div>
+                <div style="margin-top: 16px;">
+                    <a href="#" onclick="startGuidedTour(); return false;" class="tour-replay-link" style="color:var(--accent-primary); font-size:13px; display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                        Replay guided tour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main> <!-- closes .main-content -->
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <button class="btn btn-secondary" id="btnCancel">Cancel</button>
+        <button class="btn btn-secondary-orange" id="btnApply">Apply</button>
+        <button class="btn btn-primary" id="btnSave">Save</button>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Hotkey Modal -->
+    <div class="modal-overlay" id="modalHotkey">
+        <div class="modal">
+            <h3>Change Hotkey</h3>
+            <!-- Phase 1: Capture -->
+            <div id="hotkeyPhaseCapture">
+                <p>Press your desired key combination now...</p>
+                <p class="modal-hint">Hold modifiers (Ctrl, Alt, Shift, Win) + press a key, or use a modifier-only combo like Ctrl+Win.</p>
+                <div class="display-box hotkey-display-lg" id="newHotkeyDisplay">Listening...</div>
+            </div>
+            <!-- Phase 2: Test -->
+            <div id="hotkeyPhaseTest" style="display:none;">
+                <p>Now press <strong id="hotkeyTestLabel"></strong> to verify it works.</p>
+                <p class="modal-hint">This confirms the combination registers on your system. Press it now to activate the Save button.</p>
+                <div class="display-box hotkey-display-lg" id="hotkeyTestStatus" style="opacity:0.6;">Waiting for test...</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="btnCancelHotkey">Cancel</button>
+                <button class="btn btn-secondary-orange" id="btnTestHotkey" style="display:none;">Try It</button>
+                <button class="btn btn-primary" id="btnConfirmHotkey" style="display:none;">Set Hotkey</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Entry Modal -->
+    <div class="modal-overlay" id="modalAddEntry">
+        <div class="modal">
+            <h3>Add Dictionary Entry</h3>
+            <label>Spoken (what you say)</label>
+            <input type="text" id="entrySpoken" placeholder="e.g. kubernetes">
+            <label>Written (what appears)</label>
+            <input type="text" id="entryWritten" placeholder="e.g. Kubernetes">
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="btnCancelEntry">Cancel</button>
+                <button class="btn btn-primary" id="btnSaveEntry">Add Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mode Modal -->
+    <div class="modal-overlay" id="modalMode">
+        <div class="modal mode-modal">
+            <div class="mode-modal-header">
+                <div class="mode-modal-icon" id="modalModeIcon"></div>
+                <div>
+                    <h3 id="modalModeTitle">Add Custom Mode</h3>
+                    <p class="mode-modal-subtitle" id="modalModeSubtitle">Configure how QuickSay processes your speech</p>
+                </div>
+            </div>
+
+            <div class="mode-modal-section">
+                <label class="mode-modal-label">Mode Name</label>
+                <input type="text" id="modeName" placeholder="e.g. Meeting Notes" maxlength="30">
+            </div>
+
+            <div class="mode-modal-section">
+                <label class="mode-modal-label">Description</label>
+                <input type="text" id="modeDescription" placeholder="Brief description of what this mode does" maxlength="120">
+            </div>
+
+            <div class="mode-modal-section">
+                <label class="mode-modal-label">Icon</label>
+                <div class="mode-icon-picker">
+                    <input type="text" id="modeIcon" placeholder="e.g. star" maxlength="20" class="mode-icon-input">
+                    <div class="mode-icon-preview" id="modeIconPreview"></div>
+                </div>
+                <p class="sub-text" style="margin-top: 4px;">Options: pen-tool, mail, code, message-circle, star, clipboard, zap, bookmark, mic, globe</p>
+            </div>
+
+            <div class="mode-modal-section">
+                <label class="mode-modal-label">
+                    AI Prompt
+                    <span class="mode-modal-label-hint">Instructions for the AI on how to clean up your text</span>
+                </label>
+                <textarea id="modePrompt" rows="10" class="mode-prompt-input" placeholder="You are a transcription cleanup tool..."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="btnCancelMode">Cancel</button>
+                <button class="btn btn-primary" id="btnSaveMode">Save Mode</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toastMessage">Settings Saved!</div>
+
+    <!-- Custom Modal (JS-driven) -->
+    <div id="customModal" class="custom-modal-overlay">
+        <div class="custom-modal-box">
+            <div class="custom-modal-header">
+                <h3 id="modalTitle">Title</h3>
+            </div>
+            <div class="custom-modal-body">
+                <p id="modalMessage">Message</p>
+            </div>
+            <div id="modalButtons" class="custom-modal-footer">
+                <!-- Buttons inserted by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Document Modal -->
+    <div class="legal-modal" id="legalModal">
+        <div class="legal-modal-header">
+            <h2 id="legalModalTitle">Document</h2>
+            <button class="btn btn-secondary" onclick="closeLegalModal()">Close</button>
+        </div>
+        <div class="legal-modal-content" id="legalModalContent">
+            <!-- Content loaded dynamically -->
+        </div>
+    </div>
+
+    <script>
+        // Settings UI Script (ES6+ — WebView2/Chromium)
+
+        // Globals (using var)
+        var config = {};
+        var dictionary = [];
+        var tempHotkey = "";
+        var changelogData = null;
+        var apiKeyValidated = false;
+        var originalApiKey = "";
+        var hasUnsavedChanges = false;
+
+        // ==================================================================
+        // Sidebar Search — filter tabs by search term + highlight match
+        // ==================================================================
+        (function() {
+            var searchIndex = {
+                'general': ['api', 'key', 'groq', 'language', 'hotkey', 'startup', 'overlay', 'sound', 'sticky', 'preferences', 'behavior', 'dictation', 'export', 'import', 'backup', 'restore', 'auto-paste', 'paste', 'clipboard', 'widget', 'accessibility', 'data', 'management'],
+                'audio': ['microphone', 'device', 'recording', 'quality', 'storage', 'audio', 'khz', 'save', 'sound', 'theme', 'subtle', 'click', 'crystal', 'neon', 'bloom', 'silent'],
+                'processing': ['llm', 'cleanup', 'fillers', 'punctuation', 'history', 'retention', 'debug', 'logging', 'processing', 'text', 'voice', 'commands', 'voice commands', 'context', 'auto-detect', 'app'],
+                'modes': ['mode', 'persona', 'prompt', 'email', 'code', 'casual', 'standard', 'custom'],
+                'dictionary': ['dictionary', 'terms', 'spoken', 'written', 'import', 'export', 'custom'],
+                'view-history': ['history', 'transcription', 'past', 'export'],
+                'view-statistics': ['statistics', 'stats', 'words', 'wpm', 'streak', 'achievements'],
+                'about': ['about', 'legal', 'privacy', 'terms', 'licenses', 'credits', 'support', 'github', 'version', 'whatsnew', 'changelog', 'new']
+            };
+
+            // Maps search keywords to the closest element ID or parent selector for highlighting
+            var searchElementMap = {
+                'api': 'groqApiKey', 'key': 'groqApiKey', 'groq': 'groqApiKey',
+                'language': 'language', 'dictation': 'language',
+                'hotkey': 'hkDefault', 'sticky': 'stickyMode',
+                'startup': 'launchAtStartup', 'overlay': 'showOverlay',
+                'sound': 'playSounds', 'auto-paste': 'autoPaste', 'paste': 'autoPaste', 'clipboard': 'autoPaste',
+                'widget': 'showWidget', 'accessibility': 'accessibilityMode',
+                'microphone': 'audioDevice', 'device': 'audioDevice',
+                'quality': 'qualityHigh', 'recording': 'qualityHigh',
+                'theme': 'soundTheme',
+                'storage': 'saveAudioRecordings', 'save': 'saveAudioRecordings',
+                'context': 'contextAwareModes', 'auto-detect': 'contextAwareModes', 'app': 'contextAwareModes',
+                'llm': 'enableLLMCleanup', 'cleanup': 'enableLLMCleanup',
+                'fillers': 'autoRemoveFillers', 'punctuation': 'smartPunctuation',
+                'retention': 'historyRetention', 'debug': 'debugLogging', 'logging': 'debugLogging'
+            };
+
+            var highlightTimeout = null;
+
+            function highlightElement(query, tabId) {
+                // Clear any previous highlight
+                var prev = document.querySelector('.search-highlight');
+                if (prev) prev.classList.remove('search-highlight');
+                if (highlightTimeout) clearTimeout(highlightTimeout);
+
+                // Find the element to highlight based on the query
+                var elementId = null;
+                for (var keyword in searchElementMap) {
+                    if (keyword.indexOf(query) !== -1 || query.indexOf(keyword) !== -1) {
+                        elementId = searchElementMap[keyword];
+                        break;
+                    }
+                }
+
+                if (!elementId) return;
+
+                var el = document.getElementById(elementId);
+                if (!el) return;
+
+                // Walk up to the nearest .section or .toggle-item parent for visual highlight
+                var target = el.closest('.toggle-item') || el.closest('.section');
+                if (!target) target = el.parentElement;
+                if (!target) return;
+
+                // Only highlight if the element is within the active tab
+                var activeTab = document.getElementById(tabId);
+                if (!activeTab || !activeTab.contains(target)) return;
+
+                target.classList.add('search-highlight');
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                highlightTimeout = setTimeout(function() {
+                    target.classList.remove('search-highlight');
+                }, 2500);
+            }
+
+            var searchInput = document.getElementById('sidebarSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    var query = this.value.toLowerCase().trim();
+                    var tabs = document.querySelectorAll('.tab-btn');
+
+                    if (!query) {
+                        // Show all tabs, clear highlights
+                        for (var i = 0; i < tabs.length; i++) {
+                            tabs[i].style.display = '';
+                        }
+                        var prev = document.querySelector('.search-highlight');
+                        if (prev) prev.classList.remove('search-highlight');
+                        return;
+                    }
+
+                    var firstMatch = null;
+                    for (var i = 0; i < tabs.length; i++) {
+                        var tabId = tabs[i].getAttribute('data-tab');
+                        var keywords = searchIndex[tabId] || [];
+                        var tabText = tabs[i].textContent.toLowerCase();
+                        var match = tabText.indexOf(query) !== -1;
+
+                        if (!match) {
+                            for (var j = 0; j < keywords.length; j++) {
+                                if (keywords[j].indexOf(query) !== -1) {
+                                    match = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        tabs[i].style.display = match ? '' : 'none';
+                        if (match && !firstMatch) firstMatch = tabs[i];
+                    }
+
+                    // Auto-switch to first matching tab and highlight the matched setting
+                    if (firstMatch) {
+                        var matchedTabId = firstMatch.getAttribute('data-tab');
+                        if (!firstMatch.classList.contains('active')) {
+                            switchTab(firstMatch);
+                        }
+                        // Delay highlight slightly to allow tab content to render
+                        setTimeout(function() {
+                            highlightElement(query, matchedTabId);
+                        }, 100);
+                    }
+                });
+            }
+        })();
+
+        // ==================================================================
+        // WebView2 Message Handler - Receive messages from AHK
+        // ==================================================================
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', function (event) {
+                console.log('=== MESSAGE RECEIVED FROM AHK ===');
+                console.log('Raw event.data:', event.data);
+
+                try {
+                    // Parse the message if it's a string
+                    const msg = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+                    console.log('Parsed message:', msg);
+                    console.log('Function to call:', msg.function);
+                    console.log('Data to pass:', msg.data);
+
+                    const functionName = msg.function;
+                    const data = msg.data;
+
+                    // Call the appropriate JavaScript function
+                    if (window[functionName] && typeof window[functionName] === 'function') {
+                        console.log('Calling function:', functionName);
+                        window[functionName](data);
+                    } else {
+                        console.error('Function not found or not callable:', functionName);
+                    }
+                } catch (err) {
+                    console.error('Error handling WebView2 message:', err);
+                    console.error('Event data was:', event.data);
+                }
+            });
+
+            console.log('WebView2 message listener registered successfully');
+        }
+
+        // --- INIT ---
+        window.onload = function () {
+            // Setup Tabs
+            var tabs = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].onclick = function () { switchTab(this); };
+            }
+
+            // Quality Radio Change Handler
+            var qualityRadios = document.querySelectorAll('.quality-radio');
+            for (var i = 0; i < qualityRadios.length; i++) {
+                qualityRadios[i].onchange = function () {
+                    config.recordingQuality = this.getAttribute('data-quality');
+                };
+            }
+
+            // F19: Hide storage controls when save recordings is off
+            document.getElementById('saveAudioRecordings').addEventListener('change', function() {
+                var storageControls = document.getElementById('storageControls');
+                if (storageControls) {
+                    storageControls.style.display = this.checked ? 'flex' : 'none';
+                }
+            });
+
+            // Buttons
+            document.getElementById('btnSave').onclick = function () { saveConfig(true); };
+            document.getElementById('btnApply').onclick = function () { saveConfig(false); };
+            document.getElementById('btnCancel').onclick = closeSettings;
+
+            document.getElementById('btnTestApi').onclick = testApiConnection;
+            document.getElementById('btnTogglePass').onclick = togglePass;
+
+            // Reset validation state when API key is changed
+            document.getElementById('groqApiKey').addEventListener('input', function () {
+                if (this.value !== originalApiKey) {
+                    apiKeyValidated = false;
+                    var el = document.getElementById('apiStatusMessage');
+                    if (el) { el.className = ''; el.innerText = ''; }
+                } else {
+                    apiKeyValidated = true;
+                }
+            });
+
+            document.getElementById('btnChangeHotkey').onclick = function () { openModal('modalHotkey'); startHotkeyListen(); };
+            document.getElementById('btnCancelHotkey').onclick = function () { closeModal('modalHotkey'); stopHotkeyListen(); resetHotkeyModal(); };
+            document.getElementById('btnTestHotkey').onclick = startHotkeyTest;
+            document.getElementById('btnConfirmHotkey').onclick = confirmHotkey;
+            document.getElementById('btnTestCurrentHotkey').onclick = testCurrentHotkey;
+
+            document.getElementById('btnRefreshAudio').onclick = function () { postToAHK('getAudioDevices'); };
+
+            // Dictionary Buttons
+            document.getElementById('btnAddEntryModal').onclick = function () {
+                document.getElementById('entrySpoken').value = "";
+                document.getElementById('entryWritten').value = "";
+                openModal('modalAddEntry');
+            };
+            document.getElementById('btnCancelEntry').onclick = function () { closeModal('modalAddEntry'); };
+            document.getElementById('btnSaveEntry').onclick = addDictionaryEntry;
+
+            // Mode Buttons
+            document.getElementById('btnAddMode').onclick = function () { openModeModal(-1); };
+            document.getElementById('btnCancelMode').onclick = function () { closeModal('modalMode'); };
+            document.getElementById('btnSaveMode').onclick = saveModeFromModal;
+            document.getElementById('modeIcon').addEventListener('input', updateModeIconPreview);
+
+            document.getElementById('btnImportDict').onclick = function () { postToAHK('importDictionary'); };
+            document.getElementById('btnExportDict').onclick = function () { postToAHK('exportDictionary'); };
+            document.getElementById('dictSearch').onkeyup = renderDictionary; // Search filter
+
+            // Processing
+            document.getElementById('btnClearHistory').onclick = clearHistory;
+            document.getElementById('btnViewLogs').onclick = function () { postToAHK('viewLogs'); };
+
+            // History Tab Buttons
+            document.getElementById('btnExportHistory').onclick = function () {
+                postToAHK('exportHistory');
+            };
+
+            document.getElementById('btnRefreshHistory').onclick = function () {
+                console.log('Refresh History button clicked');
+                loadHistory();
+            };
+
+            document.getElementById('btnClearFullHistory').onclick = function () {
+                showConfirm('This will permanently delete all transcription history. Clear all history?').then(function (confirmed) {
+                    if (confirmed) {
+                        console.log('User confirmed - clearing full history');
+                        postToAHK('deleteHistoryFile');
+
+                        // Reload history after clearing
+                        setTimeout(function () {
+                            loadHistory();
+                        }, 500);
+                    }
+                });
+            };
+
+            // History search
+            document.getElementById('historySearch').onkeyup = searchHistory;
+
+            // Start Load
+            postToAHK('loadConfig');
+
+            // Initial Tab
+            switchTab(document.querySelector('.tab-btn[data-tab="general"]'));
+
+            // Initial data load after everything is ready
+            console.log("=== INITIALIZATION COMPLETE ===");
+            console.log("WebView2 available?", !!window.chrome && !!window.chrome.webview);
+
+            // Give WebView2 time to fully initialize
+            setTimeout(function () {
+                console.log("=== ATTEMPTING INITIAL DATA LOAD ===");
+                loadHistory();
+                loadStatistics();
+            }, 1000);
+        };
+
+        // --- TABS ---
+        function switchTab(btn) {
+            var tabId = btn.getAttribute('data-tab');
+
+            // Buttons
+            var allBtns = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < allBtns.length; i++) {
+                allBtns[i].className = allBtns[i].className.replace(' active', '');
+                allBtns[i].removeAttribute('aria-current');
+            }
+            btn.className = btn.className + ' active';
+            btn.setAttribute('aria-current', 'page');
+
+            // Content
+            var allContent = document.querySelectorAll('.tab-content');
+            for (var i = 0; i < allContent.length; i++) allContent[i].className = 'tab-content';
+            document.getElementById(tabId).className = 'tab-content active';
+
+            // Hide footer on tabs that have their own save mechanisms or are non-editable
+            var footer = document.querySelector('.footer');
+            if (footer) {
+                var hideFooterTabs = ['view-history', 'view-statistics', 'about', 'modes', 'dictionary'];
+                footer.style.display = hideFooterTabs.indexOf(tabId) !== -1 ? 'none' : '';
+            }
+
+            // Lazy Load
+            if (tabId === 'audio') postToAHK('getAudioDevices');
+            if (tabId === 'modes') postToAHK('loadModes');
+
+            if (tabId === 'dictionary') {
+                postToAHK('loadDictionary');
+                setTimeout(function () {
+                    if (dictionary.length === 0) {
+                        var list = document.getElementById('dictList');
+                        list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="empty-state-heading">Your custom dictionary is empty</div><div class="empty-state-text">Add words manually or press <kbd class="kbd">Ctrl+Shift+D</kbd> to auto-learn from corrections</div></div>';
+                    }
+                }, 1000);
+            }
+
+            if (tabId === 'processing') postToAHK('getHistoryCount');
+
+            // Load History & Statistics data when switching to those tabs
+            if (tabId === 'view-history') {
+                console.log('Switching to History tab - loading data...');
+                loadHistory();
+            }
+
+            if (tabId === 'view-statistics') {
+                console.log('Switching to Statistics tab - loading data...');
+                loadStatistics();
+                loadHistory(); // Also load history for chart/apps data
+            }
+
+            if (tabId === 'about') {
+                markChangelogSeen();
+            }
+        }
+
+        // --- SOUND THEME ---
+        function previewSound() {
+            var theme = document.getElementById('soundTheme').value;
+            postToAHK('previewSound', theme);
+        }
+
+        // --- AHK COMMS ---
+        function postToAHK(action, data) {
+            try {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        action: action,
+                        data: data || null
+                    }));
+                }
+            } catch (e) {
+                console.error('postToAHK ERROR:', e);
+            }
+        }
+
+        // --- RECEIVERS ---
+        var tourAlreadyTriggered = false;
+
+        window.receiveConfig = function (data) {
+            console.log('=== RECEIVE CONFIG CALLED ===');
+            console.log('Data received from AHK:', data);
+            config = data || {};
+            populateForm(config);
+            loadChangelog();
+
+            // Auto-start guided tour after onboarding or from "Explore Settings" button
+            // Guard: only trigger once per session to prevent duplicate tours
+            if (!tourAlreadyTriggered && ((config.showGuidedTour && !config.tourCompleted) || config.startTourOnOpen)) {
+                tourAlreadyTriggered = true;
+                setTimeout(function() { startGuidedTour(); }, 800);
+                // Clear the one-shot flag if it was set
+                if (config.startTourOnOpen) {
+                    postToAHK('clearStartTourFlag', '');
+                }
+            }
+        };
+
+        window.receiveAudioDevices = function (list) {
+            var sel = document.getElementById('audioDevice');
+            sel.innerHTML = "";
+
+            var optD = document.createElement('option');
+            optD.value = "Default";
+            optD.text = "Default - System Device";
+            sel.appendChild(optD);
+
+            if (list && list.length) {
+                for (var i = 0; i < list.length; i++) {
+                    var opt = document.createElement('option');
+                    var devName = list[i];
+                    opt.value = devName;
+                    opt.text = devName;
+                    sel.appendChild(opt);
+                }
+            }
+            if (config.audioDevice) sel.value = config.audioDevice;
+        };
+
+        window.receiveDictionary = function (data) {
+            dictionary = data || [];
+            renderDictionary();
+            updateDictBadge();
+        };
+
+        window.receiveImportResult = function(data) {
+            if (data && data.success) {
+                showToast('Settings imported successfully! Reloading...', 'success');
+                setTimeout(function() { postToAHK('loadConfig'); }, 500);
+            } else {
+                showToast('Import failed: ' + (data ? data.error : 'Unknown error'), 'error');
+            }
+        };
+
+        window.showToastFromAHK = function(data) {
+            if (data && data.message) showToast(data.message, data.type || 'info');
+        };
+
+        window.receiveHistoryCount = function (c) {
+            document.getElementById('historyCountDisplay').innerText = c + " entries saved";
+        };
+
+        window.apiTestResult = function (success) {
+            var el = document.getElementById('apiStatusMessage');
+            var btn = document.getElementById('btnTestApi');
+            setButtonLoading(btn, false);
+
+            if (success) {
+                el.className = "status-text status-success";
+                el.innerText = "\u2713 Connection Successful";
+                apiKeyValidated = true;
+            } else {
+                el.className = "status-text status-error";
+                el.innerText = "\u2717 Connection Failed";
+                apiKeyValidated = false;
+            }
+        };
+
+        window.showToast = function (msg, type) {
+            var t = document.getElementById('toastMessage');
+            type = type || "success";
+            var icons = {
+                success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 12 15 16 10"/></svg>',
+                error: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+                info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+                warning: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+            };
+            var icon = icons[type] || icons.success;
+            t.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px;vertical-align:middle;">' + icon + '<span>' + escapeHtml(msg) + '</span></span>';
+            t.className = "toast show " + type;
+            var timeout = (type === 'error') ? 4000 : 3000;
+            setTimeout(function () { t.className = "toast"; }, timeout);
+        };
+
+        // --- FORM LOGIC ---
+        function populateForm(cfg) {
+            // API Key
+            if (cfg.groqApiKey) {
+                document.getElementById('groqApiKey').value = cfg.groqApiKey;
+                originalApiKey = cfg.groqApiKey;
+                apiKeyValidated = true; // existing saved key is assumed valid
+            }
+
+            // Language
+            if (cfg.language) {
+                document.getElementById('language').value = cfg.language;
+            }
+
+            // Hotkey
+            if (cfg.hotkey) {
+                var hkText = formatHotkey(cfg.hotkey);
+                document.getElementById('hotkeyDisplay').value = hkText;
+
+                // Update keyboard shortcuts table in About tab
+                var shortcutEl = document.getElementById('shortcutHotkey');
+                if (shortcutEl) shortcutEl.textContent = hkText;
+
+                // Toggle Logic - only ^LWin is the default
+                var isDefault = (cfg.hotkey === '^LWin');
+                var defToggle = document.getElementById('hkDefault');
+                var custToggle = document.getElementById('hkCustom');
+                var custControls = document.getElementById('customHotkeyControls');
+
+                if (isDefault) {
+                    if (defToggle) defToggle.checked = true;
+                    if (custToggle) custToggle.checked = false;
+                    if (custControls) custControls.style.display = "none";
+                } else {
+                    if (defToggle) defToggle.checked = false;
+                    if (custToggle) custToggle.checked = true;
+                    if (custControls) custControls.style.display = "block";
+                }
+            }
+
+            // Convert numeric booleans (0/1) to actual booleans
+            // AHK saves booleans as integers, so we need to convert
+            const toBool = (val) => {
+                if (typeof val === 'number') return val !== 0;
+                if (typeof val === 'boolean') return val;
+                return !!val;
+            };
+
+            // General - Preferences
+            document.getElementById('launchAtStartup').checked = toBool(cfg.launchAtStartup);
+            document.getElementById('showOverlay').checked = toBool(cfg.showOverlay);
+            document.getElementById('playSounds').checked = toBool(cfg.playSounds);
+            document.getElementById('stickyMode').checked = toBool(cfg.stickyMode);
+            document.getElementById('accessibilityMode').checked = toBool(cfg.accessibilityMode);
+            document.getElementById('showWidget').checked = toBool(cfg.showWidget);
+            document.getElementById('autoPaste').checked = toBool(cfg.autoPaste !== undefined ? cfg.autoPaste : true);
+
+            // Audio - Device
+            if (cfg.audioDevice) {
+                const deviceSelect = document.getElementById('audioDevice');
+                deviceSelect.value = cfg.audioDevice;
+            }
+
+            // Audio - Quality (radio buttons)
+            const qualityValue = cfg.recordingQuality || 'medium';
+            document.querySelectorAll('.quality-radio').forEach(radio => {
+                radio.checked = (radio.dataset.quality === qualityValue);
+            });
+
+            // Audio - Storage
+            document.getElementById('saveAudioRecordings').checked = toBool(cfg.saveAudioRecordings);
+            if (cfg.keepLastRecordings) {
+                document.getElementById('keepLastRecordings').value = cfg.keepLastRecordings;
+            }
+            // F19: Set initial visibility of storage controls
+            var storageControls = document.getElementById('storageControls');
+            if (storageControls) {
+                storageControls.style.display = toBool(cfg.saveAudioRecordings) ? 'flex' : 'none';
+            }
+
+            // Audio - Sound Theme
+            if (cfg.soundTheme) {
+                document.getElementById('soundTheme').value = cfg.soundTheme;
+            }
+
+            // Processing - Text Processing
+            document.getElementById('enableLLMCleanup').checked = toBool(cfg.enableLLMCleanup);
+            document.getElementById('autoRemoveFillers').checked = toBool(cfg.autoRemoveFillers);
+            document.getElementById('smartPunctuation').checked = toBool(cfg.smartPunctuation);
+            document.getElementById('contextAwareModes').checked = toBool(cfg.contextAwareModes);
+
+            // Processing - History
+            if (cfg.historyRetention) {
+                document.getElementById('historyRetention').value = cfg.historyRetention;
+            }
+
+            // Processing - Debug
+            document.getElementById('debugLogging').checked = toBool(cfg.debugLogging);
+
+            console.log('=== POPULATE FORM CALLED ===');
+            console.log('Config received:', cfg);
+        }
+
+        function saveConfig(shouldClose) {
+            // Warn if API key was changed but not tested
+            var currentKey = getVal('groqApiKey');
+            if (currentKey && currentKey !== originalApiKey && !apiKeyValidated) {
+                showCustomModal(
+                    'Untested API Key',
+                    'Your key hasn\'t been tested yet. An invalid key will prevent QuickSay from working. Save anyway?',
+                    [
+                        { text: 'Test First', className: 'custom-modal-btn custom-modal-btn-secondary', action: function () { testApiConnection(); } },
+                        { text: 'Save Anyway', className: 'custom-modal-btn custom-modal-btn-primary', action: function () { doSaveConfig(shouldClose); } }
+                    ]
+                );
+                return;
+            }
+            doSaveConfig(shouldClose);
+        }
+
+        function doSaveConfig(shouldClose) {
+            config.groqApiKey = getVal('groqApiKey');
+
+            // Warn if API key format looks wrong (but still allow saving)
+            if (config.groqApiKey && !config.groqApiKey.startsWith('gsk_')) {
+                var el = document.getElementById('apiStatusMessage');
+                el.className = 'status-text status-warning';
+                el.innerText = "API key should start with 'gsk_'. Please check your key.";
+            }
+
+            config.language = getVal('language');
+            config.launchAtStartup = getCheck('launchAtStartup');
+            config.showOverlay = getCheck('showOverlay');
+            config.playSounds = getCheck('playSounds');
+            config.stickyMode = getCheck('stickyMode');
+            config.accessibilityMode = getCheck('accessibilityMode');
+            config.showWidget = getCheck('showWidget');
+            config.autoPaste = getCheck('autoPaste');
+
+            config.audioDevice = getVal('audioDevice');
+            config.saveAudioRecordings = getCheck('saveAudioRecordings');
+            config.keepLastRecordings = parseInt(getVal('keepLastRecordings'));
+
+            var qualityRadios = document.querySelectorAll('.quality-radio');
+            for (var i = 0; i < qualityRadios.length; i++) {
+                if (qualityRadios[i].checked) {
+                    config.recordingQuality = qualityRadios[i].getAttribute('data-quality');
+                }
+            }
+
+            config.soundTheme = getVal('soundTheme');
+
+            config.enableLLMCleanup = getCheck('enableLLMCleanup');
+            config.autoRemoveFillers = getCheck('autoRemoveFillers');
+            config.smartPunctuation = getCheck('smartPunctuation');
+            config.contextAwareModes = getCheck('contextAwareModes');
+            config.historyRetention = parseInt(getVal('historyRetention'));
+            config.debugLogging = getCheck('debugLogging');
+
+            // Ensure hotkey is always present (safety net)
+            if (!config.hotkey) config.hotkey = "^LWin";
+
+            // F15: Show loading state on save/apply buttons
+            var saveBtn = document.getElementById('btnSave');
+            var applyBtn = document.getElementById('btnApply');
+            if (shouldClose) {
+                setButtonLoading(saveBtn, true, 'Saving...');
+            } else {
+                setButtonLoading(applyBtn, true, 'Applying...');
+            }
+
+            postToAHK('saveConfig', config);
+            originalApiKey = config.groqApiKey; // update baseline so re-save doesn't re-warn
+
+            // Tell AHK to close after save completes (separate message for reliability)
+            if (shouldClose) {
+                postToAHK('closeAfterSave');
+            }
+        }
+
+        // Called by AHK after config is successfully saved
+        window.receiveConfigSaved = function (success) {
+            // F15: Reset loading state on save/apply buttons
+            setButtonLoading(document.getElementById('btnSave'), false);
+            setButtonLoading(document.getElementById('btnApply'), false);
+
+            if (success && success.success) {
+                hasUnsavedChanges = false;
+                updateUnsavedIndicator();
+                showToast('Settings saved successfully!', 'success');
+            } else {
+                showToast('Failed to save settings', 'error');
+            }
+        };
+
+        function closeSettings() {
+            postToAHK('closeSettings');
+        }
+
+        // --- LEGAL DOCUMENTS ---
+        function showLegalDoc(docType) {
+            var modal = document.getElementById('legalModal');
+            var title = document.getElementById('legalModalTitle');
+            var content = document.getElementById('legalModalContent');
+
+            var titles = {
+                privacy: 'Privacy Policy',
+                terms: 'Terms of Service',
+                licenses: 'Open Source Licenses'
+            };
+
+            title.innerText = titles[docType] || 'Document';
+            content.innerHTML = '<div class="loading-text">Loading...</div>';
+
+            // Load content from AHK
+            postToAHK('loadLegalDoc', docType);
+            modal.className = 'legal-modal active';
+        }
+
+        // Receive legal document content from AHK
+        window.receiveLegalDoc = function(data) {
+            var content = document.getElementById('legalModalContent');
+            if (data && data.html) {
+                content.innerHTML = data.html;
+            } else {
+                content.innerHTML = '<div class="loading-text">Document not available.</div>';
+            }
+        };
+
+        function closeLegalModal() {
+            var modal = document.getElementById('legalModal');
+            modal.className = 'legal-modal';
+        }
+
+        // --- DICTIONARY ---
+        var dictSelected = {};
+
+        function renderDictionary() {
+            var list = document.getElementById('dictList');
+            var term = document.getElementById('dictSearch').value.toLowerCase();
+            list.innerHTML = "";
+            dictSelected = {};
+            updateDictBulkBar();
+            updateDictBadge();
+
+            if (dictionary.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="empty-state-heading">Your custom dictionary is empty</div><div class="empty-state-text">Add words manually or press <kbd class="kbd">Ctrl+Shift+D</kbd> to auto-learn from corrections</div></div>';
+                return;
+            }
+
+            // Header row
+            var header = document.createElement('div');
+            header.className = 'dict-header';
+            header.innerHTML = '<div class="dict-col-checkbox"><input type="checkbox" id="dictSelectAll" onchange="toggleSelectAll(this)"></div>' +
+                '<div class="dict-col-spoken">Spoken</div>' +
+                '<div class="dict-col-arrow"></div>' +
+                '<div class="dict-col-written">Written</div>' +
+                '<div class="dict-col-action"></div>';
+            list.appendChild(header);
+
+            var hasResults = false;
+            var now = Date.now();
+            for (var i = 0; i < dictionary.length; i++) {
+                var item = dictionary[i];
+                if (term && item.spoken.toLowerCase().indexOf(term) == -1
+                    && item.written.toLowerCase().indexOf(term) == -1) continue;
+
+                hasResults = true;
+                var row = document.createElement('div');
+                var isRecent = item.addedAt && (now - item.addedAt) < 86400000;
+                row.className = 'dict-row' + (isRecent ? ' dict-row-recent' : '');
+
+                var html = '<div class="dict-col-checkbox"><input type="checkbox" class="dict-checkbox" data-index="' + i + '" onchange="updateDictBulkBar()"></div>';
+                html += '<div class="dict-col-spoken" onclick="startInlineEdit(' + i + ',\'spoken\',this)">' + escapeHtml(item.spoken) + '</div>';
+                html += '<div class="dict-col-arrow">\u2192</div>';
+                html += '<div class="dict-col-written" onclick="startInlineEdit(' + i + ',\'written\',this)">' + escapeHtml(item.written) + '</div>';
+                html += '<div class="dict-col-action"><span class="delete-icon" onclick="deleteDictItem(' + i + ')">\u2715</span></div>';
+
+                row.innerHTML = html;
+                list.appendChild(row);
+            }
+
+            if (!hasResults) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-heading">No matches found for "' + escapeHtml(term) + '"</div></div>';
+            }
+        }
+
+        function startInlineEdit(index, field, el) {
+            if (el.querySelector('input')) return; // Already editing
+            var currentVal = dictionary[index][field];
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'dict-inline-input';
+            input.value = currentVal;
+            el.textContent = '';
+            el.appendChild(input);
+            input.focus();
+            input.select();
+
+            function save() {
+                var newVal = input.value.trim();
+                if (newVal && newVal !== currentVal) {
+                    dictionary[index][field] = newVal;
+                    postToAHK('saveDictionary', dictionary);
+                }
+                renderDictionary();
+            }
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); save(); }
+                if (e.key === 'Escape') { renderDictionary(); }
+            });
+            input.addEventListener('blur', save);
+        }
+
+        function toggleSelectAll(checkbox) {
+            var boxes = document.querySelectorAll('.dict-checkbox');
+            for (var i = 0; i < boxes.length; i++) {
+                boxes[i].checked = checkbox.checked;
+            }
+            updateDictBulkBar();
+        }
+
+        function updateDictBulkBar() {
+            var boxes = document.querySelectorAll('.dict-checkbox:checked');
+            var bar = document.getElementById('dictBulkBar');
+            var count = document.getElementById('dictBulkCount');
+            if (!bar) return;
+            if (boxes.length > 0) {
+                bar.style.display = 'flex';
+                count.textContent = boxes.length + ' selected';
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        function bulkDeleteDict() {
+            var boxes = document.querySelectorAll('.dict-checkbox:checked');
+            if (boxes.length === 0) return;
+
+            showCustomModal('Delete Entries', 'Delete ' + boxes.length + ' selected entries? This cannot be undone.', [
+                { text: 'Cancel', className: 'btn btn-secondary' },
+                { text: 'Delete', className: 'btn btn-danger', action: function() {
+                    // Collect indices and delete in reverse order
+                    var indices = [];
+                    for (var i = 0; i < boxes.length; i++) {
+                        indices.push(parseInt(boxes[i].getAttribute('data-index')));
+                    }
+                    indices.sort(function(a, b) { return b - a; });
+                    for (var i = 0; i < indices.length; i++) {
+                        dictionary.splice(indices[i], 1);
+                    }
+                    postToAHK('saveDictionary', dictionary);
+                    renderDictionary();
+                    showToast(indices.length + ' entries deleted', 'info');
+                }}
+            ]);
+        }
+
+        function updateDictBadge() {
+            var badge = document.getElementById('dictCountBadge');
+            if (!badge) return;
+            if (dictionary.length > 0) {
+                badge.textContent = dictionary.length;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        window.deleteDictItem = function (idx) {
+            showCustomModal('Delete Entry', 'Delete this dictionary entry?', [
+                { text: 'Cancel', className: 'btn btn-secondary' },
+                { text: 'Delete', className: 'btn btn-danger', action: function() {
+                    dictionary.splice(idx, 1);
+                    renderDictionary();
+                    postToAHK('saveDictionary', dictionary);
+                    showToast('Entry deleted', 'info');
+                }}
+            ]);
+        };
+
+        function addDictionaryEntry() {
+            var s = getVal('entrySpoken');
+            var w = getVal('entryWritten');
+            if (!s || !w) { showToast('Both fields are required', 'error'); return; }
+
+            dictionary.push({ "spoken": s, "written": w, "addedAt": Date.now() });
+            renderDictionary();
+            postToAHK('saveDictionary', dictionary);
+            closeModal('modalAddEntry');
+            showToast("Entry added!", "success");
+        }
+
+
+
+        // Custom Modal Functions
+        // Single unified modal system
+        function showModal(title, message, buttons) {
+            const modal = document.getElementById('customModal');
+            const titleEl = document.getElementById('modalTitle');
+            const messageEl = document.getElementById('modalMessage');
+            const buttonsEl = document.getElementById('modalButtons');
+
+            if (!modal || !titleEl || !messageEl || !buttonsEl) {
+                console.error('Modal elements not found');
+                return Promise.resolve(false);
+            }
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            buttonsEl.innerHTML = '';
+
+            return new Promise((resolve) => {
+                buttons.forEach(btn => {
+                    const button = document.createElement('button');
+                    button.textContent = btn.text;
+                    button.onclick = () => {
+                        modal.classList.remove('active');
+                        modal.style.display = 'none';
+                        resolve(btn.value);
+                    };
+
+                    if (btn.primary) {
+                        button.className = 'custom-modal-btn custom-modal-btn-primary';
+                    } else {
+                        button.className = 'custom-modal-btn custom-modal-btn-secondary';
+                    }
+
+                    buttonsEl.appendChild(button);
+                });
+
+                modal.style.display = 'flex';
+                modal.classList.add('active');
+            });
+        }
+
+        function showConfirm(message, title = 'Confirm Action') {
+            return showModal(title, message, [
+                { text: 'Cancel', value: false, primary: false },
+                { text: 'OK', value: true, primary: true }
+            ]);
+        }
+
+        function showAlert(message, title = 'QuickSay') {
+            return showModal(title, message, [
+                { text: 'OK', value: true, primary: true }
+            ]);
+        }
+
+        // Action-based modal (used by modes/dictionary for inline callbacks)
+        function showCustomModal(title, message, buttons) {
+            var modal = document.getElementById('customModal');
+            var titleEl = document.getElementById('modalTitle');
+            var messageEl = document.getElementById('modalMessage');
+            var buttonsEl = document.getElementById('modalButtons');
+
+            if (!modal || !titleEl || !messageEl || !buttonsEl) return;
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            buttonsEl.innerHTML = '';
+
+            for (var i = 0; i < buttons.length; i++) {
+                (function(btn) {
+                    var button = document.createElement('button');
+                    button.textContent = btn.text;
+                    button.className = btn.className || 'custom-modal-btn custom-modal-btn-secondary';
+                    button.onclick = function() {
+                        modal.classList.remove('active');
+                        modal.style.display = 'none';
+                        if (btn.action) btn.action();
+                    };
+                    buttonsEl.appendChild(button);
+                })(buttons[i]);
+            }
+
+            modal.style.display = 'flex';
+            modal.classList.add('active');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function (e) {
+            const modal = document.getElementById('customModal');
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                modal.style.display = 'none';
+            }
+        });
+
+        // --- HISTORY ---
+        async function clearHistory() {
+            const confirmed = await showConfirm(
+                'This will permanently delete all transcription history.',
+                'Clear all history?'
+            );
+
+            if (confirmed) {
+                console.log('User confirmed - clearing history');
+                postToAHK('clearHistory');
+
+                var countDisplay = document.getElementById('historyCountDisplay');
+                if (countDisplay) {
+                    countDisplay.innerText = 'Clearing...';
+                }
+            } else {
+                console.log('User cancelled history clear');
+            }
+        }
+
+        // Called by AHK after history clear attempt
+        window.receiveHistoryClearResult = async function (data) {
+            var success = data && data.success;
+            var message = data && data.message;
+            if (success) {
+                await showAlert(message || 'History cleared successfully!', 'Success');
+            } else {
+                await showAlert(message || 'Failed to clear history.', 'Error');
+            }
+        };
+
+        // --- HOTKEY ---
+        // Hotkey capture is now handled at the AHK level via a low-level keyboard hook.
+        // This allows capturing system-level keys (Win key, etc.) that the browser cannot see.
+        var tempHotkeyDisplay = "";
+        var hotkeyTestPending = false; // true while in test phase
+
+        function startHotkeyListen() {
+            tempHotkey = "";
+            tempHotkeyDisplay = "";
+            hotkeyTestPending = false;
+            // Reset to capture phase
+            document.getElementById('hotkeyPhaseCapture').style.display = '';
+            document.getElementById('hotkeyPhaseTest').style.display = 'none';
+            document.getElementById('btnTestHotkey').style.display = 'none';
+            document.getElementById('btnConfirmHotkey').style.display = 'none';
+            document.getElementById('newHotkeyDisplay').innerText = "Press keys now...";
+            // Tell AHK to install the low-level keyboard hook
+            postToAHK('startHotkeyCapture');
+        }
+
+        // Called from AHK when a key combo is captured by the low-level hook
+        window.hotkeyCaptured = function (data) {
+            if (!data) return;
+            var keyName = data.keyName || "";
+            var ahkKey = data.ahkKey || "";
+            console.log('Hotkey captured from AHK:', keyName, ahkKey);
+
+            if (hotkeyTestPending) {
+                // We're in test phase — check if the captured combo matches
+                if (ahkKey === tempHotkey) {
+                    // Match — hotkey works at the system level
+                    document.getElementById('hotkeyTestStatus').innerText = 'Hotkey confirmed!';
+                    document.getElementById('hotkeyTestStatus').style.opacity = '1';
+                    document.getElementById('hotkeyTestStatus').style.color = 'var(--success)';
+                    document.getElementById('btnConfirmHotkey').style.display = '';
+                    hotkeyTestPending = false;
+                } else {
+                    // Mismatch
+                    document.getElementById('hotkeyTestStatus').innerText = 'That didn\'t match. Try pressing ' + tempHotkeyDisplay + ' again.';
+                    document.getElementById('hotkeyTestStatus').style.color = 'var(--accent-secondary)';
+                    // Re-start the AHK hook for the next attempt
+                    postToAHK('startHotkeyCapture');
+                }
+            } else {
+                // Capture phase — display the captured combo
+                document.getElementById('newHotkeyDisplay').innerText = keyName;
+                tempHotkey = ahkKey;
+                tempHotkeyDisplay = keyName;
+                // Show the "Try It" button after a key is captured
+                document.getElementById('btnTestHotkey').style.display = '';
+
+                // S-21: Warn if captured hotkey conflicts with common system shortcuts
+                var systemHotkeys = ['Ctrl + C', 'Ctrl + V', 'Ctrl + X', 'Ctrl + Z', 'Ctrl + A', 'Ctrl + S', 'Alt + F4', 'Alt + Tab'];
+                if (systemHotkeys.indexOf(keyName) !== -1) {
+                    showToast('Warning: ' + keyName + ' is a common system shortcut. This may cause conflicts.', 'warning');
+                }
+            }
+        };
+
+        function startHotkeyTest() {
+            // Switch to test phase — ask AHK to capture again for verification
+            hotkeyTestPending = true;
+            document.getElementById('hotkeyPhaseCapture').style.display = 'none';
+            document.getElementById('hotkeyPhaseTest').style.display = '';
+            document.getElementById('btnTestHotkey').style.display = 'none';
+            document.getElementById('btnConfirmHotkey').style.display = 'none';
+
+            document.getElementById('hotkeyTestLabel').textContent = tempHotkeyDisplay;
+            document.getElementById('hotkeyTestStatus').innerText = 'Waiting for test...';
+            document.getElementById('hotkeyTestStatus').style.opacity = '0.6';
+
+            // Tell AHK to start a new capture for test verification
+            postToAHK('startHotkeyCapture');
+        }
+
+        function stopHotkeyListen() {
+            // Tell AHK to remove the low-level keyboard hook
+            postToAHK('stopHotkeyCapture');
+            hotkeyTestPending = false;
+        }
+
+        function resetHotkeyModal() {
+            document.getElementById('hotkeyPhaseCapture').style.display = '';
+            document.getElementById('hotkeyPhaseTest').style.display = 'none';
+            document.getElementById('btnTestHotkey').style.display = 'none';
+            document.getElementById('btnConfirmHotkey').style.display = 'none';
+            var testStatus = document.getElementById('hotkeyTestStatus');
+            if (testStatus) { testStatus.style.color = ''; testStatus.style.opacity = '0.6'; }
+        }
+
+        function confirmHotkey() {
+            if (tempHotkey) {
+                config.hotkey = tempHotkey;
+                setVal('hotkeyDisplay', formatHotkey(config.hotkey), false);
+                showToast("Hotkey updated!", "success");
+            }
+            stopHotkeyListen();
+            resetHotkeyModal();
+            closeModal('modalHotkey');
+        }
+
+        // --- TEST CURRENT HOTKEY (inline test from settings page) ---
+        var hotkeyTestTimer = null;
+
+        function testCurrentHotkey() {
+            var hk = config && config.hotkey ? config.hotkey : '';
+            if (!hk) {
+                showToast('No hotkey configured to test.', 'warning');
+                return;
+            }
+            var btn = document.getElementById('btnTestCurrentHotkey');
+            var el = document.getElementById('hotkeyTestMessage');
+            setButtonLoading(btn, true, 'Testing...');
+            el.className = 'status-text';
+            el.innerText = 'Press ' + formatHotkey(hk) + ' now... (5s)';
+
+            // Clear any previous timer
+            if (hotkeyTestTimer) clearInterval(hotkeyTestTimer);
+            var secondsLeft = 5;
+            hotkeyTestTimer = setInterval(function () {
+                secondsLeft--;
+                if (secondsLeft > 0) {
+                    el.innerText = 'Press ' + formatHotkey(hk) + ' now... (' + secondsLeft + 's)';
+                } else {
+                    clearInterval(hotkeyTestTimer);
+                    hotkeyTestTimer = null;
+                }
+            }, 1000);
+
+            postToAHK('testHotkey', { hotkey: hk });
+        }
+
+        window.hotkeyTestResult = function (data) {
+            if (hotkeyTestTimer) {
+                clearInterval(hotkeyTestTimer);
+                hotkeyTestTimer = null;
+            }
+            var btn = document.getElementById('btnTestCurrentHotkey');
+            var el = document.getElementById('hotkeyTestMessage');
+            setButtonLoading(btn, false);
+
+            if (data && data.success) {
+                el.className = 'status-text status-success';
+                el.innerText = '\u2713 Hotkey works!';
+            } else {
+                el.className = 'status-text status-warning';
+                el.innerText = data && data.message ? data.message : 'This hotkey may conflict with another application.';
+            }
+        };
+
+        // --- UTILS ---
+        function getVal(id) {
+            var el = document.getElementById(id);
+            return el ? el.value : "";
+        }
+        function setVal(id, v, isText) {
+            var el = document.getElementById(id);
+            if (el) {
+                if (isText) el.innerText = v;
+                else el.value = v;
+            }
+        }
+        function getCheck(id) {
+            var el = document.getElementById(id);
+            return el ? el.checked : false;
+        }
+        function setCheck(id, v) {
+            var el = document.getElementById(id);
+            if (el) el.checked = !!v;
+        }
+
+        function openModal(id) { document.getElementById(id).className = "modal-overlay active"; }
+        function closeModal(id) { document.getElementById(id).className = "modal-overlay"; }
+
+        function togglePass() {
+            var el = document.getElementById('groqApiKey');
+            var btn = document.getElementById('btnTogglePass');
+            if (el.type == "password") {
+                el.type = "text";
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+            } else {
+                el.type = "password";
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+            }
+        }
+
+        function formatHotkey(hk) {
+            if (!hk) return "None";
+            var s = hk;
+
+            // Handle AHK ampersand syntax (modifier-only combos like "LCtrl & LWin")
+            if (s.indexOf(' & ') !== -1) {
+                s = s.replace(/LWin|RWin/g, "Win");
+                s = s.replace(/LAlt|RAlt/g, "Alt");
+                s = s.replace(/LCtrl|RCtrl/g, "Ctrl");
+                s = s.replace(/LShift|RShift/g, "Shift");
+                s = s.replace(/\s*&\s*/g, " + ");
+                return s.trim();
+            }
+
+            s = s.replace(/\^/g, "Ctrl + ");
+            s = s.replace(/\!/g, "Alt + ");
+            s = s.replace(/\+/g, "Shift + ");
+            s = s.replace(/\#/g, "Win + ");
+
+            s = s.replace(/LWin/g, "Win");
+            s = s.replace(/RWin/g, "Win");
+            s = s.replace(/LAlt/g, "Alt");
+            s = s.replace(/RAlt/g, "Alt");
+            s = s.replace(/LCtrl/g, "Ctrl");
+            s = s.replace(/RCtrl/g, "Ctrl");
+            s = s.replace(/LShift/g, "Shift");
+            s = s.replace(/RShift/g, "Shift");
+            s = s.replace(/Space/g, "Space");
+
+            s = s.replace(/  +/g, " ");
+            s = s.replace(/\s*\+\s*$/, "");
+
+            return s.trim();
+        }
+
+        function testApiConnection() {
+            var apiKey = getVal('groqApiKey');
+            var statusEl = document.getElementById('apiStatusMessage');
+
+            // Warn if API key format looks wrong (but still proceed with the test)
+            if (apiKey && !apiKey.startsWith('gsk_')) {
+                statusEl.className = 'status-text status-warning';
+                statusEl.innerText = "API key should start with 'gsk_'. Please check your key.";
+            } else {
+                statusEl.innerText = "";
+            }
+
+            var btn = document.getElementById('btnTestApi');
+            setButtonLoading(btn, true, 'Testing...');
+            postToAHK('testGroqAPI', { apiKey: apiKey });
+        }
+
+        // --- HOTKEY RADIO LISTENERS ---
+        (function () {
+            var radios = document.querySelectorAll('.hotkey-radio');
+            for (var i = 0; i < radios.length; i++) {
+                radios[i].onchange = function () {
+                    var val = this.value;
+                    var controls = document.getElementById('customHotkeyControls');
+                    if (val === 'custom') {
+                        controls.style.display = 'block';
+                    } else {
+                        controls.style.display = 'none';
+                        config.hotkey = "^LWin";
+                        document.getElementById('hotkeyDisplay').value = "Ctrl + Win";
+                    }
+                };
+            }
+        })();
+
+        // ==================================================================
+        // HISTORY & STATISTICS FUNCTIONS
+        // ==================================================================
+
+        var historyData = [];
+        var statsData = {};
+
+        function loadHistory() {
+            console.log("=== loadHistory() CALLED ===");
+            postToAHK('loadHistoryData');
+        }
+
+        // Called from AHK
+        window.receiveHistoryData = function (data) {
+            console.log("=== receiveHistoryData() CALLED ===");
+
+            try {
+                const historyArray = data && data.history ? data.history : [];
+                historyData = historyArray;
+
+                const count = historyData.length;
+                const historyTabCount = document.getElementById('historyTabCount');
+                if (historyTabCount) {
+                    historyTabCount.innerText = count + " entries";
+                }
+
+                populateAppFilter(historyData);
+                renderHistory(historyData);
+                var countEl = document.getElementById('filterCount');
+                if (countEl) countEl.textContent = 'Showing ' + count + ' of ' + count + ' entries';
+            } catch (e) {
+                console.error("Error in receiveHistoryData:", e);
+            }
+        };
+
+        function formatRelativeTime(timestamp) {
+            try {
+                var parts = timestamp.split(' ');
+                var dateParts = parts[0].split('-');
+                var timeParts = parts[1].split(':');
+
+                var date = new Date(
+                    parseInt(dateParts[0]),
+                    parseInt(dateParts[1]) - 1,
+                    parseInt(dateParts[2]),
+                    parseInt(timeParts[0]),
+                    parseInt(timeParts[1]),
+                    parseInt(timeParts[2])
+                );
+
+                var now = new Date();
+                var diffMs = now - date;
+                var diffMins = Math.floor(diffMs / 60000);
+                var diffHours = Math.floor(diffMs / 3600000);
+                var diffDays = Math.floor(diffMs / 86400000);
+
+                if (diffMins < 1) return 'Just now';
+                if (diffMins < 60) return diffMins + ' min ago';
+                if (diffHours < 24) return diffHours + 'h ago';
+                if (diffDays < 7) return diffDays + 'd ago';
+                if (diffDays < 30) return Math.floor(diffDays / 7) + ' weeks ago';
+                if (diffDays < 365) return Math.floor(diffDays / 30) + ' months ago';
+                return Math.floor(diffDays / 365) + ' years ago';
+            } catch (e) {
+                return timestamp;
+            }
+        }
+
+        function renderHistory(data) {
+            var list = document.getElementById('historyList');
+            if (!list) return;
+
+            if (!data || data.length === 0) {
+                var hk = (config && config.hotkey) ? config.hotkey : 'Ctrl+Win';
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="empty-state-heading">No transcriptions yet</div><div class="empty-state-text">Hold <kbd class="kbd">' + hk + '</kbd> and start speaking</div></div>';
+                return;
+            }
+
+            var html = '';
+            var slice = data.slice(0, 50);
+
+            slice.forEach(function (item, idx) {
+                var txt = item.cleanedText || item.rawText || "(No text)";
+                var app = item.appContext || "Unknown App";
+
+                var time = "Recent";
+                if (item.timestamp) {
+                    time = formatRelativeTime(item.timestamp);
+                }
+
+                var wc = item.wordCount ? item.wordCount + ' words' : '';
+                var dur = item.duration ? (item.duration / 1000).toFixed(1) + 's' : '';
+                var meta = time + ' \u00B7 ' + app;
+                var stats = [wc, dur].filter(Boolean).join(' \u00B7 ');
+
+                html += '<div class="dict-row flex-col" style="align-items: flex-start; cursor: pointer;" onclick="toggleHistoryItem(' + idx + ')">';
+                html += '<div class="flex-row w-full" style="justify-content: space-between;">';
+                html += '<span class="sub-text" style="margin: 0;">' + meta + '</span>';
+                html += '<span class="sub-text" style="margin: 0;">' + stats + '</span>';
+                html += '</div>';
+                html += '<div class="history-text">' + escapeHtml(txt) + '</div>';
+
+                html += '<div id="hist-expand-' + idx + '" class="history-expand">';
+                html += '<div class="history-expand-label">Raw Transcript</div>';
+                html += '<div class="history-raw-text">' + escapeHtml(item.rawText || "") + '</div>';
+                if (item.audioFile) {
+                    html += '<div class="history-audio-file"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' + escapeHtml(item.audioFile) + '</div>';
+                }
+                html += '</div>';
+
+                html += '</div>';
+            });
+
+            list.innerHTML = html;
+        }
+
+        function searchHistory() {
+            applyHistoryFilters();
+        }
+
+        function toggleHistoryItem(idx) {
+            var el = document.getElementById('hist-expand-' + idx);
+            if (el.style.display === 'none' || el.style.display === '') el.style.display = 'block';
+            else el.style.display = 'none';
+        }
+
+        // --- HISTORY FILTERS ---
+        var currentWordCountFilter = 'all';
+
+        function populateAppFilter(data) {
+            var sel = document.getElementById('filterApp');
+            if (!sel || !data) return;
+            var apps = {};
+            data.forEach(function(item) {
+                if (item.appContext) apps[item.appContext] = true;
+            });
+            sel.innerHTML = '<option value="all">All Apps</option>';
+            Object.keys(apps).sort().forEach(function(app) {
+                var opt = document.createElement('option');
+                opt.value = app;
+                opt.textContent = app.length > 30 ? app.substring(0, 30) + '...' : app;
+                sel.appendChild(opt);
+            });
+        }
+
+        window.setWordCountFilter = function(btn) {
+            currentWordCountFilter = btn.getAttribute('data-wc');
+            var group = btn.parentElement;
+            group.querySelectorAll('.btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            applyHistoryFilters();
+        };
+
+        window.applyHistoryFilters = function() {
+            if (!historyData) return;
+
+            var dateFilter = document.getElementById('filterDate').value;
+            var appFilter = document.getElementById('filterApp').value;
+            var query = document.getElementById('historySearch').value.toLowerCase();
+            var now = new Date();
+
+            var filtered = historyData.filter(function(item) {
+                // Text search
+                if (query) {
+                    var matches = (item.cleanedText && item.cleanedText.toLowerCase().indexOf(query) !== -1) ||
+                        (item.rawText && item.rawText.toLowerCase().indexOf(query) !== -1) ||
+                        (item.appContext && item.appContext.toLowerCase().indexOf(query) !== -1);
+                    if (!matches) return false;
+                }
+
+                // Date filter
+                if (dateFilter !== 'all' && item.timestamp) {
+                    var parts = item.timestamp.split(' ');
+                    var dp = parts[0].split('-');
+                    var itemDate = new Date(parseInt(dp[0]), parseInt(dp[1])-1, parseInt(dp[2]));
+                    var diffDays = Math.floor((now - itemDate) / 86400000);
+                    if (dateFilter === 'today' && diffDays > 0) return false;
+                    if (dateFilter === 'week' && diffDays > 7) return false;
+                    if (dateFilter === 'month' && diffDays > 30) return false;
+                }
+
+                // App filter
+                if (appFilter !== 'all' && item.appContext !== appFilter) return false;
+
+                // Word count filter
+                var wc = item.wordCount || 0;
+                if (currentWordCountFilter === 'short' && wc >= 20) return false;
+                if (currentWordCountFilter === 'medium' && (wc < 20 || wc > 100)) return false;
+                if (currentWordCountFilter === 'long' && wc <= 100) return false;
+
+                return true;
+            });
+
+            renderHistory(filtered);
+            var countEl = document.getElementById('filterCount');
+            if (countEl) countEl.textContent = 'Showing ' + filtered.length + ' of ' + historyData.length + ' entries';
+        };
+
+        function loadStatistics() {
+            console.log("=== loadStatistics() CALLED ===");
+            postToAHK('loadStatisticsData');
+        }
+
+        // Called from AHK
+        window.receiveStatisticsData = function (data) {
+            console.log("=== receiveStatisticsData() CALLED ===");
+            statsData = data || {};
+            renderStats(statsData);
+        };
+
+        function renderStats(data) {
+            if (!data) return;
+
+            // Show/hide empty state
+            var statsEmpty = document.getElementById('statsEmptyState');
+            var statsContent = document.getElementById('statsContent');
+            if (statsEmpty && statsContent) {
+                if (!data.totalWords || data.totalWords === 0) {
+                    statsEmpty.style.display = '';
+                    statsContent.style.display = 'none';
+                    return;
+                } else {
+                    statsEmpty.style.display = 'none';
+                    statsContent.style.display = '';
+                }
+            }
+
+            // Keystrokes saved: totalWords * avgWordLength(5) * 1.2 correction factor
+            var keystrokes = Math.round((data.totalWords || 0) * 5 * 1.2);
+            var typingMinutes = Math.round(keystrokes / 200);
+            var typingEl = document.getElementById('statTypingTime');
+            if (typingEl) typingEl.textContent = '~' + typingMinutes + ' min of typing saved';
+
+            // Update WPM contextual comparison
+            updateWPMContext(parseInt(data.averageWPM) || 0);
+
+            // Use count-up animation on first view, otherwise set directly
+            if (!statsAnimated) {
+                animateStats(data);
+            } else {
+                setText('statTotalWords', data.totalWords ? data.totalWords.toLocaleString() : '0');
+                setText('statWPM', data.averageWPM || '0');
+                setText('statStreak', data.dailyStreak || '0');
+                setText('statKeystrokes', keystrokes.toLocaleString());
+            }
+
+            // Achievements
+            var checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+
+            var achievements = [
+                { svgIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', colorClass: 'ach-teal', title: 'First Words', desc: 'Dictated your first words', unlocked: data.totalWords > 0, current: data.totalWords, goal: 1 },
+                { svgIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>', colorClass: 'ach-teal', title: 'Century', desc: 'Dictated 100 words', unlocked: data.totalWords >= 100, current: data.totalWords, goal: 100 },
+                { svgIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>', colorClass: 'ach-orange', title: 'Power User', desc: 'Dictated 1,000 words', unlocked: data.totalWords >= 1000, current: data.totalWords, goal: 1000 },
+                { svgIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', colorClass: 'ach-amber', title: 'Word Master', desc: 'Dictated 10,000 words', unlocked: data.totalWords >= 10000, current: data.totalWords, goal: 10000 },
+                { svgIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>', colorClass: 'ach-orange', title: 'On Fire', desc: '7-day streak', unlocked: data.dailyStreak >= 7, current: data.dailyStreak, goal: 7 },
+                { svgIcon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 9 7 12 7s5-3 7.5-3a2.5 2.5 0 0 1 0 5H18"/><path d="M18 15h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M6 15H4.5a2.5 2.5 0 0 1 0-5H6"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/><path d="M6 15a6 6 0 0 0 12 0"/></svg>', colorClass: 'ach-green', title: 'Dedicated', desc: '30-day streak', unlocked: data.dailyStreak >= 30, current: data.dailyStreak, goal: 30 }
+            ];
+
+            var html = '';
+            achievements.forEach(function (ach) {
+                var stateClass = ach.unlocked ? 'unlocked' : 'locked';
+                var progress = Math.min(1, (ach.current || 0) / ach.goal);
+
+                html += '<div class="achievement-card ' + stateClass + '">';
+                html += '<div class="ach-icon-container ' + ach.colorClass + '">' + ach.svgIcon + '</div>';
+                html += '<div class="flex-1">';
+                html += '<div class="ach-title">' + ach.title + '</div>';
+                html += '<div class="ach-desc">' + ach.desc + '</div>';
+                if (!ach.unlocked && progress > 0) {
+                    html += '<div class="ach-progress-bar"><div class="ach-progress-bar-fill" style="width:' + Math.round(progress * 100) + '%"></div></div>';
+                }
+                html += '</div>';
+                if (ach.unlocked) html += '<div class="ach-check">' + checkSvg + '</div>';
+                html += '</div>';
+            });
+
+            document.getElementById('achievementsList').innerHTML = html;
+
+            // Dashboard: Time Saved, Chart, Top Apps, Trend
+            renderDashboard(data);
+        }
+
+        function renderDashboard(data) {
+            // Time Saved
+            var totalWords = data.totalWords || 0;
+            var minSaved = Math.round(totalWords / 40);
+            var hours = Math.floor(minSaved / 60);
+            var mins = minSaved % 60;
+            var timeStr = hours > 0 ? hours + 'h ' + mins + 'm' : mins + 'm';
+            setText('statTimeSaved', timeStr);
+
+            // Context line for time saved
+            var pages = Math.round(totalWords / 250);
+            var descEl = document.getElementById('statTimeSavedDesc');
+            if (descEl) {
+                if (pages >= 1) {
+                    descEl.textContent = '~' + pages + ' page' + (pages !== 1 ? 's' : '') + ' of typing saved';
+                } else {
+                    descEl.textContent = 'Based on 40 WPM average typing speed';
+                }
+            }
+
+            // 7-day bar chart (from history data)
+            renderWeeklyChart();
+
+            // Top apps (from history data)
+            renderTopApps();
+
+            // Monthly trend
+            renderTrend();
+        }
+
+        function renderWeeklyChart() {
+            var container = document.getElementById('weeklyChart');
+            if (!container || !historyData) return;
+
+            var now = new Date();
+            var days = [];
+            var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            // Build last 7 days
+            for (var i = 6; i >= 0; i--) {
+                var d = new Date(now);
+                d.setDate(d.getDate() - i);
+                var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+                days.push({ key: key, label: dayNames[d.getDay()], words: 0, isToday: i === 0 });
+            }
+
+            // Aggregate word counts by date
+            historyData.forEach(function(item) {
+                if (!item.timestamp) return;
+                var dateKey = item.timestamp.split(' ')[0];
+                days.forEach(function(day) {
+                    if (day.key === dateKey) day.words += (item.wordCount || 0);
+                });
+            });
+
+            var maxWords = Math.max.apply(null, days.map(function(d) { return d.words; }));
+
+            // Empty state: motivational message + mic SVG
+            if (maxWords === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:16px 0;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#72728c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg><div style="color:#72728c;font-size:12px;margin-top:8px;">Start dictating to see your weekly activity</div></div>';
+                return;
+            }
+
+            // Build SVG
+            var svgW = 420, svgH = 120, barW = 36, gap = 24, padBottom = 20, padTop = 20;
+            var totalW = days.length * barW + (days.length - 1) * gap;
+            var startX = (svgW - totalW) / 2;
+            var chartH = svgH - padBottom - padTop;
+
+            var svg = '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" xmlns="http://www.w3.org/2000/svg">';
+
+            // Gradient definition
+            svg += '<defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">';
+            svg += '<stop offset="0%" stop-color="#22d3c5" stop-opacity="0.9"/>';
+            svg += '<stop offset="100%" stop-color="#22d3c5" stop-opacity="0.4"/>';
+            svg += '</linearGradient>';
+            svg += '<linearGradient id="barGradToday" x1="0" y1="0" x2="0" y2="1">';
+            svg += '<stop offset="0%" stop-color="#22d3c5" stop-opacity="1"/>';
+            svg += '<stop offset="100%" stop-color="#22d3c5" stop-opacity="0.6"/>';
+            svg += '</linearGradient></defs>';
+
+            // Baseline
+            svg += '<line x1="' + startX + '" y1="' + (svgH - padBottom) + '" x2="' + (startX + totalW) + '" y2="' + (svgH - padBottom) + '" stroke="#3e3e50" stroke-width="1" stroke-dasharray="4,4"/>';
+
+            days.forEach(function(day, idx) {
+                var x = startX + idx * (barW + gap);
+                var barH = Math.max(4, (day.words / maxWords) * chartH);
+                var y = svgH - padBottom - barH;
+                var fill = day.isToday ? 'url(#barGradToday)' : 'url(#barGrad)';
+                var filter = day.isToday ? ' filter="drop-shadow(0 0 6px rgba(34,211,197,0.4))"' : '';
+
+                svg += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + barH + '" rx="4" fill="' + fill + '"' + filter + '>';
+                svg += '<title>' + day.label + ': ' + day.words + ' words</title>';
+                svg += '</rect>';
+
+                // Word count above bar
+                if (day.words > 0) {
+                    svg += '<text x="' + (x + barW/2) + '" y="' + (y - 4) + '" text-anchor="middle" font-size="11" font-family="DM Sans, sans-serif" fill="#9494a3">' + day.words + '</text>';
+                }
+
+                // Day label below
+                svg += '<text x="' + (x + barW/2) + '" y="' + (svgH - 4) + '" text-anchor="middle" font-size="11" font-family="DM Sans, sans-serif" font-weight="' + (day.isToday ? '600' : '400') + '" fill="' + (day.isToday ? '#22d3c5' : '#72728c') + '">' + day.label + '</text>';
+            });
+
+            svg += '</svg>';
+            container.innerHTML = svg;
+        }
+
+        function renderTopApps() {
+            var container = document.getElementById('topApps');
+            if (!container || !historyData) return;
+
+            var appWords = {};
+            historyData.forEach(function(item) {
+                var app = item.appContext || 'Unknown';
+                // Simplify app name (take first part before ' - ')
+                var short = app.split(' - ').pop() || app;
+                if (short.length > 25) short = short.substring(0, 25) + '...';
+                if (!appWords[short]) appWords[short] = 0;
+                appWords[short] += (item.wordCount || 0);
+            });
+
+            var sorted = Object.keys(appWords).map(function(k) { return { name: k, words: appWords[k] }; });
+            sorted.sort(function(a, b) { return b.words - a.words; });
+
+            var html = '';
+            var top3 = sorted.slice(0, 3);
+            if (top3.length === 0) {
+                html = '<div class="sub-text">No app data yet</div>';
+            } else {
+                var topWords = top3[0].words;
+                top3.forEach(function(app, idx) {
+                    var pct = topWords > 0 ? Math.round((app.words / topWords) * 100) : 0;
+                    html += '<div class="top-app-row">';
+                    html += '<span class="top-app-rank">' + (idx + 1) + '.</span>';
+                    html += '<span class="top-app-name">' + escapeHtml(app.name) + '</span>';
+                    html += '<div class="top-app-bar-wrapper"><div class="top-app-bar" style="width:' + pct + '%"></div></div>';
+                    html += '<span class="top-app-count">' + app.words.toLocaleString() + '</span>';
+                    html += '</div>';
+                });
+            }
+            container.innerHTML = html;
+        }
+
+        function renderTrend() {
+            var el = document.getElementById('statTrend');
+            if (!el || !historyData) return;
+
+            var now = new Date();
+            var thisMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+            var lastMonthDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
+            var lastMonth = lastMonthDate.getFullYear() + '-' + String(lastMonthDate.getMonth()+1).padStart(2,'0');
+
+            var thisMonthWords = 0, lastMonthWords = 0;
+            historyData.forEach(function(item) {
+                if (!item.timestamp) return;
+                var monthKey = item.timestamp.substring(0, 7);
+                if (monthKey === thisMonth) thisMonthWords += (item.wordCount || 0);
+                if (monthKey === lastMonth) lastMonthWords += (item.wordCount || 0);
+            });
+
+            if (lastMonthWords === 0 && thisMonthWords === 0) {
+                el.className = 'trend-indicator neutral';
+                el.textContent = '';
+            } else if (lastMonthWords === 0) {
+                el.className = 'trend-indicator neutral';
+                el.textContent = '— First month';
+            } else {
+                var pct = Math.round(((thisMonthWords - lastMonthWords) / lastMonthWords) * 100);
+                if (pct >= 0) {
+                    el.className = 'trend-indicator up';
+                    el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> ' + pct + '% vs last month';
+                } else {
+                    el.className = 'trend-indicator down';
+                    el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg> ' + Math.abs(pct) + '% vs last month';
+                }
+            }
+        }
+
+        // --- WPM CONTEXTUAL COMPARISON ---
+        function updateWPMContext(wpm) {
+            var el = document.getElementById('statWPMContext');
+            if (!el) return;
+            if (wpm >= 120) {
+                el.textContent = '3x faster than typing';
+            } else if (wpm >= 80) {
+                el.textContent = '2x+ faster than typing';
+            } else if (wpm > 40) {
+                el.textContent = 'Faster than typing (~40 WPM)';
+            } else if (wpm > 0) {
+                el.textContent = 'About average typing speed';
+            } else {
+                el.textContent = '';
+            }
+        }
+
+        // --- COUNT-UP ANIMATION ---
+        var statsAnimated = false;
+
+        function animateValue(el, start, end, duration) {
+            if (!el) return;
+            if (start === end) { el.textContent = end.toLocaleString(); return; }
+            var range = end - start;
+            var startTime = null;
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                var progress = Math.min((timestamp - startTime) / duration, 1);
+                // ease-out cubic
+                var eased = 1 - Math.pow(1 - progress, 3);
+                var current = Math.round(start + range * eased);
+                el.textContent = current.toLocaleString();
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function animateStats(data) {
+            if (statsAnimated) return;
+            statsAnimated = true;
+
+            var totalWordsEl = document.getElementById('statTotalWords');
+            var wpmEl = document.getElementById('statWPM');
+            var streakEl = document.getElementById('statStreak');
+            var keystrokesEl = document.getElementById('statKeystrokes');
+
+            animateValue(totalWordsEl, 0, data.totalWords || 0, 800);
+            animateValue(wpmEl, 0, parseInt(data.averageWPM) || 0, 600);
+            animateValue(streakEl, 0, data.dailyStreak || 0, 600);
+            var keystrokes = Math.round((data.totalWords || 0) * 5 * 1.2);
+            animateValue(keystrokesEl, 0, keystrokes, 900);
+        }
+
+        // --- STATS PERIOD SELECTOR ---
+        var currentStatsPeriod = 'all';
+
+        window.setStatsPeriod = function(period, btn) {
+            currentStatsPeriod = period;
+            // Update active button
+            var buttons = document.querySelectorAll('.period-btn');
+            for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
+            if (btn) btn.classList.add('active');
+
+            // Re-render stats with filtered data
+            renderStatsForPeriod(period);
+        };
+
+        function filterHistoryByPeriod(period) {
+            if (!historyData || period === 'all') return historyData;
+
+            var now = new Date();
+            return historyData.filter(function(item) {
+                if (!item.timestamp) return false;
+                var parts = item.timestamp.split(' ');
+                var dp = parts[0].split('-');
+                var itemDate = new Date(parseInt(dp[0]), parseInt(dp[1])-1, parseInt(dp[2]));
+                var diffDays = Math.floor((now - itemDate) / 86400000);
+
+                if (period === 'today') return diffDays === 0;
+                if (period === 'week') return diffDays <= 7;
+                if (period === 'month') return diffDays <= 30;
+                return true;
+            });
+        }
+
+        function renderStatsForPeriod(period) {
+            var filtered = filterHistoryByPeriod(period);
+
+            // Recalculate KPIs from filtered history
+            var totalWords = 0;
+            var totalDuration = 0;
+            var wpmNumerator = 0;
+            var wpmCount = 0;
+
+            filtered.forEach(function(item) {
+                totalWords += (item.wordCount || 0);
+                totalDuration += (item.duration || 0);
+                if (item.wordCount >= 3 && item.duration >= 5000) {
+                    wpmNumerator += (item.wordCount / (item.duration / 60000));
+                    wpmCount++;
+                }
+            });
+
+            var avgWpm = wpmCount > 0 ? Math.round(wpmNumerator / wpmCount) : 0;
+            var keystrokes = Math.round(totalWords * 5 * 1.2);
+
+            setText('statTotalWords', totalWords.toLocaleString());
+            updateWPMContext(avgWpm);
+            setText('statWPM', avgWpm.toString());
+            setText('statKeystrokes', keystrokes.toLocaleString());
+
+            var typingMinutes = Math.round(keystrokes / 200);
+            var typingEl = document.getElementById('statTypingTime');
+            if (typingEl) typingEl.textContent = '~' + typingMinutes + ' min of typing saved';
+
+            // Time Saved
+            var minSaved = Math.round(totalWords / 40);
+            var hours = Math.floor(minSaved / 60);
+            var mins = minSaved % 60;
+            var timeStr = hours > 0 ? hours + 'h ' + mins + 'm' : mins + 'm';
+            setText('statTimeSaved', timeStr);
+
+            // Context line for time saved
+            var pages = Math.round(totalWords / 250);
+            var descEl = document.getElementById('statTimeSavedDesc');
+            if (descEl) {
+                if (pages >= 1) {
+                    descEl.textContent = '~' + pages + ' page' + (pages !== 1 ? 's' : '') + ' of typing saved';
+                } else {
+                    descEl.textContent = 'Based on 40 WPM average typing speed';
+                }
+            }
+
+            // Streak stays from statsData (period doesn't affect it)
+            if (statsData && statsData.dailyStreak !== undefined) {
+                setText('statStreak', statsData.dailyStreak.toString());
+            }
+
+            renderWeeklyChart();
+            renderTopApps();
+            renderTrend();
+        }
+
+        // ==================================================================
+        // MODES
+        // ==================================================================
+        var modesData = [];
+        var currentModeId = 'standard';
+        var editingModeIndex = -1;
+
+        window.receiveModes = function (data) {
+            if (!data) return;
+            modesData = data.modes || [];
+            currentModeId = data.currentMode || 'standard';
+            renderModes();
+        };
+
+        function renderModes() {
+            var list = document.getElementById('modeList');
+            if (!list) return;
+            list.innerHTML = '';
+
+            for (var i = 0; i < modesData.length; i++) {
+                var mode = modesData[i];
+                var isActive = (mode.id === currentModeId);
+                var isBuiltIn = mode.builtIn === true;
+
+                var row = document.createElement('div');
+                row.className = 'mode-row' + (isActive ? ' mode-active' : '');
+
+                var description = mode.description || 'Custom mode';
+
+                var lockIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+
+                row.innerHTML = '<div class="mode-row-left">' +
+                    '<div class="mode-icon">' + getModeIconSVG(mode.icon || 'star') + '</div>' +
+                    '<div class="mode-info">' +
+                        '<div class="mode-name">' + escapeHtml(mode.name) +
+                            (isBuiltIn ? ' <span class="mode-builtin-tag">' + lockIcon + ' PRESET</span>' : '') +
+                            (isActive ? ' <span class="badge">ACTIVE</span>' : '') +
+                        '</div>' +
+                        '<div class="mode-description">' + escapeHtml(description) + '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="mode-row-actions">' +
+                    (isActive ? '' : '<button class="btn btn-sm btn-primary" data-action="activate" data-index="' + i + '">Activate</button> ') +
+                    (isBuiltIn
+                        ? '<button class="btn btn-sm btn-secondary" data-action="view" data-index="' + i + '">View</button>'
+                        : '<button class="btn btn-sm btn-secondary" data-action="edit" data-index="' + i + '">Edit</button>' +
+                          ' <button class="btn btn-sm btn-danger" data-action="delete" data-index="' + i + '">Delete</button>') +
+                '</div>';
+
+                list.appendChild(row);
+            }
+
+            // Event delegation for mode actions
+            list.onclick = function(e) {
+                var btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                var action = btn.getAttribute('data-action');
+                var idx = parseInt(btn.getAttribute('data-index'));
+                if (action === 'activate') setActiveMode(idx);
+                else if (action === 'edit') openModeModal(idx, false);
+                else if (action === 'view') openModeModal(idx, true);
+                else if (action === 'delete') deleteMode(idx);
+            };
+        }
+
+        function setActiveMode(index) {
+            if (index < 0 || index >= modesData.length) return;
+            currentModeId = modesData[index].id;
+            postToAHK('setMode', currentModeId);
+            renderModes();
+            showToast('Mode: ' + modesData[index].name, 'success');
+        }
+
+        function updateModeIconPreview() {
+            var iconName = document.getElementById('modeIcon').value.trim() || 'star';
+            var preview = document.getElementById('modeIconPreview');
+            if (preview) preview.innerHTML = getModeIconSVG(iconName);
+        }
+
+        function openModeModal(index, readOnly) {
+            editingModeIndex = index;
+            var nameEl = document.getElementById('modeName');
+            var iconEl = document.getElementById('modeIcon');
+            var descEl = document.getElementById('modeDescription');
+            var promptEl = document.getElementById('modePrompt');
+            var titleEl = document.getElementById('modalModeTitle');
+            var subtitleEl = document.getElementById('modalModeSubtitle');
+            var headerIcon = document.getElementById('modalModeIcon');
+            var saveBtn = document.getElementById('btnSaveMode');
+            var cancelBtn = document.getElementById('btnCancelMode');
+
+            // Remove any existing read-only notice
+            var existingNotice = document.querySelector('.mode-readonly-notice');
+            if (existingNotice) existingNotice.remove();
+
+            if (index >= 0 && index < modesData.length) {
+                var mode = modesData[index];
+                var isBuiltIn = mode.builtIn === true;
+
+                if (isBuiltIn) {
+                    titleEl.textContent = 'View Preset Mode';
+                    subtitleEl.textContent = 'Preset mode prompts are locked to prevent accidental changes';
+
+                    // Insert read-only notice before the prompt section
+                    var promptSection = promptEl.closest('.mode-modal-section');
+                    var notice = document.createElement('div');
+                    notice.className = 'mode-readonly-notice';
+                    notice.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> This is a preset mode. Create a custom mode if you need a different prompt.';
+                    promptSection.parentNode.insertBefore(notice, promptSection);
+
+                    // All fields read-only
+                    nameEl.disabled = true;
+                    iconEl.disabled = true;
+                    descEl.disabled = true;
+                    promptEl.disabled = true;
+                    promptEl.classList.add('mode-prompt-readonly');
+
+                    // Hide Save, change Cancel to Close
+                    saveBtn.style.display = 'none';
+                    cancelBtn.textContent = 'Close';
+                } else {
+                    titleEl.textContent = 'Edit Mode';
+                    subtitleEl.textContent = 'Configure your custom mode settings';
+                    nameEl.disabled = false;
+                    iconEl.disabled = false;
+                    descEl.disabled = false;
+                    promptEl.disabled = false;
+                    promptEl.classList.remove('mode-prompt-readonly');
+                    saveBtn.style.display = '';
+                    cancelBtn.textContent = 'Cancel';
+                }
+
+                nameEl.value = mode.name || '';
+                iconEl.value = mode.icon || '';
+                descEl.value = mode.description || '';
+                promptEl.value = (mode.prompt || '').replace(/\\n/g, '\n');
+                headerIcon.innerHTML = getModeIconSVG(mode.icon || 'star');
+            } else {
+                titleEl.textContent = 'Add Custom Mode';
+                subtitleEl.textContent = 'Create a new mode with a custom AI prompt';
+                nameEl.value = '';
+                iconEl.value = 'star';
+                descEl.value = '';
+                promptEl.value = '';
+                headerIcon.innerHTML = getModeIconSVG('star');
+                nameEl.disabled = false;
+                iconEl.disabled = false;
+                descEl.disabled = false;
+                promptEl.disabled = false;
+                promptEl.classList.remove('mode-prompt-readonly');
+                saveBtn.style.display = '';
+                cancelBtn.textContent = 'Cancel';
+            }
+            updateModeIconPreview();
+            openModal('modalMode');
+        }
+
+        function saveModeFromModal() {
+            var name = document.getElementById('modeName').value.trim();
+            var icon = document.getElementById('modeIcon').value.trim() || 'star';
+            var description = document.getElementById('modeDescription').value.trim();
+            var prompt = document.getElementById('modePrompt').value.trim();
+
+            if (!name) { showToast('Mode name is required', 'error'); return; }
+            if (!prompt) { showToast('Prompt is required', 'error'); return; }
+
+            if (editingModeIndex >= 0 && editingModeIndex < modesData.length) {
+                // Editing existing
+                var mode = modesData[editingModeIndex];
+                if (mode.builtIn) {
+                    // Preset modes are read-only — block any modification
+                    showToast('Preset modes cannot be modified', 'error');
+                    return;
+                }
+                mode.name = name;
+                mode.icon = icon;
+                mode.description = description;
+                mode.prompt = prompt;
+            } else {
+                // Adding new
+                var newId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                // Ensure unique id
+                var idBase = newId;
+                var counter = 1;
+                while (modesData.some(function(m) { return m.id === newId; })) {
+                    newId = idBase + '-' + counter++;
+                }
+                modesData.push({
+                    id: newId,
+                    name: name,
+                    icon: icon,
+                    description: description,
+                    prompt: prompt,
+                    builtIn: false
+                });
+            }
+
+            postToAHK('saveModes', modesData);
+            closeModal('modalMode');
+            renderModes();
+            showToast('Mode saved', 'success');
+        }
+
+        function deleteMode(index) {
+            if (index < 0 || index >= modesData.length) return;
+            var mode = modesData[index];
+            if (mode.builtIn) return;
+
+            showCustomModal('Delete Mode', 'Delete "' + mode.name + '"? This cannot be undone.', [
+                { text: 'Cancel', className: 'btn btn-secondary' },
+                { text: 'Delete', className: 'btn btn-danger', action: function() {
+                    // If deleting active mode, revert to standard
+                    if (mode.id === currentModeId) {
+                        currentModeId = 'standard';
+                        postToAHK('setMode', 'standard');
+                    }
+                    modesData.splice(index, 1);
+                    postToAHK('saveModes', modesData);
+                    renderModes();
+                    showToast('Mode deleted', 'info');
+                }}
+            ]);
+        }
+
+        function getModeIconSVG(name) {
+            var icons = {
+                'pen-tool': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>',
+                'mail': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+                'code': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+                'message-circle': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+                'star': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+                'clipboard': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>',
+                'zap': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+                'bookmark': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+                'mic': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+                'globe': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'
+            };
+            return icons[name] || icons['star'];
+        }
+
+        // F15: Loading state helper for async buttons
+        function setButtonLoading(btn, isLoading, loadingText) {
+            if (!btn) return;
+            if (isLoading) {
+                btn.dataset.originalText = btn.textContent;
+                btn.textContent = loadingText || 'Loading...';
+                btn.disabled = true;
+            } else {
+                btn.textContent = btn.dataset.originalText || 'Save';
+                btn.disabled = false;
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function setText(id, txt) {
+            var el = document.getElementById(id);
+            if (el) el.innerText = txt;
+        }
+
+        // ==================================================================
+        // What's New — Changelog badge + section
+        // ==================================================================
+        function loadChangelog() {
+            // Fetch changelog data from AHK
+            postToAHK('loadChangelog');
+        }
+
+        window.receiveChangelog = function (data) {
+            if (!data || !data.length) return;
+            changelogData = data;
+
+            var latest = data[0];
+            var currentVersion = latest.version;
+
+            // Populate the What's New section
+            var section = document.getElementById('whatsNewSection');
+            var versionEl = document.getElementById('whatsNewVersion');
+            var dateEl = document.getElementById('whatsNewDate');
+            var listEl = document.getElementById('whatsNewList');
+
+            versionEl.textContent = 'Version ' + currentVersion;
+            dateEl.textContent = latest.date;
+
+            var html = '';
+            for (var i = 0; i < latest.changes.length; i++) {
+                html += '<li>' + escapeHtml(latest.changes[i]) + '</li>';
+            }
+            listEl.innerHTML = html;
+            section.style.display = '';
+
+            // Check if user has seen this version
+            var lastSeen = config.lastSeenVersion || '';
+            if (lastSeen !== currentVersion) {
+                var dot = document.getElementById('whatsNewDot');
+                if (dot) dot.className = 'whatsnew-dot visible';
+            }
+        };
+
+        function markChangelogSeen() {
+            if (!changelogData || !changelogData.length) return;
+            var currentVersion = changelogData[0].version;
+            var lastSeen = config.lastSeenVersion || '';
+
+            if (lastSeen !== currentVersion) {
+                // Hide the dot
+                var dot = document.getElementById('whatsNewDot');
+                if (dot) dot.className = 'whatsnew-dot';
+
+                // Update local config
+                config.lastSeenVersion = currentVersion;
+
+                // Tell AHK to persist this
+                postToAHK('markChangelogSeen', currentVersion);
+            }
+        }
+
+        // Voice Commands toggle
+        function toggleVoiceCommands() {
+            var content = document.getElementById('voiceCmdContent');
+            var icon = document.getElementById('voiceCmdToggleIcon');
+            if (content.style.display === 'none') {
+                content.style.display = '';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                icon.style.transform = '';
+            }
+        }
+
+        // Ctrl+S keyboard shortcut to save
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveConfig(true);
+            }
+            // Escape closes any open modal
+            if (e.key === 'Escape') {
+                // Close modal overlays
+                var overlays = document.querySelectorAll('.modal-overlay.active');
+                overlays.forEach(function(m) { m.className = 'modal-overlay'; });
+                // Close custom modal
+                var customModal = document.getElementById('customModal');
+                if (customModal && (customModal.classList.contains('active') || customModal.style.display === 'flex')) {
+                    customModal.classList.remove('active');
+                    customModal.style.display = 'none';
+                }
+                // Close legal modal
+                var legalModal = document.getElementById('legalModal');
+                if (legalModal && legalModal.classList.contains('active')) {
+                    legalModal.className = 'legal-modal';
+                }
+                // Stop hotkey capture if active
+                if (document.querySelector('#modalHotkey.active')) {
+                    stopHotkeyListen();
+                    resetHotkeyModal();
+                }
+            }
+        });
+
+        // ============ GUIDED TOUR ============
+        var tourSteps = [
+            { type: 'center', title: 'Welcome to Settings', desc: '', icon: 'settings' },
+            { tab: 'general', target: '#stickyModeToggle', title: 'Hold vs. Toggle Mode', desc: 'This is the most important setting.<br><br><strong>Hold mode</strong> (default): Hold your hotkey while speaking, release when done. Fast and natural for short dictations.<br><br><strong>Toggle mode</strong>: Tap once to start recording, tap again to stop. Better for longer dictations, hands-free use, or accessibility. Try both and see what feels right.' },
+            { tab: 'general', target: '.hotkey-options', title: 'Your Recording Hotkey', desc: 'This is the key combo that activates QuickSay. Click the hotkey box to set your preferred shortcut — press it anywhere on your system to start recording.' },
+            { tab: 'audio', target: '.section', title: 'Audio Settings', desc: 'Pick your microphone and recording quality. If you use a USB mic, select it here — QuickSay works best with a dedicated device.' },
+            { tab: 'modes', target: '#modeList', title: 'Smart Modes', desc: 'Each mode cleans your speech differently. Standard fixes grammar. Email formats for messages. Code preserves technical terms. Try switching — you\'ll see the difference.' },
+            { tab: 'dictionary', target: '#dictionary h2', title: 'Custom Dictionary', desc: 'Add words QuickSay should always get right — names, brands, technical terms. The more you add, the sharper your transcriptions.' },
+            { tab: 'view-history', target: '.filter-bar', title: 'Transcription History', desc: 'Every transcription is saved here. Filter by date, app, or word count.' },
+            { tab: 'view-statistics', target: '.stats-grid', title: 'Usage Statistics', desc: 'Your dictation dashboard — words transcribed, time saved, daily streaks. See how much typing QuickSay handles for you.' },
+            { type: 'center', title: 'You\'re Ready', desc: '', icon: 'check' }
+        ];
+
+        var tourCurrentStep = -1;
+        var tourActive = false;
+
+        function startGuidedTour() {
+            tourAlreadyTriggered = true;
+            // Clean up any existing tour overlay before restarting
+            var existing = document.getElementById('tourOverlay');
+            if (existing) existing.remove();
+            tourCurrentStep = 0;
+            tourActive = true;
+            showTourStep(0);
+        }
+        window.startGuidedTour = startGuidedTour;
+
+        function showTourStep(idx) {
+            // Remove existing overlay
+            var existing = document.getElementById('tourOverlay');
+            if (existing) existing.remove();
+
+            if (idx < 0 || idx >= tourSteps.length) {
+                endGuidedTour();
+                return;
+            }
+
+            tourCurrentStep = idx;
+            var step = tourSteps[idx];
+
+            if (step.type === 'center') {
+                showCenterTourCard(step, idx);
+                return;
+            }
+
+            // Switch to the correct tab
+            if (step.tab) {
+                var tabBtn = document.querySelector('.tab-btn[data-tab="' + step.tab + '"]');
+                if (tabBtn) {
+                    switchTab(tabBtn);
+                }
+            }
+
+            // Wait for tab content to render
+            setTimeout(function() {
+                // Find target element within the active tab
+                var tabContent = document.getElementById(step.tab);
+                var target = null;
+                if (tabContent) {
+                    target = tabContent.querySelector(step.target);
+                }
+                if (!target) {
+                    target = document.querySelector(step.target);
+                }
+
+                if (!target) {
+                    if (idx < tourSteps.length - 1) showTourStep(idx + 1);
+                    else endGuidedTour();
+                    return;
+                }
+
+                // Scroll target into view
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                setTimeout(function() {
+                    var rawRect = target.getBoundingClientRect();
+                    var pad = 8;
+                    var gap = 12;
+                    var vpMargin = 16;
+                    var vw = window.innerWidth;
+                    var vh = window.innerHeight;
+
+                    // Determine spotlight dimensions — use full element size,
+                    // but cap if taller than 60% of viewport
+                    var spotTop = rawRect.top;
+                    var spotLeft = rawRect.left;
+                    var spotWidth = rawRect.width;
+                    var spotHeight = rawRect.height;
+
+                    if (spotHeight > vh * 0.6) {
+                        // For tall elements, spotlight only the top portion
+                        spotHeight = Math.min(rawRect.height, vh * 0.35);
+                    }
+
+                    var spotBottom = spotTop + spotHeight;
+
+                    // Spotlight rect including padding
+                    var spotRect = {
+                        top: spotTop - pad,
+                        left: spotLeft - pad,
+                        right: spotLeft + spotWidth + pad,
+                        bottom: spotBottom + pad,
+                        width: spotWidth + pad * 2,
+                        height: spotHeight + pad * 2
+                    };
+
+                    // Create overlay
+                    var overlay = document.createElement('div');
+                    overlay.id = 'tourOverlay';
+                    overlay.className = 'tour-overlay';
+
+                    // Spotlight
+                    var spotlight = document.createElement('div');
+                    spotlight.className = 'tour-spotlight';
+                    spotlight.style.top = spotRect.top + 'px';
+                    spotlight.style.left = spotRect.left + 'px';
+                    spotlight.style.width = spotRect.width + 'px';
+                    spotlight.style.height = spotRect.height + 'px';
+
+                    // Build tooltip content
+                    var dotsHtml = '';
+                    for (var d = 0; d < tourSteps.length; d++) {
+                        var dotClass = 'tour-tooltip-dot';
+                        if (d < idx) dotClass += ' done';
+                        else if (d === idx) dotClass += ' active';
+                        dotsHtml += '<div class="' + dotClass + '" onclick="showTourStep(' + d + ')" style="cursor:pointer"></div>';
+                    }
+
+                    var tooltipHtml = '<div class="tour-tooltip-step">Step ' + (idx + 1) + ' of ' + tourSteps.length + '</div>'
+                        + '<div class="tour-tooltip-title">' + step.title + '</div>'
+                        + '<div class="tour-tooltip-desc">' + step.desc + '</div>'
+                        + '<div class="tour-tooltip-nav">'
+                        + '<div class="tour-tooltip-dots">' + dotsHtml + '</div>'
+                        + '<div class="tour-tooltip-buttons">'
+                        + (idx > 0 ? '<button class="btn btn-secondary btn-sm" onclick="showTourStep(' + (idx - 1) + ')">Back</button>' : '')
+                        + '<button class="btn btn-primary btn-sm" onclick="showTourStep(' + (idx + 1) + ')">' + (idx === tourSteps.length - 2 ? 'Finish' : 'Next') + '</button>'
+                        + '</div></div>'
+                        + '<div class="tour-tooltip-skip"><span class="tour-skip-link" onclick="endGuidedTour()">Skip tour</span></div>';
+
+                    // Create tooltip (hidden initially to measure)
+                    var tooltip = document.createElement('div');
+                    tooltip.className = 'tour-tooltip';
+                    tooltip.innerHTML = tooltipHtml;
+                    tooltip.style.visibility = 'hidden';
+                    tooltip.style.position = 'absolute';
+                    document.body.appendChild(tooltip);
+
+                    var tooltipHeight = tooltip.offsetHeight;
+                    var tooltipWidth = tooltip.offsetWidth || 320;
+
+                    // Remove temporary tooltip
+                    document.body.removeChild(tooltip);
+
+                    // Get actual sidebar width
+                    var sidebar = document.querySelector('.sidebar');
+                    var sidebarRight = sidebar ? sidebar.getBoundingClientRect().right : 240;
+
+                    // Spotlight center for arrow positioning
+                    var spotCenterX = spotLeft + spotWidth / 2;
+                    var spotCenterY = spotTop + spotHeight / 2;
+
+                    // --- Positioning algorithm: try below, above, right, left ---
+                    // Each candidate: { top, left, arrow, arrowClass }
+                    // Returns null if doesn't fit
+
+                    function rectsOverlap(r1, r2) {
+                        return r1.left < r2.right && r1.right > r2.left &&
+                               r1.top < r2.bottom && r1.bottom > r2.top;
+                    }
+
+                    function tryPosition(placement) {
+                        var t, l, arrowClass;
+
+                        if (placement === 'below') {
+                            t = spotRect.bottom + gap;
+                            l = spotCenterX - tooltipWidth / 2;
+                            arrowClass = 'arrow-top';
+                        } else if (placement === 'above') {
+                            t = spotRect.top - gap - tooltipHeight;
+                            l = spotCenterX - tooltipWidth / 2;
+                            arrowClass = 'arrow-bottom';
+                        } else if (placement === 'right') {
+                            t = spotCenterY - tooltipHeight / 2;
+                            l = spotRect.right + gap;
+                            arrowClass = 'arrow-left';
+                        } else if (placement === 'left') {
+                            t = spotCenterY - tooltipHeight / 2;
+                            l = spotRect.left - gap - tooltipWidth;
+                            arrowClass = 'arrow-right';
+                        }
+
+                        // Clamp to viewport edges with margin, respecting sidebar
+                        var minLeft = Math.max(vpMargin, sidebarRight + gap);
+                        var maxLeft = vw - tooltipWidth - vpMargin;
+                        l = Math.max(minLeft, Math.min(l, maxLeft));
+
+                        // Vertical clamp
+                        t = Math.max(vpMargin, Math.min(t, vh - tooltipHeight - vpMargin));
+
+                        // Check fits within viewport
+                        var tipRect = {
+                            top: t,
+                            left: l,
+                            right: l + tooltipWidth,
+                            bottom: t + tooltipHeight
+                        };
+
+                        var fitsInViewport = tipRect.top >= vpMargin &&
+                                             tipRect.bottom <= vh - vpMargin &&
+                                             tipRect.left >= minLeft &&
+                                             tipRect.right <= vw - vpMargin;
+
+                        var overlaps = rectsOverlap(tipRect, spotRect);
+
+                        // Calculate overlap area for ranking
+                        var overlapArea = 0;
+                        if (overlaps) {
+                            var ox = Math.max(0, Math.min(tipRect.right, spotRect.right) - Math.max(tipRect.left, spotRect.left));
+                            var oy = Math.max(0, Math.min(tipRect.bottom, spotRect.bottom) - Math.max(tipRect.top, spotRect.top));
+                            overlapArea = ox * oy;
+                        }
+
+                        return {
+                            top: t,
+                            left: l,
+                            arrowClass: arrowClass,
+                            placement: placement,
+                            fits: fitsInViewport && !overlaps,
+                            overlapArea: overlapArea
+                        };
+                    }
+
+                    // Priority cascade
+                    var placements = ['below', 'above'];
+
+                    // Only try right if element is in left portion of viewport
+                    if (spotCenterX < vw * 0.5) {
+                        placements.push('right');
+                    }
+                    // Only try left if element is in right portion
+                    if (spotCenterX > vw * 0.5) {
+                        placements.push('left');
+                    }
+
+                    var chosen = null;
+                    var bestFallback = null;
+                    var useCompact = false;
+
+                    for (var p = 0; p < placements.length; p++) {
+                        var result = tryPosition(placements[p]);
+                        if (result.fits) {
+                            chosen = result;
+                            break;
+                        }
+                        if (!bestFallback || result.overlapArea < bestFallback.overlapArea) {
+                            bestFallback = result;
+                        }
+                    }
+
+                    if (!chosen) {
+                        // No position works perfectly — use least-overlap fallback
+                        chosen = bestFallback;
+                        useCompact = true;
+                    }
+
+                    // Compute arrow position along tooltip edge pointing at spotlight center
+                    var arrowCssVar = '';
+                    var arrowCssName = '';
+                    if (chosen.arrowClass === 'arrow-top' || chosen.arrowClass === 'arrow-bottom') {
+                        // Horizontal arrow position
+                        var arrowLeft = spotCenterX - chosen.left;
+                        arrowLeft = Math.max(20, Math.min(arrowLeft, tooltipWidth - 20));
+                        arrowCssVar = arrowLeft + 'px';
+                        arrowCssName = '--arrow-left';
+                    } else {
+                        // Vertical arrow position
+                        var arrowTop = spotCenterY - chosen.top;
+                        arrowTop = Math.max(20, Math.min(arrowTop, tooltipHeight - 20));
+                        arrowCssVar = arrowTop + 'px';
+                        arrowCssName = '--arrow-top';
+                    }
+
+                    // Recreate tooltip with correct position
+                    tooltip = document.createElement('div');
+                    var tooltipClasses = 'tour-tooltip tour-entering ' + chosen.arrowClass;
+                    if (useCompact) tooltipClasses += ' compact';
+                    tooltip.className = tooltipClasses;
+                    tooltip.innerHTML = tooltipHtml;
+                    tooltip.style.top = chosen.top + 'px';
+                    tooltip.style.left = chosen.left + 'px';
+                    tooltip.style.setProperty(arrowCssName, arrowCssVar);
+
+                    // Click backdrop to advance
+                    spotlight.style.pointerEvents = 'none';
+
+                    // Add backdrop
+                    var backdrop = document.createElement('div');
+                    backdrop.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;pointer-events:auto;';
+                    backdrop.onclick = function() { showTourStep(idx + 1); };
+                    overlay.insertBefore(backdrop, overlay.firstChild);
+
+                    overlay.appendChild(spotlight);
+                    overlay.appendChild(tooltip);
+
+                    tooltip.style.zIndex = '2003';
+                    spotlight.style.zIndex = '2002';
+                    backdrop.style.zIndex = '2001';
+
+                    document.body.appendChild(overlay);
+                }, 100);
+            }, 300);
+        }
+
+        function showCenterTourCard(step, idx) {
+            var overlay = document.createElement('div');
+            overlay.id = 'tourOverlay';
+            overlay.className = 'tour-overlay';
+
+            // Dark backdrop
+            var backdrop = document.createElement('div');
+            backdrop.className = 'tour-backdrop';
+            overlay.appendChild(backdrop);
+
+            // Center card
+            var card = document.createElement('div');
+            card.className = 'tour-center-card';
+
+            // Icon
+            var iconSvg = '';
+            if (step.icon === 'settings') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>';
+            } else if (step.icon === 'check') {
+                iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+            }
+
+            // Dots
+            var dotsHtml = '';
+            for (var d = 0; d < tourSteps.length; d++) {
+                var dotClass = 'tour-tooltip-dot';
+                if (d < idx) dotClass += ' done';
+                else if (d === idx) dotClass += ' active';
+                dotsHtml += '<div class="' + dotClass + '" onclick="showTourStep(' + d + ')" style="cursor:pointer"></div>';
+            }
+
+            var isLast = (idx === tourSteps.length - 1);
+            var isFirst = (idx === 0);
+
+            // Dynamic descriptions
+            var descText = step.desc;
+            if (isFirst && !descText) {
+                if (config && config.showGuidedTour) {
+                    descText = 'Nice — you\'re all set up. Let\'s walk through the settings so you know where everything is. Takes about 30 seconds.';
+                } else {
+                    descText = 'Welcome to Settings. Let\'s walk through what you can customize. Takes about 30 seconds.';
+                }
+            }
+            if (isLast && !descText) {
+                var hotkeyText = (config && config.hotkey) ? formatHotkey(config.hotkey) : 'Ctrl + Win';
+                if (config && config.stickyMode) {
+                    descText = 'Tap <strong>' + hotkeyText + '</strong> to start, tap again to stop. QuickSay will transcribe and paste your speech automatically.';
+                } else {
+                    descText = 'Start dictating with <strong>' + hotkeyText + '</strong> — hold to speak, release to transcribe.';
+                }
+            }
+
+            var btnText = isLast ? 'Done' : 'Start Tour';
+            var primaryAction = isLast ? 'endGuidedTour()' : 'showTourStep(' + (idx + 1) + ')';
+
+            card.innerHTML = '<div class="tour-center-icon">' + iconSvg + '</div>'
+                + '<div class="tour-tooltip-title" style="font-size:20px;">' + step.title + '</div>'
+                + '<div class="tour-tooltip-desc" style="margin-top:8px;">' + descText + '</div>'
+                + '<div style="margin-top:20px; display:flex; flex-direction:column; align-items:center; gap:8px;">'
+                + '<div class="tour-tooltip-dots" style="justify-content:center;">' + dotsHtml + '</div>'
+                + '<div style="margin-top:8px; display:flex; align-items:center; gap:12px;">'
+                + '<button class="btn btn-primary" onclick="' + primaryAction + '">' + btnText + '</button>'
+                + (isLast ? '<span class="tour-skip-link" onclick="startGuidedTour()">Replay tour</span>' : '')
+                + '</div>'
+                + (isFirst ? '<span class="tour-skip-link" onclick="endGuidedTour()">Skip tour</span>' : '')
+                + '</div>';
+
+            overlay.appendChild(card);
+            document.body.appendChild(overlay);
+        }
+
+        function endGuidedTour() {
+            tourActive = false;
+            tourCurrentStep = -1;
+            var overlay = document.getElementById('tourOverlay');
+            if (overlay) overlay.remove();
+            // Mark completed locally so receiveConfig won't re-trigger
+            if (config) {
+                config.tourCompleted = true;
+                config.showGuidedTour = false;
+                delete config.startTourOnOpen;
+            }
+            // Save that tour was completed
+            postToAHK('tourCompleted', '');
+        }
+        // ==================================================================
+        // Unsaved Changes Tracking
+        // ==================================================================
+        function markUnsaved() {
+            hasUnsavedChanges = true;
+            updateUnsavedIndicator();
+        }
+
+        function updateUnsavedIndicator() {
+            var title = document.title;
+            if (hasUnsavedChanges) {
+                if (title.indexOf('\u2022 ') !== 0) {
+                    document.title = '\u2022 ' + title;
+                }
+            } else {
+                document.title = title.replace(/^\u2022 /, '');
+            }
+        }
+
+        // Listen for changes on all inputs, selects, and checkboxes
+        (function() {
+            document.addEventListener('change', function(e) {
+                var tag = e.target.tagName;
+                var type = e.target.type;
+                if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') {
+                    // Ignore search fields and hotkey capture
+                    if (e.target.id === 'sidebarSearch' || e.target.id === 'historySearch' || e.target.id === 'dictSearch') return;
+                    markUnsaved();
+                }
+            });
+            document.addEventListener('input', function(e) {
+                var tag = e.target.tagName;
+                if (tag === 'INPUT' || tag === 'TEXTAREA') {
+                    if (e.target.id === 'sidebarSearch' || e.target.id === 'historySearch' || e.target.id === 'dictSearch') return;
+                    if (e.target.readOnly) return;
+                    markUnsaved();
+                }
+            });
+        })();
+
+        // Warn before closing with unsaved changes
+        window.addEventListener('beforeunload', function(e) {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+
+</html>

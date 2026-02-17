@@ -1,8 +1,8 @@
 ;@Ahk2Exe-SetCompanyName QuickSay
-;@Ahk2Exe-SetDescription QuickSay Beta v1.7 Setup
-;@Ahk2Exe-SetFileVersion 1.7.0.0
-;@Ahk2Exe-SetProductName QuickSay Beta v1.7
-;@Ahk2Exe-SetProductVersion 1.7.0.0
+;@Ahk2Exe-SetDescription QuickSay Beta v1.8 Setup
+;@Ahk2Exe-SetFileVersion 1.8.0.0
+;@Ahk2Exe-SetProductName QuickSay Beta v1.8
+;@Ahk2Exe-SetProductVersion 1.8.0.0
 ;@Ahk2Exe-SetCopyright Copyright (c) 2024-2026 QuickSay
 ;@Ahk2Exe-SetOrigFilename QuickSay-Setup.exe
 ;@Ahk2Exe-SetMainIcon gui\assets\icon.ico
@@ -13,10 +13,10 @@
 
 ; --- SET APP IDENTITY FOR WINDOWS TASKBAR ---
 ; Ensures this process groups with the main launcher (same AppUserModelID)
-DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.1.7")
+DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.1.8")
 
 ; ==============================================================================
-; QuickSay Beta v1.7 Onboarding Wizard (WebView2)
+; QuickSay Beta v1.8 Onboarding Wizard (WebView2)
 ; First-run setup — walks user through getting a Groq API key
 ; ==============================================================================
 
@@ -168,13 +168,20 @@ class OnboardingUI {
     }
 
     static OnClose() {
-        ; Only mark onboarding complete if user has configured an API key
+        ; Only mark onboarding complete if user has configured a valid API key
         ; Otherwise, the wizard will reappear on next launch
         hasKey := false
         try {
             cfg := this.LoadConfig()
-            if (cfg.Has("groqApiKey") && cfg["groqApiKey"] != "")
-                hasKey := true
+            if (cfg.Has("groqApiKey") && cfg["groqApiKey"] != "") {
+                key := cfg["groqApiKey"]
+                ; Valid Groq key starts with gsk_ and is 20+ chars
+                ; DPAPI encrypted blob is 50+ chars and does NOT start with gsk_
+                if (SubStr(key, 1, 4) == "gsk_" && StrLen(key) >= 20)
+                    hasKey := true
+                else if (SubStr(key, 1, 4) != "gsk_" && StrLen(key) >= 50)
+                    hasKey := true
+            }
         }
         if (hasKey)
             this.MarkOnboardingDone()
@@ -348,12 +355,12 @@ class OnboardingUI {
                     if (encrypted != "")
                         cfg["groqApiKey"] := encrypted
                     else {
-                        cfg["groqApiKey"] := apiKey
-                        TrayTip("Your API key could not be encrypted and was saved in plain text. This is less secure but will still work normally.", "QuickSay - Security Warning", 0x2)
+                        MsgBox("Your API key could not be encrypted and was NOT saved.`n`nPlease try again. If the problem persists, restart your computer.", "QuickSay - Encryption Error", 0x10)
+                        return
                     }
                 } catch {
-                    cfg["groqApiKey"] := apiKey
-                    TrayTip("Your API key could not be encrypted and was saved in plain text. This is less secure but will still work normally.", "QuickSay - Security Warning", 0x2)
+                    MsgBox("Your API key could not be encrypted and was NOT saved.`n`nPlease try again. If the problem persists, restart your computer.", "QuickSay - Encryption Error", 0x10)
+                    return
                 }
             } else {
                 cfg["groqApiKey"] := apiKey

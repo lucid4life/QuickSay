@@ -1,0 +1,93 @@
+﻿[
+    {
+        "version":  "1.8.0-beta",
+        "date":  "2026-02-16",
+        "changes":  [
+                        "Fixed UTF-8 encoding bug causing garbled text with hyphenated words (e.g. step-by-step)",
+                        "Improved all 4 mode prompts with stronger injection defense and better cleanup rules",
+                        "Added brand name and proper noun preservation to Standard mode",
+                        "Added file path and URL dictation support to Code mode",
+                        "Added recipient name detection to Email mode",
+                        "Fixed regex fallback JSON parser to handle all Unicode escape sequences",
+                        "Synced mode prompts between runtime and settings UI"
+                    ]
+    },
+    {
+        "version":  "1.7.2-beta",
+        "date":  "2026-02-14",
+        "changes":  [
+                        "Fix update checker crash when changelog is an array"
+                    ]
+    },
+    {
+        "version":  "1.7.1-beta",
+        "date":  "2026-02-14",
+        "changes":  [
+                        "Switch default LLM to GPT-OSS 20B",
+                        "Add config auto-migration for existing users",
+                        "Add LLM model debug logging"
+                    ]
+    },
+    {
+        "version":  "1.6.0-beta",
+        "date":  "2026-02-12",
+        "changes":  [
+                        "Context-aware mode switching",
+                        "Improved email mode formatting",
+                        "Bug fixes (43/43 complete)"
+                    ]
+    },
+    {
+        "version":  "1.5.0-beta",
+        "date":  "2026-02-12",
+        "changes":  [
+                        "Settings Reorganized — General tab split into clear sections (Hotkey, Behavior, Feedback, Language, Data)",
+                        "Hotkey Test Button — Verify your hotkey works with a 5-second test before saving",
+                        "Auto-Update Checking — QuickSay checks for new versions on startup and from the tray menu",
+                        "Floating Widget Free Positioning — Place the widget anywhere on screen",
+                        "Single-Click Recording — Click once to start/stop recording, no double-click needed",
+                        "Widget Focus Fix — Clicking the widget no longer steals focus from your active app",
+                        "Improved AI Prompts — All 4 cleanup modes rewritten for better accuracy",
+                        "25 New Voice Commands — Parentheses, braces, brackets, undo, and more",
+                        "Terminal Paste Support — Shift+Insert paste for terminal apps (CMD, PowerShell, WSL)",
+                        "Smart Clipboard Restore — Uses ClipWait instead of fixed delays for reliable paste",
+                        "System Hotkey Conflict Warning — Settings alerts you if your hotkey conflicts with Windows shortcuts",
+                        "Unsaved Changes Indicator — Settings shows a bullet in the title when you have unsaved changes",
+                        "Dark-Themed Controls — Native selects, scrollbars, and radio buttons match the dark theme",
+                        "122 Stability \u0026 Security Fixes — Comprehensive audit covering error handling, input validation, and edge cases"
+                    ]
+    },
+    {
+        "version":  "1.4.0-beta",
+        "date":  "2026-02-07",
+        "changes":  [
+                        "Custom Modes — Create and switch between LLM cleanup profiles",
+                        "Floating Widget — Always-on-top status indicator with click-to-record",
+                        "Dictionary UI — Inline editing, bulk delete, and recently-added highlights",
+                        "Onboarding Mic Test — Test your microphone during setup with auto-calibration",
+                        "History Filters — Filter by date, app, and word count",
+                        "Statistics Dashboard — 7-day chart, time saved, top apps, WPM tracking",
+                        "File Transcription — Transcribe existing audio files from tray menu",
+                        "Language Quick-Switch — Change language from tray submenu",
+                        "Custom Sound Effects — Choose from 6 sound themes (Subtle, Click, Crystal, Neon, Bloom)",
+                        "Import/Export Settings — Backup and restore your configuration",
+                        "Guided Settings Tour — Interactive walkthrough of all features",
+                        "Multi-monitor Support — Overlays and widget appear on the correct screen",
+                        "Graceful Offline Handling — Descriptive error messages for network issues",
+                        "Auto-paste Toggle — Option to copy to clipboard without auto-pasting"
+                    ]
+    },
+    {
+        "version":  "1.0.0-beta",
+        "date":  "2026-01-15",
+        "changes":  [
+                        "Initial beta release",
+                        "Voice-to-text dictation with Groq Whisper API",
+                        "LLM text cleanup with LLaMA",
+                        "Custom dictionary for word replacements",
+                        "Recording overlay with audio visualization",
+                        "Settings UI with WebView2",
+                        "Tray menu with language selection"
+                    ]
+    }
+]
