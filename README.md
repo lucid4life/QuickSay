@@ -38,9 +38,9 @@ When you first run the installer, Windows may show a SmartScreen warning. QuickS
 
 ## Usage
 
-1. **Press `F9`** (default hotkey) to start recording
+1. **Hold `Ctrl + Win`** to start recording
 2. **Speak naturally** — say whatever you want to type
-3. **Press `F9` again** to stop recording
+3. **Release the keys** to stop recording
 4. Your transcribed text appears at the cursor position in any application
 
 ### Settings
