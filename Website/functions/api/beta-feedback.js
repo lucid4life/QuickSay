@@ -26,17 +26,12 @@ export async function onRequestPost(context) {
     const required = [
       'name',
       'email',
-      'installEase',
-      'groqSetupEase',
-      'onboardingHelpfulness',
-      'mode',
-      'transcriptionAccuracy',
-      'transcriptionSpeed',
+      'setupExperience',
+      'transcriptionQuality',
       'textCleanup',
       'nps',
       'favoriteThing',
       'topImprovement',
-      'testimonialConsent',
     ];
 
     for (const field of required) {
@@ -46,6 +41,15 @@ export async function onRequestPost(context) {
           { status: 400, headers }
         );
       }
+    }
+
+    // Conditional: testimonialConsent required when NPS >= 7
+    const nps = parseInt(data.nps);
+    if (nps >= 7 && !data.testimonialConsent) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Missing required field: testimonialConsent' }),
+        { status: 400, headers }
+      );
     }
 
     // Basic email validation
@@ -58,7 +62,6 @@ export async function onRequestPost(context) {
     }
 
     // Calculate NPS category
-    const nps = parseInt(data.nps);
     let npsCategory = 'detractor';
     if (nps >= 9) npsCategory = 'promoter';
     else if (nps >= 7) npsCategory = 'passive';
