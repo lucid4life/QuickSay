@@ -1,0 +1,467 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import PricingComparison from '../components/PricingComparison.astro';
+import BYOKExplainer from '../components/BYOKExplainer.astro';
+import BuyButton from '../components/BuyButton.astro';
+import Footer from '../components/Footer.astro';
+
+const pricingBreadcrumbs = [
+  { name: 'Home', url: 'https://quicksay.app' },
+  { name: 'Pricing', url: 'https://quicksay.app/pricing' },
+];
+
+const faqs = [
+  {
+    question: 'Why one-time and not a subscription?',
+    answer: 'Voice-to-text is a tool, not a service you should rent month after month. We built QuickSay to be sustainable as a one-time purchase because we believe software that works should not come with a recurring tax. You pay once, you own it. We respect your wallet the same way we respect your privacy.',
+  },
+  {
+    question: 'What if I need to reinstall?',
+    answer: 'Your license is tied to your email address. Reinstall on the same machine, move to a new PC, or set up a fresh Windows install — just use the download link from your original purchase email. No activation limits, no phone-home DRM.',
+  },
+  {
+    question: 'Is there a student discount?',
+    answer: 'We are evaluating a student discount program. If you are a student, reach out to us with your .edu email and we will work something out.',
+  },
+  {
+    question: 'Do I get future updates?',
+    answer: 'Yes. All updates within the current major version are included — bug fixes, performance improvements, new features, and language additions. You will never be asked to pay again for an update.',
+  },
+  {
+    question: 'What if Groq\'s free tier goes away?',
+    answer: 'Full cost transparency — QuickSay connects to your own free Groq account, not ours. You see exactly what you\'re using, exactly what it costs, with no markup. Groq\'s free tier is generous — roughly 8 hours of dictation per day. Heavy user? Groq\'s paid tier costs a few dollars per month for unlimited usage. Your QuickSay purchase is separate and permanent.',
+    byokLink: true,
+  },
+  {
+    question: 'What if I don\'t like it?',
+    answer: 'QuickSay is free during the open beta — no credit card required. Try it with zero risk.',
+    refundLink: false,
+  },
+];
+---
+
+<BaseLayout
+  title="Pricing — QuickSay | $39 Launch Pricing (Regular $74)"
+  description="QuickSay costs $39 — no subscriptions, no recurring fees. Pay once, own forever. Compare with Wispr Flow ($144/yr) and Aqua Voice ($96/yr). 30-day guarantee."
+  canonicalUrl="https://quicksay.app/pricing"
+  faqItems={faqs.map(f => ({ question: f.question, answer: f.answer }))}
+  breadcrumbs={pricingBreadcrumbs}
+>
+  <Navbar slot="header" />
+
+  <!-- Page heading (SEO: H1 required) -->
+  <section class="pt-28 pb-4 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance">
+        QuickSay Pricing
+      </h1>
+      <p class="text-text-secondary text-lg mt-4 max-w-xl mx-auto">
+        One price. All features. No subscription. Ever.
+      </p>
+    </div>
+  </section>
+
+  <!-- Pricing comparison table -->
+  <PricingComparison />
+
+  <!-- BYOK Explainer -->
+  <BYOKExplainer />
+
+  <!-- What You Get visual strip -->
+  <section class="py-24 md:py-32 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="fade-in-up font-headline font-bold text-3xl md:text-4xl text-text-primary text-balance text-center mb-4">
+        What you get
+      </h2>
+      <p class="fade-in-up text-text-secondary text-center mb-12 max-w-xl mx-auto">
+        Every feature. Every update. No upsells.
+      </p>
+
+      <!-- Main feature showcase -->
+      <div class="fade-in-up mb-12">
+        <div class="relative rounded-xl overflow-hidden border border-border bg-surface/50 backdrop-blur-sm">
+          <img
+            src="/images/marketing/smart-features.png"
+            srcset="/images/marketing/smart-features-400w.png 400w, /images/marketing/smart-features-800w.png 800w, /images/marketing/smart-features.png 900w"
+            sizes="(max-width: 640px) 400px, (max-width: 1024px) 800px, 900px"
+            alt="QuickSay smart features interface showing real-time transcription with AI text cleanup, custom dictionary, and voice commands"
+            width="900"
+            height="600"
+            loading="lazy"
+            class="w-full h-auto"
+            style="max-width: 900px; margin: 0 auto; display: block;"
+          />
+        </div>
+      </div>
+
+      <!-- 3-up thumbnail row with click-to-expand -->
+      <div class="fade-in-up grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Modes -->
+        <button
+          class="feature-thumb group relative rounded-lg overflow-hidden border border-border bg-surface hover:border-accent-teal/50 transition-all duration-200 hover:scale-[1.02] cursor-pointer"
+          data-modal="modes"
+          aria-label="View modes screenshot"
+        >
+          <img
+            src="/images/screenshots/modes-thumb.png?v=4"
+            alt="QuickSay Custom Modes: Standard, Email, Code, and Casual formatting presets"
+            width="300"
+            height="200"
+            loading="lazy"
+            class="w-full h-auto"
+          />
+          <div class="p-3 text-center">
+            <p class="text-text-primary font-headline font-semibold text-sm group-hover:text-accent-teal transition-colors">Modes</p>
+          </div>
+        </button>
+
+        <!-- Statistics -->
+        <button
+          class="feature-thumb group relative rounded-lg overflow-hidden border border-border bg-surface hover:border-accent-teal/50 transition-all duration-200 hover:scale-[1.02] cursor-pointer"
+          data-modal="statistics"
+          aria-label="View statistics screenshot"
+        >
+          <img
+            src="/images/screenshots/statistics-thumb.png?v=4"
+            alt="QuickSay usage statistics showing words transcribed, time saved, and accuracy metrics"
+            width="300"
+            height="200"
+            loading="lazy"
+            class="w-full h-auto"
+          />
+          <div class="p-3 text-center">
+            <p class="text-text-primary font-headline font-semibold text-sm group-hover:text-accent-teal transition-colors">Statistics</p>
+          </div>
+        </button>
+
+        <!-- Dictionary -->
+        <button
+          class="feature-thumb group relative rounded-lg overflow-hidden border border-border bg-surface hover:border-accent-teal/50 transition-all duration-200 hover:scale-[1.02] cursor-pointer"
+          data-modal="dictionary"
+          aria-label="View dictionary screenshot"
+        >
+          <img
+            src="/images/screenshots/dictionary-thumb.png?v=4"
+            alt="QuickSay custom dictionary for technical jargon, proper nouns, and brand names"
+            width="300"
+            height="200"
+            loading="lazy"
+            class="w-full h-auto"
+          />
+          <div class="p-3 text-center">
+            <p class="text-text-primary font-headline font-semibold text-sm group-hover:text-accent-teal transition-colors">Dictionary</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal backdrop and containers -->
+  <div id="modal-backdrop" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 cursor-pointer" aria-hidden="true"></div>
+
+  <!-- Modes modal -->
+  <div id="modal-modes" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+    <div class="relative max-w-4xl w-full pointer-events-auto">
+      <button
+        class="modal-close absolute -top-10 right-0 text-text-secondary hover:text-text-primary transition-colors"
+        aria-label="Close modal"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <img
+        src="/images/screenshots/modes-full.png?v=4"
+        alt="QuickSay Custom Modes: Standard, Email, Code, and Casual formatting presets"
+        class="w-full h-auto rounded-lg border border-border"
+        loading="lazy"
+      />
+    </div>
+  </div>
+
+  <!-- Statistics modal -->
+  <div id="modal-statistics" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+    <div class="relative max-w-4xl w-full pointer-events-auto">
+      <button
+        class="modal-close absolute -top-10 right-0 text-text-secondary hover:text-text-primary transition-colors"
+        aria-label="Close modal"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <img
+        src="/images/screenshots/statistics-full.png?v=4"
+        alt="QuickSay usage statistics showing words transcribed, time saved, and accuracy metrics"
+        class="w-full h-auto rounded-lg border border-border"
+        loading="lazy"
+      />
+    </div>
+  </div>
+
+  <!-- Dictionary modal -->
+  <div id="modal-dictionary" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+    <div class="relative max-w-4xl w-full pointer-events-auto">
+      <button
+        class="modal-close absolute -top-10 right-0 text-text-secondary hover:text-text-primary transition-colors"
+        aria-label="Close modal"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <img
+        src="/images/screenshots/dictionary-full.png?v=4"
+        alt="QuickSay custom dictionary for technical jargon, proper nouns, and brand names"
+        class="w-full h-auto rounded-lg border border-border"
+        loading="lazy"
+      />
+    </div>
+  </div>
+
+  <script>
+    // Modal functionality
+    const backdrop = document.getElementById('modal-backdrop');
+    const thumbs = document.querySelectorAll('.feature-thumb');
+    const closeButtons = document.querySelectorAll('.modal-close');
+
+    thumbs.forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        const modalId = 'modal-' + thumb.dataset.modal;
+        const modal = document.getElementById(modalId);
+        if (modal && backdrop) {
+          backdrop.classList.remove('hidden');
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    });
+
+    const closeModal = () => {
+      document.querySelectorAll('[id^="modal-"]').forEach(modal => {
+        modal.classList.add('hidden');
+      });
+      if (backdrop) {
+        backdrop.classList.add('hidden');
+      }
+      document.body.style.overflow = '';
+    };
+
+    closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
+    if (backdrop) {
+      backdrop.addEventListener('click', closeModal);
+    }
+
+    // ESC key to close
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+
+  <!-- Launch offer banner -->
+  <section class="py-8 px-6 bg-accent-teal/5 border-t border-b border-accent-teal/20">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-accent-teal font-headline font-bold text-lg">
+        Launch Offer: $39 (47% off regular $74)
+      </p>
+      <p class="text-text-secondary text-sm mt-1">
+        Launch pricing ends March 31, 2026. Price increases to $74 after early access.
+      </p>
+    </div>
+  </section>
+
+  <!-- Cost Calculator -->
+  <section class="py-24 md:py-32 px-6 bg-[#0e0e10]">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="fade-in-up font-headline font-bold text-3xl md:text-4xl text-text-primary text-balance text-center mb-4">
+        The math over time
+      </h2>
+      <p class="fade-in-up text-text-secondary text-center mb-12 max-w-xl mx-auto">
+        See how one-time pricing compares to subscriptions over 1&ndash;5 years.
+      </p>
+
+      <!-- Year selector buttons -->
+      <div class="fade-in-up flex justify-center gap-3 mb-10" id="year-selector">
+        <button class="year-btn px-4 py-2 rounded-lg text-sm font-medium border border-border text-text-secondary transition-all duration-150 hover:bg-[rgba(255,255,255,0.05)]" data-years="1">1 year</button>
+        <button class="year-btn px-4 py-2 rounded-lg text-sm font-medium border border-accent-teal text-accent-teal bg-accent-teal/10 transition-all duration-150" data-years="3" aria-pressed="true">3 years</button>
+        <button class="year-btn px-4 py-2 rounded-lg text-sm font-medium border border-border text-text-secondary transition-all duration-150 hover:bg-[rgba(255,255,255,0.05)]" data-years="5">5 years</button>
+      </div>
+
+      <!-- Bar chart -->
+      <div class="fade-in-up space-y-6" id="cost-chart">
+        <!-- QuickSay -->
+        <div class="flex items-center gap-4">
+          <span class="w-28 shrink-0 text-right text-text-primary text-sm font-medium">QuickSay</span>
+          <div class="flex-1 relative h-10 bg-surface rounded-lg overflow-hidden border border-border">
+            <div class="cost-bar absolute inset-y-0 left-0 bg-accent-teal/80 rounded-lg transition-all duration-500 ease-out" id="bar-quicksay" style="width: 3.2%"></div>
+          </div>
+          <span class="w-16 text-accent-teal font-bold text-sm" id="label-quicksay">$39</span>
+        </div>
+        <!-- Wispr Flow -->
+        <div class="flex items-center gap-4">
+          <span class="w-28 shrink-0 text-right text-text-secondary text-sm font-medium">Wispr Flow</span>
+          <div class="flex-1 relative h-10 bg-surface rounded-lg overflow-hidden border border-border">
+            <div class="cost-bar absolute inset-y-0 left-0 bg-text-secondary/30 rounded-lg transition-all duration-500 ease-out" id="bar-wispr" style="width: 60%"></div>
+          </div>
+          <span class="w-16 text-text-secondary font-bold text-sm" id="label-wispr">$432</span>
+        </div>
+        <!-- Aqua Voice -->
+        <div class="flex items-center gap-4">
+          <span class="w-28 shrink-0 text-right text-text-secondary text-sm font-medium">Aqua Voice</span>
+          <div class="flex-1 relative h-10 bg-surface rounded-lg overflow-hidden border border-border">
+            <div class="cost-bar absolute inset-y-0 left-0 bg-text-secondary/30 rounded-lg transition-all duration-500 ease-out" id="bar-aqua" style="width: 40%"></div>
+          </div>
+          <span class="w-16 text-text-secondary font-bold text-sm" id="label-aqua">$288</span>
+        </div>
+      </div>
+
+      <!-- Savings Highlight (dynamically updates based on year selection) -->
+      <div class="fade-in-up mt-16 text-center">
+        <div class="inline-block px-8 py-6 rounded-2xl border-2 border-accent-teal/30 bg-accent-teal/5">
+          <p class="text-text-secondary text-sm uppercase tracking-wide font-semibold mb-2">
+            Your <span id="savings-years">3</span>-Year Savings
+          </p>
+          <p class="font-headline font-bold text-5xl md:text-6xl text-accent-teal mb-2" id="savings-amount">$393</p>
+          <p class="text-text-secondary text-sm">
+            vs. Wispr Flow — <span class="text-text-primary font-medium">Pay once. Own forever.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const d={quicksay:39,wispr:144,aqua:96};
+    const savingsEl=document.getElementById('savings-amount');
+    const savingsYearsEl=document.getElementById('savings-years');
+    document.querySelectorAll('.year-btn').forEach(b=>{
+      b.addEventListener('click',()=>{
+        document.querySelectorAll('.year-btn').forEach(x=>{
+          x.classList.remove('border-accent-teal','text-accent-teal','bg-accent-teal/10');
+          x.classList.add('border-border','text-text-secondary');
+          x.setAttribute('aria-pressed','false');
+        });
+        b.classList.add('border-accent-teal','text-accent-teal','bg-accent-teal/10');
+        b.classList.remove('border-border','text-text-secondary');
+        b.setAttribute('aria-pressed','true');
+        const y=+b.dataset.years,mx=d.wispr*y;
+        ['quicksay','wispr','aqua'].forEach(k=>{
+          const v=k==='quicksay'?d[k]:d[k]*y;
+          document.getElementById('bar-'+k).style.width=Math.max((v/mx)*100,3)+'%';
+          document.getElementById('label-'+k).textContent='$'+v;
+        });
+        // Update savings calculator
+        const savings=(d.wispr*y)-d.quicksay;
+        if(savingsEl)savingsEl.textContent='$'+savings;
+        if(savingsYearsEl)savingsYearsEl.textContent=y;
+      });
+    });
+  </script>
+
+  <!-- FAQ Section -->
+  <section class="py-24 md:py-32 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="fade-in-up font-headline font-bold text-3xl md:text-4xl text-text-primary text-balance text-center mb-16">
+        Frequently Asked Questions
+      </h2>
+
+      <div class="space-y-6">
+        {faqs.map((faq) => (
+          <details class="fade-in-up group border border-border rounded-xl bg-surface overflow-hidden">
+            <summary class="flex items-center justify-between cursor-pointer p-6 font-headline font-semibold text-text-primary text-lg select-none">
+              <span>{faq.question}</span>
+              <svg
+                class="w-5 h-5 text-text-tertiary shrink-0 ml-4 transition-transform duration-200 group-open:rotate-180"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </summary>
+            <div class="px-6 pb-6 text-text-secondary leading-relaxed">
+              {faq.answer}
+              {faq.refundLink && (
+                <a href="/terms" class="inline-block mt-2 text-accent-teal hover:underline text-sm">
+                  Read Terms of Service &rarr;
+                </a>
+              )}
+              {faq.byokLink && (
+                <a href="#byok" class="inline-block mt-2 text-accent-teal hover:underline text-sm font-medium">
+                  Learn more about how it works &uarr;
+                </a>
+              )}
+            </div>
+          </details>
+        ))}
+      </div>
+      <!-- DECISION NEEDED: Offer student discount like SuperWhisper's 40%? -->
+    </div>
+  </section>
+
+  <!-- Getting Started -->
+  <section class="py-20 md:py-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-headline font-bold text-3xl md:text-4xl text-text-primary text-center mb-12 fade-in-up">
+        Getting Started (2 Minutes)
+      </h2>
+      <div class="space-y-8">
+        <!-- Step 1 -->
+        <div class="fade-in-up flex gap-6 items-start" style="transition-delay: 0ms">
+          <div class="w-10 h-10 rounded-full border-2 border-accent-teal flex items-center justify-center shrink-0">
+            <span class="font-headline font-bold text-accent-teal">1</span>
+          </div>
+          <div>
+            <h3 class="font-headline font-semibold text-xl text-text-primary mb-2">Buy QuickSay</h3>
+            <p class="text-text-secondary text-sm leading-relaxed">One-time purchase. $39 launch pricing (regular $74). Download instantly after purchase.</p>
+          </div>
+        </div>
+        <!-- Step 2 -->
+        <div class="fade-in-up flex gap-6 items-start" style="transition-delay: 100ms">
+          <div class="w-10 h-10 rounded-full border-2 border-accent-teal flex items-center justify-center shrink-0">
+            <span class="font-headline font-bold text-accent-teal">2</span>
+          </div>
+          <div>
+            <h3 class="font-headline font-semibold text-xl text-text-primary mb-2">Create your free AI account</h3>
+            <p class="text-text-secondary text-sm leading-relaxed">Sign up at <a href="https://groq.com" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">groq.com</a>. The free tier gives you 8 hours of transcription daily. Copy your personal connection key (one line of text).</p>
+          </div>
+        </div>
+        <!-- Step 3 -->
+        <div class="fade-in-up flex gap-6 items-start" style="transition-delay: 200ms">
+          <div class="w-10 h-10 rounded-full border-2 border-accent-teal flex items-center justify-center shrink-0">
+            <span class="font-headline font-bold text-accent-teal">3</span>
+          </div>
+          <div>
+            <h3 class="font-headline font-semibold text-xl text-text-primary mb-2">Connect and start talking</h3>
+            <p class="text-text-secondary text-sm leading-relaxed">Paste your key into QuickSay. Press your keyboard shortcut, speak, and watch your words appear. That's it.</p>
+          </div>
+        </div>
+      </div>
+      <p class="text-text-tertiary text-sm text-center mt-8 fade-in-up" style="transition-delay: 300ms">No monthly fees. No complicated configuration. No vendor lock-in.</p>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="py-24 md:py-32 px-6">
+    <div class="max-w-2xl mx-auto text-center">
+      <div class="fade-in-up relative inline-block">
+        <div
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-52 h-52 bg-accent-teal opacity-10 blur-3xl rounded-full pointer-events-none"
+          aria-hidden="true"
+        ></div>
+        <BuyButton text="Get QuickSay — $39" size="large" class="relative" />
+      </div>
+      <p class="fade-in-up text-text-secondary text-sm mt-6">
+        Windows 10+ &nbsp;|&nbsp; ~105 MB &nbsp;|&nbsp; No subscription
+      </p>
+      <p class="fade-in-up text-text-tertiary text-sm mt-4">
+        Questions? Say something: <a href="mailto:say@quicksay.app" class="text-accent-teal hover:underline">say@quicksay.app</a>
+      </p>
+      <div class="fade-in-up mt-8 flex items-center justify-center gap-3">
+        <svg class="w-8 h-8 text-accent-teal shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6z" />
+          <polyline points="9 12 11 14 15 10" />
+        </svg>
+        <div class="text-left">
+          <p class="text-text-primary font-semibold">30-Day Money-Back Guarantee</p>
+          <p class="text-text-secondary text-sm">Try QuickSay risk-free. If it's not for you, get a full refund. No questions asked.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>

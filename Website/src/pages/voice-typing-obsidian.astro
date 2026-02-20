@@ -1,0 +1,60 @@
+---
+import SEOLandingLayout from '../layouts/SEOLandingLayout.astro';
+---
+
+<SEOLandingLayout
+  title="Voice Notes in Obsidian — QuickSay for Windows"
+  description="Dictate directly into Obsidian notes on Windows. QuickSay adds voice-to-text with AI cleanup for fast thought capture in your vault. Free open beta."
+  h1="Voice Notes in Obsidian — QuickSay for Windows"
+  canonicalUrl="https://quicksay.app/voice-typing-obsidian"
+  relatedPages={[
+    { href: '/voice-typing-notion', label: 'Voice-to-Text for Notion' },
+    { href: '/voice-to-text-adhd', label: 'Voice-to-Text for ADHD' },
+    { href: '/voice-typing-vscode', label: 'Voice Typing for VS Code' },
+    { href: '/voice-typing-jupyter', label: 'Voice Typing for Jupyter' },
+  ]}
+>
+  <Fragment slot="hero-subtitle">
+    Obsidian has no built-in voice input. QuickSay lets you capture thoughts by voice directly into your vault — fast, clean, and private.
+  </Fragment>
+
+  <p class="text-lg">
+    Obsidian users build personal knowledge bases that grow over months and years. Daily notes, fleeting thoughts, project logs, reading highlights, and interconnected ideas all live in the vault. The common bottleneck is input speed: the moment between having a thought and getting it into a note. QuickSay shortens that gap to seconds by adding voice-to-text to every Obsidian note, with AI cleanup that turns spoken fragments into clean Markdown-ready prose.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Capture Thoughts at the Speed of Speech</h2>
+  <p>
+    The Zettelkasten and "second brain" methodologies depend on capturing ideas before they evaporate. Typing is often too slow — by the time you have opened a note and started writing, half the thought is gone. With QuickSay, you open your daily note, hold the keyboard shortcut, and speak. The cleaned text appears at your cursor in under two seconds. A fleeting insight that would have been lost becomes a permanent note.
+  </p>
+  <div class="bg-surface border border-border rounded-xl p-5 my-4">
+    <p class="text-text-tertiary text-sm font-mono mb-2">Spoken into a daily note:</p>
+    <p class="text-text-secondary italic">"interesting connection between the spaced repetition research from yesterday and the active recall paper I read this morning both suggest that retrieval practice is more effective than re-reading need to create a literature note linking these two sources"</p>
+    <p class="text-text-tertiary text-sm font-mono mt-4 mb-2">After QuickSay cleanup:</p>
+    <p class="text-text-primary">"Interesting connection between the spaced repetition research from yesterday and the active recall paper I read this morning. Both suggest that retrieval practice is more effective than re-reading. Need to create a literature note linking these two sources."</p>
+  </div>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Daily Notes and Journaling</h2>
+  <p>
+    Many Obsidian users maintain a daily notes practice — recording thoughts, reflections, and tasks at the start or end of each day. Voice dictation transforms journaling from a 15-minute typing session into a 5-minute speaking session. Open your daily note template, speak your reflections, and let QuickSay handle punctuation and formatting. The lower friction makes it easier to maintain the habit consistently.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Literature Notes and Reading Highlights</h2>
+  <p>
+    After reading an article, book chapter, or research paper, summarizing your takeaways in Obsidian solidifies understanding. But the effort of typing a summary often means highlights sit in a read-later app indefinitely. QuickSay lets you dictate summaries in your own words — speak your reaction to a passage, describe how it connects to existing notes, and capture the core argument. The result is a genuine literature note, not just a highlighted quote.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Works with Every Community Plugin</h2>
+  <p>
+    Obsidian's power comes from its plugin ecosystem — Dataview, Templater, Calendar, Kanban, and hundreds more. QuickSay does not interfere with any of them. Because it operates at the system level and pastes via the clipboard, it works in every text input that Obsidian or its plugins provide. Dictate into Kanban card descriptions, Calendar daily notes, or the command palette search bar.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Vault Privacy</h2>
+  <p>
+    Obsidian users often choose it specifically for its local-first, privacy-respecting approach — notes stored as Markdown files on your machine, not in someone else's cloud. QuickSay aligns with this philosophy. Your audio is sent to the cloud for transcription, but QuickSay captures zero screen content, collects zero telemetry, and has no access to your vault files. The only data that leaves your machine is the audio clip you record, and nothing about your note structure, file names, or vault content is ever transmitted.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Free During the Open Beta</h2>
+  <p>
+    QuickSay is free during the open beta and works across every Windows application, not just Obsidian. Use it for Obsidian notes, then switch to your browser for research, your email client for replies, and your code editor for documentation — the same keyboard shortcut, the same voice-to-text workflow, everywhere you type.
+  </p>
+</SEOLandingLayout>

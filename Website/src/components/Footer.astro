@@ -1,0 +1,109 @@
+---
+/**
+ * Footer — site-wide footer for QuickSay marketing site.
+ * 4-column link grid, responsive down to single-column on mobile.
+ */
+
+const columns = [
+  {
+    heading: 'Product',
+    links: [
+      { label: 'Download', href: '/download' },
+      { label: 'Pricing', href: '/pricing' },
+      { label: 'Use Cases', href: '/use-cases' },
+      { label: 'Docs', href: '/docs' },
+      { label: 'Blog', href: '/blog' },
+    ],
+  },
+  {
+    heading: 'Features',
+    links: [
+      { label: 'Voice Commands', href: '/docs#voice-commands' },
+      { label: 'Languages', href: '/docs#languages' },
+      { label: 'Dictionary', href: '/docs#dictionary' },
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
+      { label: 'About', href: '/about' },
+      { label: 'Feedback', href: '/feedback' },
+      { label: 'Say something', href: 'mailto:say@quicksay.app' },
+    ],
+  },
+  {
+    heading: 'Legal',
+    links: [
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
+    ],
+  },
+];
+---
+
+<footer class="footer-bg pt-16 pb-8 px-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Link columns -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-12">
+      {columns.map((col) => (
+        <div>
+          <p class="font-headline font-semibold text-text-primary text-sm uppercase tracking-wider mb-4">
+            {col.heading}
+          </p>
+          <ul class="flex flex-col gap-3" role="list">
+            {col.links.map((link) => (
+              <li>
+                <a href={link.href} class="footer-link text-sm">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <!-- Divider -->
+    <hr class="border-border mb-8" />
+
+    <!-- Bottom bar -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2" aria-label="QuickSay home">
+        <img src="/logo.svg" alt="QuickSay voice-to-text app icon featuring minimalist microphone on teal gradient" width="24" height="24" class="w-6 h-6" />
+        <span class="font-headline font-bold text-lg">
+          <span class="text-accent-teal">Q</span><span class="text-text-primary">uickSay</span>
+        </span>
+      </a>
+      <p class="text-text-quaternary text-sm text-center sm:text-right">
+        <a href="/changelog" class="version-link">QuickSay v1.8.1</a> &nbsp;|&nbsp; Built with care for Windows users.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-bg {
+    background-color: #0e0e10;
+  }
+
+  .footer-link {
+    color: var(--text-tertiary);
+    transition: color 150ms ease;
+    display: inline-block;
+    padding-block: 0.5rem;
+  }
+
+  .footer-link:hover {
+    color: var(--text-secondary);
+  }
+
+  .version-link {
+    color: var(--text-quaternary);
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+
+  .version-link:hover {
+    color: var(--accent-teal);
+  }
+</style>

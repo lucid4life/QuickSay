@@ -1,0 +1,633 @@
+---
+/**
+ * Beta Getting Started Guide — step-by-step onboarding for QuickSay beta testers.
+ * Long-form guide with numbered steps, callouts, accordion troubleshooting, and print styles.
+ * noindex/nofollow — not for public search indexing.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+/* Beta screenshots in /images/beta/ — groq-console.png, groq-api-key.png, install-step.png */
+
+const troubleshootingItems = [
+  {
+    id: 'ts-not-appearing',
+    question: "QuickSay isn't appearing after install",
+    answer: "Check your system tray (bottom-right of your taskbar — click the ^ arrow to see hidden icons). If QuickSay isn't there, try running it as administrator: right-click the QuickSay shortcut and select 'Run as administrator'. If it still doesn't appear, restart your computer and try again.",
+  },
+  {
+    id: 'ts-smartscreen',
+    question: "Chrome or SmartScreen is showing a warning",
+    answer: "This is normal for newer software. In Chrome: click the ^ arrow next to the download and select 'Keep'. For Windows SmartScreen: click 'More info', then 'Run anyway'. QuickSay is digitally signed with Microsoft Azure Trusted Signing, but browsers and Windows base their warnings on download reputation — new software hasn't been downloaded enough times yet to bypass these automatically. The warnings will disappear over time.",
+  },
+  {
+    id: 'ts-api-key',
+    question: "My API key isn't working",
+    answer: "Make sure there are no extra spaces before or after the key when you paste it. The key should start with gsk_ — if it doesn't, you may have copied the wrong value from the Groq dashboard. Double-check that your Groq account is verified (check your email for a confirmation link).",
+  },
+  {
+    id: 'ts-audio',
+    question: "Audio isn't being captured",
+    answer: "Open Windows Settings > Privacy > Microphone and make sure microphone access is enabled for desktop apps. Then check QuickSay's audio settings to confirm the correct microphone is selected — if you have multiple mics (laptop built-in, headset, etc.), the wrong one may be active.",
+  },
+  {
+    id: 'ts-wrong-window',
+    question: "Text appears in the wrong window",
+    answer: "QuickSay types wherever your cursor is currently active. Before dictating, click into the text field where you want the text to appear. If you're using multiple monitors, make sure the target app has focus. QuickSay doesn't track or switch windows — it simply pastes at the cursor position.",
+  },
+  {
+    id: 'ts-slow',
+    question: "Transcription is slow",
+    answer: "Check your internet connection — QuickSay needs a stable connection to reach Groq's servers. If your connection is fine, Groq may be experiencing momentary latency (rare, but it happens). Try again in a minute. Typical round-trip time is under 500 milliseconds.",
+  },
+];
+---
+
+
+<BaseLayout
+  title="Getting Started with QuickSay Beta"
+  description="Install QuickSay, set up your free Groq API key, and start dictating in under 5 minutes. Step-by-step beta setup guide."
+  canonicalUrl="https://quicksay.app/beta/getting-started"
+>
+  <!-- noindex for beta page -->
+  <meta name="robots" content="noindex, nofollow" slot="head" />
+
+  <Navbar slot="header" />
+
+  <!-- Page Header -->
+  <section class="pt-32 pb-12 md:pt-40 md:pb-16 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="fade-in-up mb-6">
+        <span class="font-mono text-xs uppercase tracking-widest text-accent-teal border border-accent-teal/30 rounded-full px-3 py-1">
+          Beta v1.8.1
+        </span>
+      </div>
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance">
+        Getting Started with QuickSay Beta
+      </h1>
+      <p class="fade-in-up text-text-secondary text-lg mt-6 leading-relaxed">
+        Install QuickSay, set up your free Groq API key, and start dictating in under 5 minutes.
+      </p>
+    </div>
+  </section>
+
+  <!-- Step 1: Install QuickSay -->
+  <section class="py-12 md:py-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="fade-in-up flex items-center gap-4 mb-6">
+        <span class="flex items-center justify-center w-10 h-10 rounded-full bg-accent-teal text-background font-headline font-bold text-lg shrink-0">1</span>
+        <h2 class="font-headline font-bold text-2xl md:text-3xl text-text-primary">Install QuickSay</h2>
+      </div>
+
+      <!-- Download Button -->
+      <div class="fade-in-up mb-8">
+        <a
+          href="/downloads/QuickSay-Setup.exe"
+          class="inline-flex items-center gap-3 bg-accent-teal text-background font-headline font-semibold rounded-lg px-6 py-3 hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-glow active:scale-[0.98] transition-all duration-200"
+          data-analytics="beta-download"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download QuickSay Beta
+        </a>
+      </div>
+
+      <p class="fade-in-up text-text-secondary text-base leading-relaxed mb-6">
+        Run the installer — it takes about 30 seconds. QuickSay is ~105 MB — no bloat, no background services.
+      </p>
+
+      <!-- Browser Download Warning (orange callout) -->
+      <div class="fade-in-up bg-surface border-l-4 border-accent-orange rounded-lg p-6 mb-6">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-accent-orange shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+          <div>
+            <p class="font-headline font-semibold text-text-primary text-sm mb-1">Browser &amp; Windows Warnings</p>
+            <p class="text-text-secondary text-sm leading-relaxed mb-3">
+              <strong class="text-text-primary">Chrome may warn</strong> that QuickSay "isn't commonly downloaded." This is normal for new software — Chrome shows this for any app that hasn't been downloaded thousands of times yet. Click the <strong class="text-text-primary">^</strong> arrow next to the download, then select <strong class="text-text-primary">"Keep"</strong> to proceed.
+            </p>
+            <p class="text-text-secondary text-sm leading-relaxed mb-3">
+              <strong class="text-text-primary">Windows SmartScreen</strong> may also show a warning when you run the installer. Click <strong class="text-text-primary">"More info"</strong> then <strong class="text-text-primary">"Run anyway"</strong>.
+            </p>
+            <p class="text-text-secondary text-sm leading-relaxed">
+              QuickSay is digitally signed with <strong class="text-text-primary">Microsoft Azure Trusted Signing</strong> and verified clean on <a href="https://www.virustotal.com" target="_blank" rel="noopener noreferrer" class="text-accent-teal hover:underline">VirusTotal</a>. These warnings disappear as more people download the app.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Requirements -->
+      <div class="fade-in-up bg-surface border border-border rounded-lg p-6 mb-6">
+        <p class="font-headline font-semibold text-text-primary text-sm mb-3">System Requirements</p>
+        <ul class="space-y-2 text-text-secondary text-sm">
+          <li class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-accent-teal shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+            Windows 10 or 11 (64-bit)
+          </li>
+          <li class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-accent-teal shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+            Internet connection required
+          </li>
+          <li class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-accent-teal shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+            Any microphone (built-in, USB, or Bluetooth)
+          </li>
+        </ul>
+      </div>
+
+      <!-- Screenshot Placeholder -->
+      <div class="fade-in-up">
+        <img src="/images/beta/install-step.png?v=4" alt="QuickSay welcome screen after installation" class="rounded-lg border border-border mt-4 max-w-full sm:max-w-md mx-auto" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="max-w-3xl mx-auto px-6"><hr class="border-border" /></div>
+
+  <!-- Step 2: Get Your Free Groq API Key -->
+  <section class="py-12 md:py-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="fade-in-up flex items-center gap-4 mb-6">
+        <span class="flex items-center justify-center w-10 h-10 rounded-full bg-accent-teal text-background font-headline font-bold text-lg shrink-0">2</span>
+        <h2 class="font-headline font-bold text-2xl md:text-3xl text-text-primary">Get Your Free Groq API Key</h2>
+      </div>
+
+      <p class="fade-in-up text-text-secondary text-base leading-relaxed mb-6">
+        QuickSay uses a Bring Your Own Key (BYOK) model. You connect your own free Groq account — this means your API usage is yours to control, and QuickSay never touches your data or billing.
+      </p>
+
+      <!-- Numbered Sub-steps -->
+      <div class="fade-in-up space-y-4 mb-8">
+        <div class="flex items-start gap-4">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full bg-accent-teal/10 text-accent-teal font-headline font-bold text-sm shrink-0 mt-0.5">1</span>
+          <p class="text-text-secondary text-base leading-relaxed">
+            Go to <a href="https://console.groq.com" target="_blank" rel="noopener noreferrer" class="text-accent-teal hover:underline font-medium">console.groq.com</a> and create a free account. You can sign in with Google or use your email.
+          </p>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full bg-accent-teal/10 text-accent-teal font-headline font-bold text-sm shrink-0 mt-0.5">2</span>
+          <p class="text-text-secondary text-base leading-relaxed">
+            Once logged in, navigate to <strong class="text-text-primary">API Keys</strong> in the left sidebar.
+          </p>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full bg-accent-teal/10 text-accent-teal font-headline font-bold text-sm shrink-0 mt-0.5">3</span>
+          <p class="text-text-secondary text-base leading-relaxed">
+            Click <strong class="text-text-primary">"Create API Key"</strong> and give it a name (e.g., "QuickSay").
+          </p>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full bg-accent-teal/10 text-accent-teal font-headline font-bold text-sm shrink-0 mt-0.5">4</span>
+          <p class="text-text-secondary text-base leading-relaxed">
+            Copy the key. It starts with <code class="font-mono text-accent-teal bg-background px-1.5 py-0.5 rounded text-sm">gsk_...</code>
+          </p>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="flex items-center justify-center w-7 h-7 rounded-full bg-accent-teal/10 text-accent-teal font-headline font-bold text-sm shrink-0 mt-0.5">5</span>
+          <p class="text-text-secondary text-base leading-relaxed">
+            Keep this key safe — you'll paste it into QuickSay in the next step.
+          </p>
+        </div>
+      </div>
+
+      <!-- Screenshot Placeholders -->
+      <div class="fade-in-up grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <img src="/images/beta/groq-console.png?v=4" alt="Groq console sign-up page with Google, GitHub, and email options" class="rounded-lg border border-border max-w-full" loading="lazy" />
+        <img src="/images/beta/groq-api-key.png?v=4" alt="QuickSay's in-app visual guide showing how to create a Groq API key" class="rounded-lg border border-border max-w-full" loading="lazy" />
+      </div>
+
+      <!-- Teal tip callout -->
+      <div class="fade-in-up bg-surface border-l-4 border-accent-teal rounded-lg p-6 mb-6">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-accent-teal shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-text-secondary text-sm leading-relaxed">
+            <strong class="text-text-primary">Free tier is generous.</strong> Groq's free tier gives you roughly 8 hours of daily transcription — more than enough for most users. You'll likely never need to pay for API usage.
+          </p>
+        </div>
+      </div>
+
+      <!-- Copy-to-clipboard styled input -->
+      <div class="fade-in-up">
+        <p class="text-text-secondary text-sm mb-2">Paste your key here to copy it for the next step:</p>
+        <div class="flex items-center gap-2">
+          <input
+            type="text"
+            id="api-key-input"
+            placeholder="gsk_..."
+            class="flex-1 bg-background border border-border rounded-lg px-4 py-3 font-mono text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-accent-teal/50 transition-colors duration-200"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button
+            id="copy-key-btn"
+            type="button"
+            class="shrink-0 bg-surface border border-border rounded-lg px-4 py-3 text-text-secondary hover:text-accent-teal hover:border-accent-teal/30 transition-all duration-200 cursor-pointer"
+            aria-label="Copy API key to clipboard"
+          >
+            <svg id="copy-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <svg id="check-icon" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </button>
+        </div>
+        <p class="text-text-tertiary text-xs mt-2">Client-side only — nothing is sent anywhere.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="max-w-3xl mx-auto px-6"><hr class="border-border" /></div>
+
+  <!-- Step 3: Configure QuickSay -->
+  <section class="py-12 md:py-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="fade-in-up flex items-center gap-4 mb-6">
+        <span class="flex items-center justify-center w-10 h-10 rounded-full bg-accent-teal text-background font-headline font-bold text-lg shrink-0">3</span>
+        <h2 class="font-headline font-bold text-2xl md:text-3xl text-text-primary">Configure QuickSay</h2>
+      </div>
+
+      <p class="fade-in-up text-text-secondary text-base leading-relaxed mb-6">
+        When you first launch QuickSay, the onboarding wizard walks you through setup. Paste your Groq API key when prompted — QuickSay validates it immediately.
+      </p>
+
+      <p class="fade-in-up text-text-secondary text-base leading-relaxed mb-6">
+        The default trigger is <kbd class="font-mono text-accent-teal bg-background border border-border rounded px-2 py-0.5 text-sm">Left Ctrl</kbd> + <kbd class="font-mono text-accent-teal bg-background border border-border rounded px-2 py-0.5 text-sm">Win</kbd> — you can change this anytime in settings.
+      </p>
+
+      <!-- Mode Descriptions -->
+      <div class="fade-in-up grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div class="bg-surface border border-border rounded-lg p-6">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-accent-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+            </svg>
+            <h3 class="font-headline font-semibold text-text-primary">Hot Key Mode</h3>
+          </div>
+          <p class="text-text-secondary text-sm leading-relaxed">
+            Hold down your shortcut key to talk, release to stop. Like a walkie-talkie.
+          </p>
+        </div>
+        <div class="bg-surface border border-border rounded-lg p-6">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-accent-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+            </svg>
+            <h3 class="font-headline font-semibold text-text-primary">Sticky Key Mode</h3>
+          </div>
+          <p class="text-text-secondary text-sm leading-relaxed">
+            Press once to start, press again to stop. Like record/stop.
+          </p>
+        </div>
+      </div>
+
+      <!-- Teal tip -->
+      <div class="fade-in-up bg-surface border-l-4 border-accent-teal rounded-lg p-6 mb-8">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-accent-teal shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-text-secondary text-sm leading-relaxed">
+            <strong class="text-text-primary">Not sure which to use?</strong> Start with Hot Key mode — most people find it more intuitive. You can switch anytime.
+          </p>
+        </div>
+      </div>
+
+      <p class="fade-in-up text-text-secondary text-base leading-relaxed mb-6">
+        While you're in settings, explore <strong class="text-text-primary">Smart Modes</strong> (context-aware formatting for code, email, chat, etc.) and <strong class="text-text-primary">Custom Dictionary</strong> (teach QuickSay your terminology, names, and jargon).
+      </p>
+
+      <!-- Screenshots -->
+      <div class="fade-in-up grid grid-cols-1 md:grid-cols-2 gap-4">
+        <img src="/images/screenshots/onboarding-full.png?v=4" alt="QuickSay onboarding feature tour showing Voice to Text, Smart Modes, and Stats" class="rounded-lg border border-border max-w-full" loading="lazy" />
+        <img src="/images/screenshots/modes-full.png?v=4" alt="QuickSay Custom Modes showing Standard, Email, Code, and Casual formatting presets" class="rounded-lg border border-border max-w-full" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="max-w-3xl mx-auto px-6"><hr class="border-border" /></div>
+
+  <!-- Step 4: Your First Dictation -->
+  <section class="py-12 md:py-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="fade-in-up flex items-center gap-4 mb-6">
+        <span class="flex items-center justify-center w-10 h-10 rounded-full bg-accent-teal text-background font-headline font-bold text-lg shrink-0">4</span>
+        <h2 class="font-headline font-bold text-2xl md:text-3xl text-text-primary">Your First Dictation</h2>
+      </div>
+
+      <p class="fade-in-up text-text-secondary text-base leading-relaxed mb-6">
+        Open any app — VS Code, Google Docs, Word, Slack, Teams, Notion, Outlook — anywhere you type. Click where you want text to appear, then hold your trigger shortcut and speak.
+      </p>
+
+      <div class="fade-in-up text-text-secondary text-base leading-relaxed mb-8">
+        <ol class="space-y-2 list-decimal list-inside">
+          <li>Click into any text field</li>
+          <li>Hold <kbd class="font-mono text-accent-teal bg-background border border-border rounded px-2 py-0.5 text-sm">Left Ctrl</kbd> + <kbd class="font-mono text-accent-teal bg-background border border-border rounded px-2 py-0.5 text-sm">Win</kbd> (or your custom shortcut)</li>
+          <li>Speak naturally</li>
+          <li>Release to stop — your text appears in under a second</li>
+        </ol>
+      </div>
+
+      <!-- Before/After Example -->
+      <div class="fade-in-up bg-surface rounded-lg p-6 border border-border mb-8">
+        <div class="mb-4">
+          <p class="font-headline font-semibold text-text-tertiary text-xs uppercase tracking-wider mb-2">What you say</p>
+          <p class="text-text-secondary text-base leading-relaxed italic">
+            "okay so uh create a function that takes a list of numbers and returns the average but make sure to handle the empty list case"
+          </p>
+        </div>
+
+        <!-- Teal Divider Arrow -->
+        <div class="flex items-center gap-3 my-4">
+          <div class="flex-1 h-px bg-accent-teal/20"></div>
+          <svg class="w-5 h-5 text-accent-teal shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+          <div class="flex-1 h-px bg-accent-teal/20"></div>
+        </div>
+
+        <div>
+          <p class="font-headline font-semibold text-accent-teal text-xs uppercase tracking-wider mb-2">QuickSay output</p>
+          <p class="text-text-primary text-base leading-relaxed">
+            Create a function that accepts a list of numbers and returns their average. Handle the empty list edge case.
+          </p>
+        </div>
+      </div>
+
+      <!-- Teal tip -->
+      <div class="fade-in-up bg-surface border-l-4 border-accent-teal rounded-lg p-6">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-accent-teal shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-text-secondary text-sm leading-relaxed">
+            <strong class="text-text-primary">Speak naturally.</strong> QuickSay handles "um", "uh", and incomplete sentences. Say "period", "comma", "new line", or "question mark" and Whisper understands them naturally.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="max-w-3xl mx-auto px-6"><hr class="border-border" /></div>
+
+  <!-- Step 5: Share Your Feedback -->
+  <section class="py-12 md:py-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="fade-in-up flex items-center gap-4 mb-6">
+        <span class="flex items-center justify-center w-10 h-10 rounded-full bg-accent-teal text-background font-headline font-bold text-lg shrink-0">5</span>
+        <h2 class="font-headline font-bold text-2xl md:text-3xl text-text-primary">Share Your Feedback</h2>
+      </div>
+
+      <p class="fade-in-up text-text-secondary text-base leading-relaxed mb-8">
+        After you've used QuickSay for a day or two, we'd love to hear from you. What's working well? What's frustrating? What features would make it indispensable?
+      </p>
+
+      <div class="fade-in-up text-center mb-4">
+        <a
+          href="/beta/feedback"
+          class="inline-flex items-center gap-2 bg-accent-teal text-background font-headline font-semibold rounded-lg px-6 py-3 hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-glow active:scale-[0.98] transition-all duration-200"
+          data-analytics="beta-feedback-cta"
+        >
+          Share Your Feedback
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
+      </div>
+
+      <p class="fade-in-up text-text-tertiary text-sm text-center">
+        It takes about 5 minutes and helps us make QuickSay better for everyone.
+      </p>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="max-w-3xl mx-auto px-6"><hr class="border-border" /></div>
+
+  <!-- Troubleshooting (Accordion) -->
+  <section class="py-12 md:py-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="fade-in-up font-headline font-semibold text-2xl md:text-3xl text-text-primary mb-8">
+        Troubleshooting
+      </h2>
+
+      <div class="space-y-4">
+        {troubleshootingItems.map((item, index) => (
+          <div class="fade-in-up border border-border rounded-lg bg-surface overflow-hidden" style={`transition-delay: ${index * 50}ms`}>
+            <input
+              type="radio"
+              id={`ts-${item.id}`}
+              name="troubleshooting-accordion"
+              class="peer hidden"
+            />
+            <label
+              for={`ts-${item.id}`}
+              class="flex items-center justify-between cursor-pointer py-5 px-6 select-none transition-colors duration-200"
+            >
+              <span class="font-headline font-medium text-base text-text-primary pr-4">
+                {item.question}
+              </span>
+              <svg
+                class="w-5 h-5 shrink-0 text-text-tertiary transition-transform duration-200"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </label>
+            <div class="ts-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out peer-checked:max-h-96">
+              <div class="px-6 pb-5">
+                <p class="font-body text-text-secondary text-[15px] leading-[1.7]">
+                  {item.answer}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="max-w-3xl mx-auto px-6"><hr class="border-border" /></div>
+
+  <!-- Contact & Support -->
+  <section class="py-12 md:py-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="fade-in-up bg-surface border border-border rounded-xl p-8 md:p-10 text-center">
+        <h2 class="font-headline font-semibold text-2xl md:text-3xl text-text-primary mb-4">
+          Questions? Bugs? Ideas?
+        </h2>
+        <p class="text-text-secondary text-base leading-relaxed mb-6">
+          Reach out directly — I read every message personally.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+          <a
+            href="mailto:beta@quicksay.app"
+            class="inline-flex items-center gap-2 bg-surface border border-border rounded-lg px-5 py-3 text-text-primary hover:border-accent-teal/30 hover:text-accent-teal transition-all duration-200"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span class="font-mono text-sm">beta@quicksay.app</span>
+          </a>
+          <a
+            href="/beta/feedback"
+            class="inline-flex items-center gap-2 bg-surface border border-border rounded-lg px-5 py-3 text-text-primary hover:border-accent-teal/30 hover:text-accent-teal transition-all duration-200"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            <span class="text-sm font-medium">Feedback Form</span>
+          </a>
+        </div>
+
+        <p class="text-text-tertiary text-sm italic">
+          — Adrian
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Accordion transitions */
+  .ts-answer {
+    transition: max-height 300ms ease;
+  }
+
+  /* Apply teal color to question text when checked */
+  input[type="radio"]:checked + label span {
+    color: #22d3c5;
+  }
+
+  /* Rotate chevron when checked */
+  input[type="radio"]:checked + label svg {
+    transform: rotate(180deg);
+    color: #22d3c5;
+  }
+
+  /* Expand answer when checked */
+  input[type="radio"]:checked ~ .ts-answer {
+    max-height: 24rem;
+  }
+
+  /* Mobile: ensure minimum tap area */
+  @media (max-width: 640px) {
+    label {
+      min-height: 48px;
+    }
+  }
+
+  /* Print-friendly styles */
+  @media print {
+    body {
+      background: white !important;
+      color: black !important;
+    }
+
+    nav, footer, header, #site-nav, .footer-bg {
+      display: none !important;
+    }
+
+    .skip-nav {
+      display: none !important;
+    }
+
+    section {
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+
+    .bg-surface {
+      background: #f5f5f5 !important;
+      border-color: #ccc !important;
+    }
+
+    .text-text-primary, .text-text-secondary, .text-text-tertiary {
+      color: black !important;
+    }
+
+    .text-accent-teal {
+      color: #0d9488 !important;
+    }
+
+    .text-accent-orange {
+      color: #c2410c !important;
+    }
+
+    .border-border {
+      border-color: #ccc !important;
+    }
+
+    a {
+      color: #0d9488 !important;
+      text-decoration: underline !important;
+    }
+
+    /* Show all accordion answers in print */
+    .ts-answer {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    /* Hide copy button */
+    #copy-key-btn {
+      display: none !important;
+    }
+
+    /* Simplify images */
+    img {
+      max-width: 100% !important;
+      border: 1px solid #ccc !important;
+    }
+  }
+</style>
+
+<script>
+  // Copy-to-clipboard functionality
+  const input = document.getElementById('api-key-input') as HTMLInputElement;
+  const btn = document.getElementById('copy-key-btn');
+  const copyIcon = document.getElementById('copy-icon');
+  const checkIcon = document.getElementById('check-icon');
+
+  if (btn && input && copyIcon && checkIcon) {
+    btn.addEventListener('click', async () => {
+      const value = input.value.trim();
+      if (!value) return;
+
+      try {
+        await navigator.clipboard.writeText(value);
+        copyIcon.classList.add('hidden');
+        checkIcon.classList.remove('hidden');
+        btn.classList.add('!text-accent-teal', '!border-accent-teal/30');
+
+        setTimeout(() => {
+          copyIcon.classList.remove('hidden');
+          checkIcon.classList.add('hidden');
+          btn.classList.remove('!text-accent-teal', '!border-accent-teal/30');
+        }, 2000);
+      } catch {
+        // Fallback: select the input text
+        input.select();
+        document.execCommand('copy');
+      }
+    });
+  }
+</script>

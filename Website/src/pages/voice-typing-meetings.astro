@@ -1,0 +1,60 @@
+---
+import SEOLandingLayout from '../layouts/SEOLandingLayout.astro';
+---
+
+<SEOLandingLayout
+  title="Dictate Meeting Notes in Real Time with QuickSay"
+  description="Capture meeting notes by voice while you listen. QuickSay transcribes and cleans your dictation instantly. Works with Zoom, Teams, and Meet. Free open beta."
+  h1="Dictate Meeting Notes in Real Time with QuickSay"
+  canonicalUrl="https://quicksay.app/voice-typing-meetings"
+  relatedPages={[
+    { href: '/voice-typing-teams', label: 'Dictate in Microsoft Teams' },
+    { href: '/voice-typing-notion', label: 'Voice-to-Text for Notion' },
+    { href: '/voice-typing-google-docs', label: 'Voice Typing for Google Docs' },
+    { href: '/voice-typing-obsidian', label: 'Voice Notes in Obsidian' },
+  ]}
+>
+  <Fragment slot="hero-subtitle">
+    Taking meeting notes while listening is a divided-attention problem. QuickSay lets you capture key points by voice — faster than typing and less disruptive.
+  </Fragment>
+
+  <p class="text-lg">
+    Meetings generate information that needs to be captured in writing: decisions, action items, deadlines, questions, and context. Typing notes during a meeting is slow, audible to others on the call, and splits your attention between listening and writing. QuickSay offers a different approach: dictate your notes by voice during natural pauses in the conversation. The result is cleaned text ready for your meeting document, captured without missing what was said.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">How Meeting Dictation Works</h2>
+  <p>
+    Open your notes app — Notion, Obsidian, Google Docs, OneNote, a plain text file — alongside your video call. When a key point comes up, mute your microphone on the call, hold your QuickSay keyboard shortcut, and speak a quick summary. Release the key and the cleaned note appears in your document. Unmute and continue listening. The entire capture takes 5-10 seconds and requires no typing.
+  </p>
+  <div class="bg-surface border border-border rounded-xl p-5 my-4">
+    <p class="text-text-tertiary text-sm font-mono mb-2">Dictated during a meeting pause:</p>
+    <p class="text-text-secondary italic">"Sarah confirmed the launch date is March fifteenth and the marketing team needs the final copy by end of next week action item for me is to review the landing page draft by Wednesday"</p>
+    <p class="text-text-tertiary text-sm font-mono mt-4 mb-2">After QuickSay cleanup:</p>
+    <p class="text-text-primary">"Sarah confirmed the launch date is March 15th. The marketing team needs the final copy by end of next week. Action item: review the landing page draft by Wednesday."</p>
+  </div>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Works Alongside Any Video Call App</h2>
+  <p>
+    QuickSay is not tied to any specific conferencing platform. It works alongside Zoom, Microsoft Teams, Google Meet, Webex, Slack Huddles, and any other video call tool running on Windows. Because QuickSay captures audio from your microphone and the call uses a separate audio channel, there is no interference between the two. Your dictation goes to QuickSay; your meeting audio stays in the call.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Better Than Full Transcription</h2>
+  <p>
+    Many meeting tools offer automatic full-meeting transcription. While useful for review, a 60-minute raw transcript is not the same as meeting notes. It includes every tangent, repetition, and off-topic remark. Useful notes are selective: they capture what matters and leave out the rest. QuickSay puts you in control of that selection. You decide what to capture and when, and the cleanup ensures each captured note reads clearly.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">No Keyboard Noise on Calls</h2>
+  <p>
+    Typing during a call is audible. Even with noise suppression, mechanical keyboard clicks leak through microphones and signal to others that you are not fully present. Voice dictation during muted moments eliminates this entirely. Your colleagues hear attentive silence, not keyboard clatter, and your notes still get captured.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Meeting-Heavy Schedules</h2>
+  <p>
+    For people with back-to-back meetings — managers, product leads, consultants — the time between meetings is too short to write up proper notes from memory. Dictating key points during the meeting means the notes are done before the meeting ends. When you hang up, the document is ready to share. This prevents the common problem of meeting notes that never get written because the next meeting started immediately.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Private and Non-Intrusive</h2>
+  <p>
+    QuickSay captures zero screen content and sends zero telemetry. It does not record the meeting itself — it only captures audio when you hold the keyboard shortcut. The tool has no access to your call platform, no connection to your calendar, and no ability to see or record what is on your screen. Your meeting notes stay between you and your notes app.
+  </p>
+</SEOLandingLayout>

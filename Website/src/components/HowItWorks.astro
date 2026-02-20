@@ -1,0 +1,87 @@
+---
+/* HowItWorks — 3-step visual flow */
+import KeyboardShortcut from './KeyboardShortcut.astro';
+---
+
+<section id="how-it-works" class="py-24 md:py-32 px-6">
+  <div class="max-w-5xl mx-auto">
+    <!-- Headline -->
+    <h2 class="font-headline font-semibold text-3xl md:text-4xl text-text-primary text-balance text-center mb-16">
+      Three steps. Zero friction.
+    </h2>
+
+    <!-- Steps container -->
+    <div class="steps-grid relative grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+
+      <!-- Connecting line — horizontal on desktop, vertical on mobile -->
+      <div class="connecting-line hidden md:block absolute top-[60px] left-[16.67%] right-[16.67%] h-0.5 bg-accent-teal opacity-20" aria-hidden="true"></div>
+      <div class="connecting-line-mobile md:hidden absolute top-0 bottom-0 left-8 w-0.5 bg-accent-teal opacity-20" aria-hidden="true"></div>
+
+      <!-- Step 1: Speak -->
+      <div class="fade-in-up relative bg-surface border border-border rounded-xl p-8 text-center" style="transition-delay: 0ms;">
+        <div class="flex items-center justify-center mb-6">
+          <div class="w-16 h-16 rounded-full bg-[rgba(34,211,197,0.08)] flex items-center justify-center">
+            <!-- Microphone icon -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-accent-teal">
+              <rect x="9" y="2" width="6" height="12" rx="3" />
+              <path d="M5 10a7 7 0 0 0 14 0" />
+              <line x1="12" y1="19" x2="12" y2="22" />
+              <line x1="8" y1="22" x2="16" y2="22" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="font-headline font-semibold text-xl text-text-primary mb-3">Speak naturally.</h3>
+        <p class="text-text-secondary text-sm leading-relaxed mb-4">
+          Hold your keyboard shortcut and talk. QuickSay captures your voice using your preferred microphone.
+        </p>
+        <div class="flex flex-col items-center gap-2 mt-4">
+          <KeyboardShortcut keys={['Left Ctrl', 'Win']} />
+          <p class="text-text-tertiary text-xs">Default trigger (configurable)</p>
+        </div>
+      </div>
+
+      <!-- Step 2: Transcribe -->
+      <div class="fade-in-up relative bg-surface border border-border rounded-xl p-8 text-center" style="transition-delay: 150ms;">
+        <div class="flex items-center justify-center mb-6">
+          <div class="w-16 h-16 rounded-full bg-[rgba(34,211,197,0.08)] flex items-center justify-center">
+            <!-- Waveform icon -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-accent-teal">
+              <line x1="4" y1="8" x2="4" y2="16" />
+              <line x1="8" y1="5" x2="8" y2="19" />
+              <line x1="12" y1="3" x2="12" y2="21" />
+              <line x1="16" y1="7" x2="16" y2="17" />
+              <line x1="20" y1="9" x2="20" y2="15" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="font-headline font-semibold text-xl text-text-primary mb-3">AI transcribes instantly.</h3>
+        <p class="text-text-secondary text-sm leading-relaxed">
+          Your voice becomes text in seconds — fast, accurate speech-to-text in 25 languages.
+        </p>
+      </div>
+
+      <!-- Step 3: Polish -->
+      <div class="fade-in-up relative bg-surface border border-border rounded-xl p-8 text-center" style="transition-delay: 300ms;">
+        <div class="flex items-center justify-center mb-6">
+          <div class="w-16 h-16 rounded-full bg-[rgba(34,211,197,0.08)] flex items-center justify-center">
+            <!-- Sparkle icon -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-accent-teal">
+              <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z" />
+            </svg>
+          </div>
+        </div>
+        <h3 class="font-headline font-semibold text-xl text-text-primary mb-3">AI polishes your text.</h3>
+        <p class="text-text-secondary text-sm leading-relaxed">
+          AI removes filler words, fixes grammar, and formats everything. Clean text appears wherever your cursor is.
+        </p>
+      </div>
+    </div>
+
+    <!-- Ghost CTA -->
+    <div class="text-center mt-12">
+      <a href="#hero" class="text-accent-teal font-semibold hover:underline transition-all duration-200">
+        See it in action
+      </a>
+    </div>
+  </div>
+</section>

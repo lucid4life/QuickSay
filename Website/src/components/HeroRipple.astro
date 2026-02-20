@@ -1,0 +1,32 @@
+---
+/* HeroRipple — Subtle concentric circle background for the hero section */
+---
+
+<div class="hero-ripple" aria-hidden="true">
+  <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+    <circle cx="400" cy="400" r="80" fill="none" stroke="#22d3c5" stroke-width="0.5" opacity="0.05" />
+    <circle cx="400" cy="400" r="140" fill="none" stroke="#22d3c5" stroke-width="0.5" opacity="0.045" />
+    <circle cx="400" cy="400" r="200" fill="none" stroke="#22d3c5" stroke-width="0.5" opacity="0.04" />
+    <circle cx="400" cy="400" r="260" fill="none" stroke="#22d3c5" stroke-width="0.5" opacity="0.035" />
+    <circle cx="400" cy="400" r="320" fill="none" stroke="#22d3c5" stroke-width="0.5" opacity="0.03" />
+    <circle cx="400" cy="400" r="380" fill="none" stroke="#22d3c5" stroke-width="0.5" opacity="0.025" />
+  </svg>
+</div>
+
+<style>
+  .hero-ripple {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-ripple svg {
+    max-width: 800px;
+    max-height: 800px;
+  }
+</style>

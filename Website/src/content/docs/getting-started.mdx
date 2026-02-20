@@ -1,0 +1,75 @@
+---
+title: "Getting Started"
+description: "Install QuickSay and start dictating in under 60 seconds. Download, set your keyboard shortcut, and speak — text appears at your cursor."
+order: 1
+---
+
+## Download and Install
+
+1. **Download the installer** from the [download page](/download) (~105 MB).
+2. **Run the .exe** and follow the on-screen prompts. No admin privileges required.
+3. **QuickSay appears in your system tray** once installation completes.
+
+## Your First Dictation
+
+Press the default keyboard shortcut to start recording:
+
+```
+Ctrl + Shift + Space
+```
+
+Speak naturally. When you release the keyboard shortcut (or press it again), QuickSay sends your audio to the cloud for AI transcription, then cleans it up with AI text processing. The finished text appears at your cursor in whatever app you're using.
+
+<details>
+  <summary>Technical details</summary>
+  Powered by Groq's Whisper-large-v3 model for transcription and Groq-hosted AI for text cleanup. Your connection key links QuickSay directly to these services through your Groq account.
+</details>
+
+The entire round-trip typically takes under 500 milliseconds.
+
+<img
+  src="/images/screenshots/onboarding-full.png"
+  alt="QuickSay onboarding screen showing keyboard shortcut configuration and first-time setup wizard"
+  width="800"
+  height="600"
+  loading="lazy"
+  style="border-radius: 8px; margin: 2rem 0; max-width: 100%; height: auto;"
+/>
+
+## How It Works
+
+1. **Record** — Hold the keyboard shortcut. QuickSay captures audio from your default microphone.
+2. **Transcribe** — Audio is sent to the cloud for AI speech-to-text.
+3. **Clean up** — AI processes the raw transcript: fixes punctuation, capitalization, filler words, and applies your custom dictionary.
+4. **Insert** — The polished text is pasted at your cursor via the clipboard.
+
+## System Requirements
+
+- **OS:** Windows 10 or later (64-bit)
+- **Internet:** Required (for AI transcription)
+- **Microphone:** Any USB or built-in mic
+- **Disk space:** ~150 MB
+
+## Configuring Your Keyboard Shortcut
+
+Open the QuickSay settings from the system tray icon and navigate to the **Keyboard Shortcut** section. You can assign any key combination that doesn't conflict with your existing shortcuts.
+
+## Connecting Your AI Account
+
+QuickSay requires a free AI account for transcription:
+
+1. Sign up at [groq.com](https://groq.com) and create your free account (no credit card required).
+2. Copy your personal connection key from the Groq dashboard.
+3. Open QuickSay settings and paste your key in the **AI Connection** field.
+4. Save and restart QuickSay.
+
+The free tier provides 8 hours of transcription daily. If you need more capacity, upgrading removes all limits for a few dollars per month.
+
+<img
+  src="/images/screenshots/api-full.png"
+  alt="QuickSay AI settings panel for connecting your account and configuring transcription preferences"
+  width="800"
+  height="600"
+  loading="lazy"
+  style="border-radius: 8px; margin: 2rem 0; max-width: 100%; height: auto;"
+/>

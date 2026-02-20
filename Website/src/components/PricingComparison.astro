@@ -1,0 +1,221 @@
+---
+/**
+ * PricingComparison — side-by-side pricing table comparing QuickSay
+ * to Wispr Flow, Aqua Voice, and SuperWhisper.
+ * Uses ONLY verified stats from the Appendix.
+ */
+
+import BetaCTA from './BetaCTA.astro';
+
+const rows = [
+  {
+    label: 'Price',
+    quicksay: 'Free (open beta)',
+    wispr: '$144/year',
+    aqua: '$96/year',
+    superwhisper: '$249.99 lifetime',
+  },
+  {
+    label: 'Install Size',
+    quicksay: '~105 MB',
+    wispr: '\u2014',
+    aqua: '\u2014',
+    superwhisper: '\u2014',
+  },
+  {
+    label: 'Screen Capture',
+    quicksay: 'None',
+    wispr: 'Optional',
+    aqua: '\u2014',
+    superwhisper: 'None',
+  },
+  {
+    label: 'Telemetry',
+    quicksay: 'None',
+    wispr: 'Yes',
+    aqua: '\u2014',
+    superwhisper: '\u2014',
+  },
+  {
+    label: 'Free Tier',
+    quicksay: '~8 hrs/day*',
+    wispr: '2K words/week',
+    aqua: '1K words (trial)',
+    superwhisper: 'Unlimited (local)',
+  },
+];
+---
+
+<section id="pricing" class="py-24 md:py-32 px-6">
+  <div class="max-w-5xl mx-auto">
+    <!-- Headline -->
+    <div class="fade-in-up text-center mb-16">
+      <h2 class="font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance">
+        Free during open beta.
+      </h2>
+      <p class="mt-4 text-text-secondary text-lg max-w-xl mx-auto">
+        Try QuickSay free. No credit card required. No subscription ever.
+      </p>
+    </div>
+
+    <!-- Mobile stacked cards (visible below md) -->
+    <div class="md:hidden space-y-4">
+      <!-- QuickSay card (highlighted) -->
+      <div class="rounded-xl border-2 border-accent-teal bg-surface p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <span class="inline-block bg-accent-teal text-background text-xs font-bold px-3 py-1 rounded-full mb-2">LOWEST PRICE</span>
+            <h3 class="font-headline font-bold text-xl text-text-primary">QuickSay</h3>
+          </div>
+          <div class="text-right">
+            <p class="text-accent-teal font-bold text-2xl">Free</p>
+            <p class="text-text-tertiary text-xs">open beta</p>
+          </div>
+        </div>
+        <div class="space-y-3">
+          {rows.map(row => (
+            <div class="flex justify-between text-sm">
+              <span class="text-text-secondary">{row.label}</span>
+              <span class={`font-medium ${row.quicksay === 'None' ? 'text-accent-teal' : 'text-text-primary'}`}>{row.quicksay}</span>
+            </div>
+          ))}
+          <div class="flex justify-between text-sm pt-2 border-t border-border">
+            <span class="text-text-primary font-semibold">3-Year Cost</span>
+            <span class="text-accent-teal font-bold text-lg">Free</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Competitor cards -->
+      {[
+        { name: 'Wispr Flow', price: '$144/year', threeYear: '$432', data: rows.map(r => ({ label: r.label, value: r.wispr })) },
+        { name: 'Aqua Voice', price: '$96/year', threeYear: '$288', data: rows.map(r => ({ label: r.label, value: r.aqua })) },
+        { name: 'SuperWhisper', price: '$249.99', threeYear: '$249.99', data: rows.map(r => ({ label: r.label, value: r.superwhisper })) },
+      ].map(comp => (
+        <div class="rounded-xl border border-border bg-surface/50 p-6 opacity-80">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-headline font-semibold text-lg text-text-secondary">{comp.name}</h3>
+            <div class="text-right">
+              <p class="text-text-secondary font-semibold text-lg">{comp.price}</p>
+            </div>
+          </div>
+          <div class="space-y-3">
+            {comp.data.map(item => (
+              <div class="flex justify-between text-sm">
+                <span class="text-text-tertiary">{item.label}</span>
+                <span class={`${item.value === 'None' ? 'text-accent-teal' : 'text-text-secondary'}`}>{item.value}</span>
+              </div>
+            ))}
+            <div class="flex justify-between text-sm pt-2 border-t border-border">
+              <span class="text-text-secondary font-medium">3-Year Cost</span>
+              <span class="text-text-secondary font-semibold">{comp.threeYear}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Comparison Table (desktop only) -->
+    <div class="fade-in-up overflow-x-auto rounded-xl border border-border hidden md:block">
+      <table class="w-full bg-surface">
+        <!-- Header -->
+        <thead>
+          <tr class="border-b border-border">
+            <th class="p-4 text-left font-headline font-semibold text-text-secondary text-sm sticky left-0 bg-surface z-10">
+              &nbsp;
+            </th>
+            <th class="p-4 text-center relative sticky left-0 md:static">
+              <span class="inline-block bg-accent-teal text-background text-xs font-bold px-3 py-1 rounded-full mb-2">
+                LOWEST PRICE
+              </span>
+              <div class="font-headline font-semibold text-text-primary">QuickSay</div>
+            </th>
+            <th class="p-4 text-center opacity-70">
+              <div class="font-headline font-semibold text-text-secondary">Wispr Flow</div>
+            </th>
+            <th class="p-4 text-center opacity-70">
+              <div class="font-headline font-semibold text-text-secondary">Aqua Voice</div>
+            </th>
+            <th class="p-4 text-center opacity-70">
+              <div class="font-headline font-semibold text-text-secondary">SuperWhisper</div>
+            </th>
+          </tr>
+        </thead>
+
+        <!-- Body rows -->
+        <tbody>
+          {rows.map((row) => (
+            <tr class="border-b border-border">
+              <td class="p-4 font-headline font-semibold text-text-secondary text-sm sticky left-0 bg-surface z-10">
+                {row.label}
+              </td>
+              <td class="p-4 text-center text-text-primary font-medium border-x border-border">
+                {row.quicksay === 'None' ? (
+                  <span class="text-accent-teal">{row.quicksay}</span>
+                ) : (
+                  row.quicksay
+                )}
+              </td>
+              <td class="p-4 text-center text-text-secondary">
+                {row.wispr}
+              </td>
+              <td class="p-4 text-center text-text-secondary">
+                {row.aqua}
+              </td>
+              <td class="p-4 text-center text-text-secondary">
+                {row.superwhisper === 'None' ? (
+                  <span class="text-accent-teal">{row.superwhisper}</span>
+                ) : (
+                  row.superwhisper
+                )}
+              </td>
+            </tr>
+          ))}
+
+          <!-- 3-Year Cost row (highlighted) -->
+          <tr class="bg-background/50">
+            <td class="p-4 font-headline font-bold text-text-primary text-sm sticky left-0 bg-background/50 z-10">
+              3-Year Cost
+            </td>
+            <td class="p-4 text-center border-x border-border">
+              <span class="text-accent-teal font-bold text-2xl">Free</span>
+              <span class="block text-text-tertiary text-xs mt-1">open beta</span>
+            </td>
+            <td class="p-4 text-center text-text-secondary">
+              <span class="font-semibold text-lg">$432</span>
+            </td>
+            <td class="p-4 text-center text-text-secondary">
+              <span class="font-semibold text-lg">$288</span>
+            </td>
+            <td class="p-4 text-center text-text-secondary">
+              <span class="font-semibold text-lg">$249.99</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- QuickSay column highlight border -->
+    <style>
+      /* Teal highlight on QuickSay column */
+      table thead th:nth-child(2),
+      table tbody td:nth-child(2) {
+        background-color: rgba(34, 211, 197, 0.03);
+      }
+    </style>
+
+    <!-- Footnotes -->
+    <p class="text-text-quaternary text-sm text-center mt-6 max-w-2xl mx-auto">
+      *Estimated based on Groq's current free tier rate limits, which may change. See <a href="https://groq.com" class="underline hover:text-text-tertiary" target="_blank" rel="noopener noreferrer">groq.com</a> for current limits.<br/>
+      Competitor pricing verified as of February 2026 based on published pricing pages. Prices may change.
+    </p>
+
+    <!-- CTA -->
+    <div class="fade-in-up text-center mt-12">
+      <BetaCTA text="Join the Open Beta — Free" size="large" />
+      <p class="text-text-secondary text-sm mt-4">
+        No credit card required. No commitment.
+      </p>
+    </div>
+  </div>
+</section>

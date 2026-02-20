@@ -1,0 +1,71 @@
+---
+import SEOLandingLayout from '../layouts/SEOLandingLayout.astro';
+---
+
+<SEOLandingLayout
+  title="Better Alternative to Windows Built-in Dictation — QuickSay"
+  description="Looking for an alternative to Windows built-in dictation? QuickSay offers 25 languages, AI text cleanup, and zero training required. Free open beta."
+  h1="Better Alternative to Windows Built-in Dictation"
+  canonicalUrl="https://quicksay.app/windows-dictation-alternative"
+  relatedPages={[
+    { href: '/speech-to-text-windows-11', label: 'Speech-to-Text for Windows 11' },
+    { href: '/voice-to-text-windows', label: 'Voice to Text for Windows' },
+    { href: '/quicksay-vs-wispr-flow', label: 'QuickSay vs Wispr Flow' },
+    { href: '/quicksay-vs-aqua-voice', label: 'QuickSay vs Aqua Voice' },
+  ]}
+>
+  <Fragment slot="hero-subtitle">
+    Windows dictation is free and works offline, but its raw transcription often needs heavy editing. QuickSay delivers clean, ready-to-use text.
+  </Fragment>
+
+  <p class="text-lg">
+    Windows has included dictation features for years — first through Windows Speech Recognition, then through the Win+H dictation shortcut, and most recently through Voice Access in Windows 11. These tools work, they are free, and they process speech entirely on your machine. But they share a common limitation: they transcribe exactly what you say, with no cleanup. For many users, the time spent editing raw dictation output offsets the time saved by not typing.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">The Editing Problem</h2>
+  <p>
+    Raw dictation captures your words faithfully — including false starts, filler phrases, run-on sentences, and inconsistent punctuation. Windows' built-in tools do a reasonable job with basic punctuation when you say "period" or "comma," but they cannot restructure a rambling sentence or remove a repeated phrase. The result is text that reads like a transcript, not like something you would write.
+  </p>
+  <div class="bg-surface border border-border rounded-xl p-5 my-4">
+    <p class="text-text-tertiary text-sm font-mono mb-2">Windows dictation output:</p>
+    <p class="text-text-secondary italic">"I wanted to let you know that the report is going to be delayed because we're still waiting on the data from the analytics team and I think they said it would be ready by Thursday or maybe Friday"</p>
+    <p class="text-text-tertiary text-sm font-mono mt-4 mb-2">QuickSay output from the same speech:</p>
+    <p class="text-text-primary">"I wanted to let you know that the report will be delayed. We're still waiting on data from the analytics team, who expect it to be ready by Thursday or Friday."</p>
+  </div>
+  <p>
+    The QuickSay version is tighter, better structured, and ready to send. The Windows version needs manual editing to reach the same quality — which takes time and keystrokes.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">25 Languages vs Limited Support</h2>
+  <p>
+    Windows dictation supports a set of languages, but switching between them requires changing your system language or input method settings. QuickSay supports 25 languages through Groq Whisper with automatic language detection. Speak in Spanish, then in English, then in German — no configuration change required. For multilingual users or international teams, this removes a genuine friction point that Windows' built-in tools do not handle smoothly.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">No Voice Training Required</h2>
+  <p>
+    Windows Speech Recognition historically required a training session where you read passages aloud so the system could learn your voice patterns and accent. While newer Windows dictation features have reduced this requirement, accuracy still improves with use. QuickSay requires zero training. Groq Whisper's cloud-based recognition handles diverse accents, speaking speeds, and vocal qualities from the first use without any calibration.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Custom Dictionary</h2>
+  <p>
+    Windows dictation has limited options for adding custom vocabulary. QuickSay's custom dictionary is a simple JSON file where you can map spoken phrases to exact text output. Add technical terms, brand names, acronyms, and internal jargon. Say "react query" and get <code class="font-mono text-accent-teal text-sm bg-glass border border-border rounded px-1">React Query</code> with exact casing. The dictionary file can be shared across teams or version-controlled alongside your projects.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Acknowledging the Trade-offs</h2>
+  <p>
+    Windows' built-in dictation has real advantages. It is free — no purchase required. It works fully offline — no internet connection needed and no audio sent to a cloud service. For users who prioritize local processing or have limited connectivity, Windows dictation is a solid baseline tool.
+  </p>
+  <p>
+    QuickSay's advantages show up in output quality and daily workflow. The AI cleanup step produces text that reads like writing, not like speech. The 25-language automatic detection eliminates manual switching. And QuickSay is free during the open beta — unlike subscription-based alternatives that charge $10-15 per month.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Works Everywhere Windows Dictation Works</h2>
+  <p>
+    QuickSay works in every Windows application — the same scope as Windows' built-in dictation. Email clients, browsers, chat apps, code editors, document tools, and any other application with a text field. Because QuickSay operates at the system level and pastes via the clipboard, there are no per-app compatibility issues. It handles the same text fields Windows dictation handles, with cleaner output.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Privacy</h2>
+  <p>
+    QuickSay sends your audio to Groq for transcription — this is a meaningful difference from Windows' fully local approach. However, beyond that audio transmission, QuickSay captures zero screen content and collects zero telemetry. There is no usage analytics, no clipboard monitoring, and no data about which applications you use or what you type. For users comfortable with cloud-based transcription, QuickSay's privacy footprint is minimal.
+  </p>
+</SEOLandingLayout>

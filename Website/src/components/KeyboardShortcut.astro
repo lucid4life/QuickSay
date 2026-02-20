@@ -1,0 +1,65 @@
+---
+/* KeyboardShortcut — Visual keyboard key representation */
+interface Props {
+  keys: string[]; // e.g., ['Caps Lock'] or ['Ctrl', 'Alt', 'R']
+  class?: string;
+}
+
+const { keys, class: className = '' } = Astro.props;
+---
+
+<div class={`keyboard-shortcut ${className}`}>
+  {keys.map((key, index) => (
+    <>
+      <kbd class="key">{key}</kbd>
+      {index < keys.length - 1 && <span class="separator">+</span>}
+    </>
+  ))}
+</div>
+
+<style>
+  .keyboard-shortcut {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  .key {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 150ms ease;
+  }
+
+  .key:hover {
+    border-color: var(--accent-teal);
+    box-shadow: 0 0 12px rgba(34, 211, 197, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .separator {
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  /* Responsive sizing */
+  @media (max-width: 640px) {
+    .key {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+    }
+
+    .separator {
+      font-size: 0.75rem;
+    }
+  }
+</style>

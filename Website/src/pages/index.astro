@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import SpeedProof from '../components/SpeedProof.astro';
+import HowItWorks from '../components/HowItWorks.astro';
+import PersonaTabs from '../components/PersonaTabs.astro';
+import PrivacyBlock from '../components/PrivacyBlock.astro';
+import FeatureWalkthrough from '../components/FeatureWalkthrough.astro';
+import ScreenshotShowcase from '../components/ScreenshotShowcase.astro';
+import PricingComparison from '../components/PricingComparison.astro';
+import Testimonials from '../components/Testimonials.astro';
+import FounderNote from '../components/FounderNote.astro';
+import HomepageFAQ from '../components/HomepageFAQ.astro';
+import DownloadCTA from '../components/DownloadCTA.astro';
+import ProblemAgitation from '../components/ProblemAgitation.astro';
+import WorksEverywhere from '../components/WorksEverywhere.astro';
+import Footer from '../components/Footer.astro';
+
+const homepageFaqs = [
+  { question: 'Does QuickSay work offline?', answer: 'QuickSay needs an internet connection — your audio is transcribed in the cloud in real time. It\'s fast (under 2 seconds typically), but it won\'t work offline.' },
+  { question: 'Is my voice data stored or shared?', answer: 'Your audio is sent to the cloud for transcription, then immediately discarded. QuickSay itself stores zero voice data, zero tracking data, and zero screen captures. The AI provider\'s privacy policy applies to the transcription process. Unlike competitors, QuickSay never captures your screen or tracks your usage.' },
+  { question: 'What if I don\'t like it?', answer: 'QuickSay is free during the open beta — no credit card required. Try it with zero risk.' },
+  { question: 'Is there a Mac or Linux version?', answer: 'Not yet. QuickSay is Windows-only for now. We built it specifically for Windows because that\'s where we saw the biggest gap in quality voice-to-text tools. Mac and Linux versions are under consideration based on demand.' },
+  { question: 'What happens if Groq changes their free tier?', answer: 'QuickSay connects to your own free AI account, not ours. You see exactly what you\'re using and what it costs. If the free tier changes, you can upgrade to the paid tier (a few dollars per month for unlimited usage) or switch providers. Your QuickSay purchase is separate and permanent.' },
+  { question: 'Do I get future updates?', answer: 'Yes. All updates within the current major version are included - bug fixes, performance improvements, new features, and language additions. You will never be asked to pay again for an update.' },
+  { question: 'Is it hard to set up?', answer: 'Setup takes about 3 minutes. Download QuickSay, create a free account at Groq (the AI service that handles transcription), paste your key into the app, and start talking. We walk you through every step during the onboarding wizard.' },
+  { question: 'How is this different from Windows built-in dictation?', answer: 'Windows built-in voice typing gives you raw speech-to-text — every filler word, grammar mistake, and formatting issue is yours to fix. QuickSay adds AI cleanup that removes filler words, fixes grammar, formats text, and adapts to context. It\'s the difference between a rough transcript and polished writing.' },
+  { question: 'What microphones and apps does it work with?', answer: 'QuickSay works with any microphone — built-in laptop mics, USB headsets, Bluetooth earbuds, or professional condensers. It types into any text field on Windows: VS Code, Google Docs, Slack, Microsoft Word, email clients, browsers, and more. If you can type there, you can dictate there.' },
+];
+---
+
+<BaseLayout faqItems={homepageFaqs}>
+  <Navbar slot="header" />
+  <Hero />
+  <ProblemAgitation />
+  <SpeedProof />
+  <HowItWorks />
+  <WorksEverywhere />
+  <PersonaTabs />
+  <PrivacyBlock />
+  <FeatureWalkthrough />
+  <ScreenshotShowcase />
+  <Testimonials />
+  <PricingComparison />
+  <FounderNote />
+  <HomepageFAQ />
+  <DownloadCTA />
+  <Footer slot="footer" />
+</BaseLayout>

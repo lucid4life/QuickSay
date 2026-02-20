@@ -1,0 +1,125 @@
+---
+/**
+ * FounderNote — Compact founder card with teal avatar and personal message.
+ * Compact glass card, max-width 700px, centered.
+ * Used on homepage and about page.
+ */
+---
+
+<section class="founder-note-wrapper py-16 md:py-20">
+  <div class="founder-note-card fade-in-up">
+    <!-- Avatar and text content -->
+    <div class="flex gap-5 items-start">
+      <!-- Avatar circle -->
+      <div class="founder-avatar">
+        <span class="founder-initial">A</span>
+      </div>
+
+      <!-- Text content -->
+      <div class="flex-1">
+        <!-- Name and location -->
+        <div class="mb-3">
+          <p class="founder-name">Built by Adrian</p>
+          <p class="founder-location">Solo developer · Alberta, Canada</p>
+        </div>
+
+        <!-- Quote -->
+        <blockquote class="founder-quote">
+          "I got tired of paying $15/month to rent voice-to-text.
+          So I built my own — and used it to build itself. 95% of
+          my typing goes through QuickSay now. If something breaks,
+          I'm the first to feel it. One person, one price, no
+          subscriptions."
+        </blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .founder-note-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .founder-note-card {
+    max-width: 700px;
+    width: 100%;
+    background-color: #1c1c20;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 2rem;
+    border-left: 3px solid #22d3c5;
+  }
+
+  .founder-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 50%;
+    background-color: #22d3c5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .founder-initial {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #121214;
+  }
+
+  .founder-name {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  .founder-location {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .founder-quote {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--text-primary);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* Fade-in animation */
+  @media (prefers-reduced-motion: no-preference) {
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 400ms ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  /* Ensure visible if animations disabled */
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in-up {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

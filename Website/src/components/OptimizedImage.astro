@@ -1,0 +1,75 @@
+---
+/**
+ * OptimizedImage Component
+ *
+ * Renders responsive images with proper srcset, sizes, dimensions, and lazy loading.
+ * Supports both screenshot and marketing image types with appropriate srcset variants.
+ *
+ * @param src - Image filename (without path or extension)
+ * @param type - Image type: 'screenshot' or 'marketing'
+ * @param variant - For screenshots: 'full' or 'thumb'. For marketing: use srcset
+ * @param alt - Descriptive alt text for accessibility
+ * @param width - Explicit width for layout stability
+ * @param height - Explicit height for layout stability
+ * @param loading - 'lazy' (default) or 'eager' for above-fold images
+ * @param class - Additional CSS classes
+ */
+
+interface Props {
+  src: string;
+  type: 'screenshot' | 'marketing';
+  variant?: 'full' | 'thumb';
+  alt: string;
+  width: number;
+  height: number;
+  loading?: 'lazy' | 'eager';
+  class?: string;
+}
+
+const {
+  src,
+  type,
+  variant = 'full',
+  alt,
+  width,
+  height,
+  loading = 'lazy',
+  class: className = ''
+} = Astro.props;
+
+// Cache-busting version — increment when screenshots or marketing images change
+const imgVersion = '4';
+
+// Build image paths based on type
+let imgSrc = '';
+let srcset = '';
+let sizes = '';
+
+if (type === 'screenshot') {
+  // Screenshots have -full.png or -thumb.png variants
+  imgSrc = `/images/screenshots/${src}-${variant}.png?v=${imgVersion}`;
+
+  // No srcset for screenshots - they're single-resolution
+  srcset = '';
+  sizes = '';
+} else if (type === 'marketing') {
+  // Marketing images have responsive srcset (800w, 1200w, 1600w, 2400w)
+  imgSrc = `/images/marketing/${src}.png?v=${imgVersion}`;
+  srcset = `/images/marketing/${src}-800w.png?v=${imgVersion} 800w, /images/marketing/${src}-1200w.png?v=${imgVersion} 1200w, /images/marketing/${src}-1600w.png?v=${imgVersion} 1600w, /images/marketing/${src}.png?v=${imgVersion} 2400w`;
+
+  // Responsive sizes based on viewport
+  sizes = '(max-width: 640px) 800px, (max-width: 1024px) 1200px, (max-width: 1920px) 1600px, 2400px';
+}
+---
+
+<img
+  src={imgSrc}
+  srcset={srcset || undefined}
+  sizes={sizes || undefined}
+  alt={alt}
+  width={width}
+  height={height}
+  loading={loading}
+  decoding="async"
+  class={className}
+/>
