@@ -1,7 +1,7 @@
 ---
 /**
- * Beta Feedback — Structured feedback form for QuickSay beta testers.
- * Collects setup experience, usage patterns, NPS, and testimonial consent.
+ * Beta Feedback — Streamlined feedback form for QuickSay beta testers.
+ * Collects setup experience, transcription quality, NPS, and optional testimonial.
  * Submits via fetch to /api/beta-feedback Cloudflare Pages Function.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -13,7 +13,7 @@ import NPSScale from '../../components/beta/NPSScale.astro';
 
 <BaseLayout
   title="Beta Feedback — QuickSay"
-  description="Share your QuickSay beta experience. Rate features, report bugs, and suggest improvements. Your feedback directly shapes what we build."
+  description="Share your QuickSay beta experience. Your feedback directly shapes what we build."
   canonicalUrl="https://quicksay.app/beta/feedback"
 >
   <!-- noindex for beta feedback page -->
@@ -31,7 +31,7 @@ import NPSScale from '../../components/beta/NPSScale.astro';
           Beta Feedback
         </h1>
         <p class="font-body text-lg text-text-secondary max-w-2xl mx-auto mt-4">
-          Thanks for testing QuickSay! Your feedback directly shapes what we build next. This takes about 5 minutes.
+          Thanks for testing QuickSay! This takes about 2 minutes.
         </p>
       </div>
 
@@ -61,7 +61,7 @@ import NPSScale from '../../components/beta/NPSScale.astro';
           </div>
 
           <!-- Email -->
-          <div class="mb-5">
+          <div>
             <label for="fb-email" class="block font-body text-sm font-medium text-text-secondary mb-2">
               Email <span class="text-accent-orange">*</span>
             </label>
@@ -77,136 +77,20 @@ import NPSScale from '../../components/beta/NPSScale.astro';
             />
             <p id="fb-email-error" class="hidden text-red-400 text-sm mt-1 font-body" role="alert"></p>
           </div>
-
-          <!-- How did you hear about QuickSay? -->
-          <div>
-            <label for="fb-referral" class="block font-body text-sm font-medium text-text-secondary mb-2">
-              How did you hear about QuickSay?
-            </label>
-            <select
-              id="fb-referral"
-              name="referralSource"
-              class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors appearance-none"
-              style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238a8a95%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center;"
-            >
-              <option value="" disabled selected class="text-text-tertiary">Select one...</option>
-              <option value="reddit">Reddit</option>
-              <option value="product-hunt">Product Hunt</option>
-              <option value="twitter">Twitter/X</option>
-              <option value="indie-hackers">Indie Hackers</option>
-              <option value="friend">Friend/referral</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
         </div>
 
-        <!-- Section 2: Setup Experience -->
+        <!-- Section 2: Your Experience -->
         <div class="fade-in-up bg-surface border border-border rounded-xl p-8">
-          <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Setup Experience</h2>
+          <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Your Experience</h2>
 
           <div class="space-y-6">
-            <StarRating name="installEase" label="How easy was it to install QuickSay?" required={true} />
-
-            <StarRating name="groqSetupEase" label="How easy was it to set up your Groq API key?" required={true} />
-
-            <!-- Setup Issues -->
-            <div>
-              <label for="fb-setup-issues" class="block font-headline font-semibold text-text-primary mb-3">
-                Did you encounter any issues during setup?
-              </label>
-              <textarea
-                id="fb-setup-issues"
-                name="setupIssues"
-                rows="3"
-                placeholder="Describe any problems you ran into..."
-                class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
-              ></textarea>
-            </div>
-
-            <StarRating name="onboardingHelpfulness" label="How helpful was the onboarding walkthrough?" required={true} />
-          </div>
-        </div>
-
-        <!-- Section 3: Usage & Performance -->
-        <div class="fade-in-up bg-surface border border-border rounded-xl p-8">
-          <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Usage &amp; Performance</h2>
-
-          <!-- Mode preference -->
-          <fieldset class="mb-6">
-            <legend class="block font-headline font-semibold text-text-primary mb-3">
-              Which mode do you primarily use? <span class="text-accent-orange">*</span>
-            </legend>
-            <div class="space-y-2">
-              {['Hot Key (hold to talk)', 'Sticky Key (toggle)', 'Both'].map((option) => (
-                <label class="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="mode"
-                    value={option.toLowerCase().replace(/[^a-z]/g, '-')}
-                    required
-                    class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
-                  />
-                  <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">{option}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <!-- App usage -->
-          <fieldset class="mb-6">
-            <legend class="block font-headline font-semibold text-text-primary mb-3">
-              What apps do you use QuickSay with most?
-            </legend>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {[
-                'VS Code / code editor',
-                'Google Docs',
-                'Microsoft Word',
-                'Slack',
-                'Teams',
-                'Notion',
-                'Outlook',
-                'Chrome / browser',
-                'Discord',
-                'Email client',
-                'Note-taking apps',
-                'Other'
-              ].map((app) => (
-                <label class="flex items-center gap-3 cursor-pointer group py-1">
-                  <input
-                    type="checkbox"
-                    name="apps"
-                    value={app.toLowerCase().replace(/[^a-z]/g, '-')}
-                    class="w-4 h-4 text-accent-teal border-border bg-background rounded focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
-                  />
-                  <span class="font-body text-text-secondary text-sm group-hover:text-text-primary transition-colors">{app}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-
-          <div class="space-y-6">
-            <StarRating name="transcriptionAccuracy" label="How would you rate transcription accuracy?" required={true} />
-            <StarRating name="transcriptionSpeed" label="How would you rate transcription speed?" required={true} />
+            <StarRating name="setupExperience" label="How was the setup experience overall?" required={true} />
+            <StarRating name="transcriptionQuality" label="How would you rate transcription quality?" required={true} />
             <StarRating name="textCleanup" label="How would you rate the AI text cleanup?" required={true} />
           </div>
-
-          <!-- Performance issues -->
-          <div class="mt-6">
-            <label for="fb-perf-issues" class="block font-headline font-semibold text-text-primary mb-3">
-              Any specific accuracy or performance issues?
-            </label>
-            <textarea
-              id="fb-perf-issues"
-              name="performanceIssues"
-              rows="3"
-              placeholder="E.g., slow in certain apps, misheard words, etc."
-              class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
-            ></textarea>
-          </div>
         </div>
 
-        <!-- Section 4: Overall Impressions -->
+        <!-- Section 3: Overall Impressions -->
         <div class="fade-in-up bg-surface border border-border rounded-xl p-8">
           <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Overall Impressions</h2>
 
@@ -222,7 +106,7 @@ import NPSScale from '../../components/beta/NPSScale.astro';
               <textarea
                 id="fb-favorite"
                 name="favoriteThing"
-                rows="3"
+                rows="2"
                 required
                 placeholder="What keeps you coming back?"
                 class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
@@ -239,7 +123,7 @@ import NPSScale from '../../components/beta/NPSScale.astro';
               <textarea
                 id="fb-improvement"
                 name="topImprovement"
-                rows="3"
+                rows="2"
                 required
                 placeholder="If we could fix one thing, what should it be?"
                 class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
@@ -248,95 +132,73 @@ import NPSScale from '../../components/beta/NPSScale.astro';
               <p id="fb-improvement-error" class="hidden text-red-400 text-sm mt-1 font-body" role="alert"></p>
             </div>
 
-            <!-- Bugs -->
+            <!-- Bugs (optional) -->
             <div>
               <label for="fb-bugs" class="block font-headline font-semibold text-text-primary mb-3">
-                Any bugs or issues to report?
+                Any bugs or issues?
               </label>
               <textarea
                 id="fb-bugs"
                 name="bugs"
-                rows="3"
+                rows="2"
                 placeholder="Steps to reproduce, what happened vs. what you expected..."
                 class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
               ></textarea>
             </div>
 
-            <!-- Testimonial consent -->
-            <fieldset>
-              <legend class="block font-headline font-semibold text-text-primary mb-3">
-                Would you be willing to leave a short testimonial? <span class="text-accent-orange">*</span>
-              </legend>
-              <div class="space-y-2">
-                <label class="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="testimonialConsent"
-                    value="yes-public"
-                    required
-                    class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
-                    data-show-testimonial="true"
-                  />
-                  <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">Yes, use my feedback as a testimonial</span>
+            <!-- Testimonial consent (only shows when NPS >= 7) -->
+            <div id="testimonial-section" class="hidden">
+              <fieldset>
+                <legend class="block font-headline font-semibold text-text-primary mb-3">
+                  Would you be willing to leave a short testimonial? <span class="text-accent-orange">*</span>
+                </legend>
+                <div class="space-y-2">
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="radio"
+                      name="testimonialConsent"
+                      value="yes-public"
+                      class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
+                      data-show-testimonial="true"
+                    />
+                    <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">Yes, use my feedback as a testimonial</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="radio"
+                      name="testimonialConsent"
+                      value="yes-anonymous"
+                      class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
+                      data-show-testimonial="true"
+                    />
+                    <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">Yes, but keep it anonymous</span>
+                  </label>
+                  <label class="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="radio"
+                      name="testimonialConsent"
+                      value="no"
+                      class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
+                      data-show-testimonial="false"
+                    />
+                    <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">No thanks</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <!-- Conditional testimonial textarea -->
+              <div id="testimonial-field" class="hidden mt-4">
+                <label for="fb-testimonial" class="block font-headline font-semibold text-text-primary mb-3">
+                  Write your testimonial here (1-3 sentences):
                 </label>
-                <label class="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="testimonialConsent"
-                    value="yes-anonymous"
-                    required
-                    class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
-                    data-show-testimonial="true"
-                  />
-                  <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">Yes, but keep it anonymous</span>
-                </label>
-                <label class="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="testimonialConsent"
-                    value="no"
-                    required
-                    class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
-                    data-show-testimonial="false"
-                  />
-                  <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">No thanks</span>
-                </label>
+                <textarea
+                  id="fb-testimonial"
+                  name="testimonialText"
+                  rows="2"
+                  placeholder="E.g., 'QuickSay has completely changed how I write code. The transcription is so fast I forget I'm not typing.'"
+                  class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
+                ></textarea>
               </div>
-            </fieldset>
-
-            <!-- Conditional testimonial textarea -->
-            <div id="testimonial-field" class="hidden">
-              <label for="fb-testimonial" class="block font-headline font-semibold text-text-primary mb-3">
-                Write your testimonial here (1-3 sentences):
-              </label>
-              <textarea
-                id="fb-testimonial"
-                name="testimonialText"
-                rows="3"
-                placeholder="E.g., 'QuickSay has completely changed how I write code. The transcription is so fast I forget I'm not typing.'"
-                class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section 5: Final Thoughts -->
-        <div class="fade-in-up bg-surface border border-border rounded-xl p-8">
-          <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Final Thoughts</h2>
-
-          <div class="space-y-6">
-            <!-- Anything else -->
-            <div>
-              <label for="fb-anything-else" class="block font-headline font-semibold text-text-primary mb-3">
-                Anything else you'd like to tell us?
-              </label>
-              <textarea
-                id="fb-anything-else"
-                name="anythingElse"
-                rows="3"
-                placeholder="Feature ideas, shout-outs, gripes, hopes, dreams..."
-                class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
-              ></textarea>
             </div>
 
             <!-- Follow-up consent -->
@@ -386,11 +248,8 @@ import NPSScale from '../../components/beta/NPSScale.astro';
             Thank you! Your feedback means everything.
           </h2>
 
-          <p class="font-body text-text-secondary text-lg mb-3">
+          <p class="font-body text-text-secondary text-lg mb-8">
             We'll review every response personally and use it to make QuickSay better before launch.
-          </p>
-          <p class="font-body text-text-secondary mb-8">
-            If you opted into a testimonial, we may reach out to confirm the wording.
           </p>
 
           <div class="pt-4 border-t border-border">
@@ -449,13 +308,11 @@ import NPSScale from '../../components/beta/NPSScale.astro';
       }
     }
 
-    // Get current checked value
     function getCheckedValue(): number {
       const checked = group.querySelector('input[type="radio"]:checked') as HTMLInputElement;
       return checked ? parseInt(checked.value) : 0;
     }
 
-    // Hover effects
     labels.forEach((label) => {
       label.addEventListener('mouseenter', () => {
         const val = parseInt(label.dataset.value || '0');
@@ -463,23 +320,19 @@ import NPSScale from '../../components/beta/NPSScale.astro';
       });
 
       label.addEventListener('mouseleave', () => {
-        // Remove hover state, restore checked state
         labels.forEach((l) => l.classList.remove('hovered'));
         updateStars(getCheckedValue(), false);
       });
     });
 
-    // Click / change events
     group.querySelectorAll('input[type="radio"]').forEach((radio) => {
       radio.addEventListener('change', () => {
         const val = parseInt((radio as HTMLInputElement).value);
-        // Clear all hovered states and set filled
         labels.forEach((l) => l.classList.remove('hovered'));
         updateStars(val, false);
       });
     });
 
-    // Keyboard: arrow keys navigate between stars
     group.addEventListener('keydown', (e: Event) => {
       const key = (e as KeyboardEvent).key;
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key)) return;
@@ -521,10 +374,16 @@ import NPSScale from '../../components/beta/NPSScale.astro';
             label.classList.remove('selected');
           }
         });
+
+        // Show/hide testimonial section based on NPS
+        const npsVal = parseInt(val);
+        const testimonialSection = document.getElementById('testimonial-section');
+        if (testimonialSection) {
+          testimonialSection.classList.toggle('hidden', npsVal < 7);
+        }
       });
     });
 
-    // Keyboard: arrow keys navigate between NPS buttons
     group.addEventListener('keydown', (e: Event) => {
       const key = (e as KeyboardEvent).key;
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key)) return;
@@ -623,24 +482,15 @@ import NPSScale from '../../components/beta/NPSScale.astro';
     const formData = new FormData(form);
     const name = (formData.get('name') as string || '').trim();
     const email = (formData.get('email') as string || '').trim();
-    const referralSource = formData.get('referralSource') as string || '';
-    const installEase = formData.get('installEase') as string || '';
-    const groqSetupEase = formData.get('groqSetupEase') as string || '';
-    const setupIssues = (formData.get('setupIssues') as string || '').trim();
-    const onboardingHelpfulness = formData.get('onboardingHelpfulness') as string || '';
-    const mode = formData.get('mode') as string || '';
-    const apps = formData.getAll('apps') as string[];
-    const transcriptionAccuracy = formData.get('transcriptionAccuracy') as string || '';
-    const transcriptionSpeed = formData.get('transcriptionSpeed') as string || '';
+    const setupExperience = formData.get('setupExperience') as string || '';
+    const transcriptionQuality = formData.get('transcriptionQuality') as string || '';
     const textCleanup = formData.get('textCleanup') as string || '';
-    const performanceIssues = (formData.get('performanceIssues') as string || '').trim();
     const nps = formData.get('nps') as string || '';
     const favoriteThing = (formData.get('favoriteThing') as string || '').trim();
     const topImprovement = (formData.get('topImprovement') as string || '').trim();
     const bugs = (formData.get('bugs') as string || '').trim();
     const testimonialConsent = formData.get('testimonialConsent') as string || '';
     const testimonialText = (formData.get('testimonialText') as string || '').trim();
-    const anythingElse = (formData.get('anythingElse') as string || '').trim();
     const followUpConsent = formData.get('followUpConsent') === 'yes';
     const honeypot = (formData.get('company') as string || '').trim();
 
@@ -663,33 +513,13 @@ import NPSScale from '../../components/beta/NPSScale.astro';
       hasError = true;
     }
 
-    if (!installEase) {
-      if (!hasError) showGlobalError('Please rate how easy it was to install QuickSay.');
+    if (!setupExperience) {
+      if (!hasError) showGlobalError('Please rate the setup experience.');
       hasError = true;
     }
 
-    if (!groqSetupEase) {
-      if (!hasError) showGlobalError('Please rate how easy it was to set up your Groq API key.');
-      hasError = true;
-    }
-
-    if (!onboardingHelpfulness) {
-      if (!hasError) showGlobalError('Please rate how helpful the onboarding walkthrough was.');
-      hasError = true;
-    }
-
-    if (!mode) {
-      if (!hasError) showGlobalError('Please select which mode you primarily use.');
-      hasError = true;
-    }
-
-    if (!transcriptionAccuracy) {
-      if (!hasError) showGlobalError('Please rate transcription accuracy.');
-      hasError = true;
-    }
-
-    if (!transcriptionSpeed) {
-      if (!hasError) showGlobalError('Please rate transcription speed.');
+    if (!transcriptionQuality) {
+      if (!hasError) showGlobalError('Please rate transcription quality.');
       hasError = true;
     }
 
@@ -715,7 +545,9 @@ import NPSScale from '../../components/beta/NPSScale.astro';
       hasError = true;
     }
 
-    if (!testimonialConsent) {
+    // Testimonial consent only required when NPS >= 7
+    const npsVal = parseInt(nps);
+    if (npsVal >= 7 && !testimonialConsent) {
       if (!hasError) showGlobalError('Please let us know about testimonial consent.');
       hasError = true;
     }
@@ -726,30 +558,25 @@ import NPSScale from '../../components/beta/NPSScale.astro';
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
 
-    const payload = {
+    const payload: Record<string, any> = {
       name,
       email,
-      referralSource,
-      installEase,
-      groqSetupEase,
-      setupIssues,
-      onboardingHelpfulness,
-      mode,
-      apps,
-      transcriptionAccuracy,
-      transcriptionSpeed,
+      setupExperience,
+      transcriptionQuality,
       textCleanup,
-      performanceIssues,
       nps,
       favoriteThing,
       topImprovement,
       bugs,
-      testimonialConsent,
-      testimonialText,
-      anythingElse,
       followUpConsent,
       company: honeypot,
     };
+
+    // Only include testimonial fields when NPS >= 7
+    if (npsVal >= 7) {
+      payload.testimonialConsent = testimonialConsent;
+      payload.testimonialText = testimonialText;
+    }
 
     try {
       const response = await fetch('/api/beta-feedback', {
@@ -796,7 +623,6 @@ import NPSScale from '../../components/beta/NPSScale.astro';
         }, 2000);
       }
     } catch (err) {
-      // Fallback for older browsers
       const textarea = document.createElement('textarea');
       textarea.value = 'https://quicksay.app/beta';
       textarea.style.position = 'fixed';
@@ -816,18 +642,15 @@ import NPSScale from '../../components/beta/NPSScale.astro';
 </script>
 
 <style>
-  /* Smooth textarea resize */
   textarea {
     transition: height 0.2s ease;
   }
 
-  /* Custom checkbox / radio accent for webkit */
   input[type="checkbox"],
   input[type="radio"] {
     cursor: pointer;
   }
 
-  /* Ensure select dropdown arrow is visible on dark bg */
   select option {
     background-color: var(--background);
     color: var(--text-primary);
