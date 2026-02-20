@@ -1,0 +1,173 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import BetaCTA from '../components/BetaCTA.astro';
+---
+
+<BaseLayout
+  title="QuickSay vs Aqua Voice — 2026 Comparison"
+  description="QuickSay (free open beta) vs Aqua Voice ($96/year). Compare pricing, privacy, and features. QuickSay is Windows-native with zero screen capture and ~8 hrs/day free AI dictation."
+  canonicalUrl="https://quicksay.app/quicksay-vs-aqua-voice"
+  ogImage="https://quicksay.app/og-image.png"
+>
+  <Navbar slot="header" />
+
+  <article class="pt-32 pb-24 md:pt-40 md:pb-32 px-6">
+    <div class="max-w-3xl mx-auto">
+
+      <h1 class="font-headline font-bold text-3xl md:text-4xl text-text-primary mb-6" style="text-wrap: balance;">
+        QuickSay vs Aqua Voice: Which Voice-to-Text App Is Right for You?
+      </h1>
+
+      <p class="text-text-secondary text-lg mb-12">
+        QuickSay and Aqua Voice are both voice-to-text apps for Windows. They take different approaches to pricing, privacy, and feature design. Here is a straightforward comparison.
+      </p>
+
+      <!-- Quick Comparison Table -->
+      <div class="overflow-x-auto mb-16">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="border-b border-border">
+              <th class="text-left py-4 pr-4 text-text-secondary font-body font-medium text-sm"></th>
+              <th class="text-left py-4 px-4 text-accent-teal font-headline font-semibold text-sm">QuickSay</th>
+              <th class="text-left py-4 pl-4 text-text-secondary font-headline font-semibold text-sm">Aqua Voice</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            <tr class="border-b border-border">
+              <td class="py-4 pr-4 text-text-secondary font-medium">Price</td>
+              <td class="py-4 px-4 text-text-primary">Free (open beta)</td>
+              <td class="py-4 pl-4 text-text-primary">$96/year</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="py-4 pr-4 text-text-secondary font-medium">3-year cost</td>
+              <td class="py-4 px-4 text-accent-orange font-semibold">Free</td>
+              <td class="py-4 pl-4 text-text-primary">$288</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="py-4 pr-4 text-text-secondary font-medium">Platform</td>
+              <td class="py-4 px-4 text-text-primary">Windows</td>
+              <td class="py-4 pl-4 text-text-primary">Windows</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="py-4 pr-4 text-text-secondary font-medium">Screen capture</td>
+              <td class="py-4 px-4 text-accent-teal">None</td>
+              <td class="py-4 pl-4 text-text-primary">Unknown</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="py-4 pr-4 text-text-secondary font-medium">Telemetry</td>
+              <td class="py-4 px-4 text-accent-teal">Zero</td>
+              <td class="py-4 pl-4 text-text-primary">Unknown</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="py-4 pr-4 text-text-secondary font-medium">Free tier</td>
+              <td class="py-4 px-4 text-text-primary">~8 hrs/day*</td>
+              <td class="py-4 pl-4 text-text-primary">1,000 words (trial)</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="py-4 pr-4 text-text-secondary font-medium">Install size</td>
+              <td class="py-4 px-4 text-text-primary">~105 MB</td>
+              <td class="py-4 pl-4 text-text-primary">Not published</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="py-4 pr-4 text-text-secondary font-medium">Languages</td>
+              <td class="py-4 px-4 text-text-primary">25</td>
+              <td class="py-4 pl-4 text-text-primary">Multiple</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Detailed Sections -->
+      <section class="mb-12">
+        <h2 class="font-headline font-bold text-2xl text-text-primary mb-4">Price</h2>
+        <p class="text-text-secondary leading-relaxed mb-3">
+          QuickSay is <strong class="text-text-primary">free during the open beta</strong> — no credit card required. Aqua Voice is priced at <strong class="text-text-primary">$96 per year</strong> ($8/month).
+        </p>
+        <p class="text-text-secondary leading-relaxed">
+          Both offer free tiers. QuickSay provides an estimated 8 hours of daily dictation through the free tier (subject to change). Aqua Voice offers a 1,000-word free trial.
+        </p>
+      </section>
+
+      <section class="mb-12">
+        <h2 class="font-headline font-bold text-2xl text-text-primary mb-4">Privacy</h2>
+        <p class="text-text-secondary leading-relaxed">
+          QuickSay captures <strong class="text-text-primary">zero screen data</strong> and sends <strong class="text-text-primary">zero tracking</strong>. Audio is sent to the AI service for transcription only. Aqua Voice's privacy practices around screen capture and telemetry are not clearly documented on their website, so we cannot make a direct comparison on this point.
+        </p>
+      </section>
+
+      <section class="mb-12">
+        <h2 class="font-headline font-bold text-2xl text-text-primary mb-4">Free tier</h2>
+        <p class="text-text-secondary leading-relaxed">
+          QuickSay's free tier provides an estimated <strong class="text-text-primary">8 hours of daily dictation</strong> powered by the free AI tier (subject to change). Aqua Voice offers a <strong class="text-text-primary">1,000-word free trial</strong>. For ongoing daily use, QuickSay's free tier is significantly more generous.
+        </p>
+      </section>
+
+      <section class="mb-12">
+        <h2 class="font-headline font-bold text-2xl text-text-primary mb-4">Platform</h2>
+        <p class="text-text-secondary leading-relaxed">
+          Both QuickSay and Aqua Voice run on Windows. If you are a Windows user, both are viable options. This comparison comes down to the other factors: pricing model, privacy, and how each tool fits your workflow.
+        </p>
+      </section>
+
+      <section class="mb-12">
+        <h2 class="font-headline font-bold text-2xl text-text-primary mb-4">Features</h2>
+        <p class="text-text-secondary leading-relaxed">
+          Both apps offer automatic text cleanup and multi-language support. QuickSay uses AI transcription and AI text cleanup. QuickSay supports 25 languages, custom dictionaries, and voice commands. Aqua Voice positions itself around speed and also offers text cleanup capabilities.
+        </p>
+      </section>
+
+      <!-- Who Should Choose sections -->
+      <section class="mb-12">
+        <h2 class="font-headline font-bold text-2xl text-text-primary mb-4">Who should choose QuickSay</h2>
+        <ul class="space-y-3 text-text-secondary">
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Users who want free access</strong> — free during open beta, no commitment.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Privacy-focused users</strong> — verified zero screen capture and zero tracking.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Heavy daily users</strong> — 8 hours free daily is generous for most workflows.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Developers and power users</strong> — lightweight install, works in any text field.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="mb-16">
+        <h2 class="font-headline font-bold text-2xl text-text-primary mb-4">Who should choose Aqua Voice</h2>
+        <ul class="space-y-3 text-text-secondary">
+          <li class="flex items-start gap-3">
+            <span class="text-text-secondary mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Users who prefer subscription pricing</strong> — some users prefer a lower monthly cost over a one-time purchase.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-text-secondary mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Users already invested in the Aqua Voice ecosystem</strong> — if you have already been using Aqua Voice, switching has a cost.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-text-secondary mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Users who value speed branding</strong> — Aqua Voice positions itself heavily around transcription speed.</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- CTA -->
+      <div class="text-center bg-surface border border-border rounded-xl p-10">
+        <h2 class="font-headline font-bold text-2xl text-text-primary mb-3">Ready to try QuickSay?</h2>
+        <p class="text-text-secondary mb-6">Free during open beta. Generous free daily usage. Zero screen capture.</p>
+        <BetaCTA text="Join the Open Beta — Free" size="large" />
+      </div>
+
+    </div>
+  </article>
+
+  <Footer slot="footer" />
+</BaseLayout>

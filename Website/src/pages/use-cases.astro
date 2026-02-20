@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import DownloadCTA from '../components/DownloadCTA.astro';
+import Footer from '../components/Footer.astro';
+
+const appPages = [
+  { href: '/voice-typing-vscode', title: 'Voice Typing for VS Code', description: 'Dictate code comments, documentation, commit messages, and more in VS Code on Windows.' },
+  { href: '/voice-typing-slack', title: 'Dictate Slack Messages', description: 'Respond to Slack channels, threads, and DMs by voice with automatic tone cleanup.' },
+  { href: '/voice-typing-word', title: 'Voice-to-Text for Microsoft Word', description: 'Dictate documents, reports, and proposals directly into Word on Windows.' },
+  { href: '/voice-typing-google-docs', title: 'Voice Typing for Google Docs', description: 'Works in any browser — not just Chrome. Dictate into docs, comments, and shared files.' },
+  { href: '/voice-typing-outlook', title: 'Dictate Emails in Outlook', description: 'Turn spoken email drafts into professional messages with AI cleanup.' },
+  { href: '/voice-typing-notion', title: 'Voice-to-Text for Notion', description: 'Dictate into Notion pages, databases, and comments in the desktop or web app.' },
+  { href: '/voice-typing-discord', title: 'Voice Typing for Discord', description: 'Type Discord messages by voice — channels, DMs, threads, and forum posts.' },
+  { href: '/voice-typing-teams', title: 'Dictate in Microsoft Teams', description: 'Voice-to-text for Teams chat, channels, and meeting conversation sidebars.' },
+  { href: '/voice-typing-obsidian', title: 'Voice Notes in Obsidian', description: 'Capture thoughts by voice into your Obsidian vault — daily notes, journals, and literature notes.' },
+  { href: '/voice-typing-jupyter', title: 'Voice Typing for Jupyter Notebooks', description: 'Dictate markdown cells, analysis notes, and code comments in Jupyter.' },
+];
+
+const useCasePages = [
+  { href: '/dictation-windows-developers', title: 'Dictation for Windows Developers', description: 'Voice-to-text built for developer workflows — code comments, PRs, documentation.' },
+  { href: '/voice-to-text-windows', title: 'Voice to Text for Windows', description: 'System-wide voice typing that works in every Windows application.' },
+  { href: '/voice-to-text-rsi', title: 'Voice-to-Text for RSI', description: 'Reduce typing strain by dictating instead. Practical relief for repetitive strain injury.' },
+  { href: '/voice-to-text-adhd', title: 'Voice-to-Text for ADHD', description: 'Capture thoughts before they disappear. Speak your ideas, QuickSay cleans them up.' },
+  { href: '/voice-typing-meetings', title: 'Dictate Meeting Notes', description: 'Capture key points by voice during meetings without keyboard noise.' },
+  { href: '/speech-to-text-windows-11', title: 'Speech-to-Text for Windows 11', description: 'How QuickSay compares to Windows 11 built-in dictation in 2026.' },
+  { href: '/windows-dictation-alternative', title: 'Windows Dictation Alternative', description: 'A better alternative to Windows built-in dictation with AI text cleanup.' },
+];
+
+const comparisonPages = [
+  { href: '/quicksay-vs-wispr-flow', title: 'QuickSay vs Wispr Flow', description: 'How QuickSay compares to Wispr Flow on price, size, privacy, and features.' },
+  { href: '/quicksay-vs-aqua-voice', title: 'QuickSay vs Aqua Voice', description: 'Side-by-side comparison of QuickSay and Aqua Voice for Windows users.' },
+  { href: '/quicksay-vs-superwhisper', title: 'QuickSay vs SuperWhisper', description: 'QuickSay for Windows vs SuperWhisper for macOS — key differences.' },
+];
+---
+
+<BaseLayout
+  title="QuickSay Use Cases — Voice-to-Text for Every Workflow"
+  description="Explore how QuickSay voice-to-text works in VS Code, Slack, Notion, Obsidian, Outlook, Teams, Google Docs, and more. App-specific guides and use case pages."
+  canonicalUrl="https://quicksay.app/use-cases"
+>
+  <Navbar slot="header" />
+
+  <section class="pt-32 pb-16 md:pt-40 md:pb-20 px-6">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance mb-4">
+        Use Cases
+      </h1>
+      <p class="fade-in-up text-lg text-text-secondary max-w-2xl mb-16">
+        QuickSay works in every Windows application. Here is how it fits into specific tools and workflows.
+      </p>
+
+      <!-- App-Specific -->
+      <div class="fade-in-up mb-16">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">App-Specific Guides</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {appPages.map((page) => (
+            <a
+              href={page.href}
+              class="block p-5 rounded-xl border border-border bg-surface hover:border-accent-teal/30 transition-all duration-150 group"
+            >
+              <h3 class="font-headline font-semibold text-text-primary group-hover:text-accent-teal transition-colors duration-150 mb-1">
+                {page.title}
+              </h3>
+              <p class="text-text-tertiary text-sm">{page.description}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Use Cases -->
+      <div class="fade-in-up mb-16">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">Use Cases</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {useCasePages.map((page) => (
+            <a
+              href={page.href}
+              class="block p-5 rounded-xl border border-border bg-surface hover:border-accent-teal/30 transition-all duration-150 group"
+            >
+              <h3 class="font-headline font-semibold text-text-primary group-hover:text-accent-teal transition-colors duration-150 mb-1">
+                {page.title}
+              </h3>
+              <p class="text-text-tertiary text-sm">{page.description}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Comparisons -->
+      <div class="fade-in-up">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">Comparisons</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {comparisonPages.map((page) => (
+            <a
+              href={page.href}
+              class="block p-5 rounded-xl border border-border bg-surface hover:border-accent-teal/30 transition-all duration-150 group"
+            >
+              <h3 class="font-headline font-semibold text-text-primary group-hover:text-accent-teal transition-colors duration-150 mb-1">
+                {page.title}
+              </h3>
+              <p class="text-text-tertiary text-sm">{page.description}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <DownloadCTA />
+  <Footer slot="footer" />
+</BaseLayout>

@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import PricingComparison from '../components/PricingComparison.astro';
+import DownloadCTA from '../components/DownloadCTA.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Voice Typing for VS Code on Windows — QuickSay"
+  description="Use QuickSay for voice-to-text in VS Code. Dictate code comments, documentation, commit messages, and more. Free open beta for Windows."
+  canonicalUrl="https://quicksay.app/voice-typing-vscode"
+>
+  <Navbar slot="header" />
+
+  <section class="pt-32 pb-16 md:pt-40 md:pb-20 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance mb-6">
+        Voice Typing for VS Code on Windows
+      </h1>
+
+      <div class="fade-in-up space-y-6 text-text-secondary leading-relaxed">
+        <p class="text-lg">
+          Writing code is fast. Writing everything around code — comments, documentation, commit messages, pull request descriptions, code reviews — is slow. QuickSay brings voice-to-text directly into your VS Code workflow on Windows, so you can dictate the prose that surrounds your code without leaving your editor.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">How It Works with VS Code</h2>
+        <p>
+          QuickSay is not a VS Code extension. It is a system-level tool that types into whatever window has focus. Press your keyboard shortcut, speak, release, and your dictated text appears at the cursor — whether you are in a code file, the integrated terminal, a Markdown document, or a Git commit input box.
+        </p>
+        <p>
+          Because QuickSay uses the clipboard to paste text, it works with every VS Code feature: inline comments, the Source Control panel, the search bar, settings fields, and extension input boxes. There is nothing to configure per-workspace and no compatibility issues to debug.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Developer Workflow Benefits</h2>
+        <p>
+          Developers spend a surprising amount of time typing non-code text. JSDoc comments, README files, inline explanations for complex logic, Slack messages to teammates, Jira ticket descriptions — all of it is prose, and all of it slows you down when typed by hand. Voice dictation handles these tasks faster than even the best keyboard shortcuts.
+        </p>
+        <p>
+          QuickSay's AI-powered cleanup understands technical context. When you dictate "open curly brace function handle request close curly brace," it does not literally type those words. It understands your intent and formats accordingly. Abbreviations, technical jargon, and programming terms are handled naturally.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Code Comment Dictation</h2>
+        <p>
+          Documenting code is one of the highest-value uses of voice typing for developers. Position your cursor above a function, hold your keyboard shortcut, and describe what the function does in plain speech. QuickSay transcribes your explanation, cleans it up with proper punctuation and capitalization, and pastes it directly into your editor. A paragraph of documentation that would take 30 seconds to type takes 8 seconds to speak.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Custom Dictionary for Technical Terms</h2>
+        <p>
+          Your codebase has its own vocabulary: framework names, internal API endpoints, product identifiers, acronyms. QuickSay's custom dictionary lets you map spoken phrases to exact text output. Say "use effect hook" and get <code class="font-mono text-accent-teal text-sm bg-glass border border-border rounded px-1">useEffect</code>. Say "kubernetes config" and get the exact casing your team uses. The dictionary is a simple JSON file you can version-control alongside your project.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Privacy for Developers</h2>
+        <p>
+          QuickSay captures zero screen content and collects zero telemetry. Your audio is sent to the cloud for transcription — nothing else leaves your machine. No screenshots of your code, no clipboard monitoring, no usage analytics. For developers working on proprietary codebases, this matters.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Free During the Open Beta</h2>
+        <p>
+          QuickSay is free during the open beta. It works across every application on your Windows machine, not just VS Code. There is no freemium tier with artificial limits, no monthly subscription, and no "Pro" upgrade path. Install it once, use it everywhere you type.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Pages -->
+  <section class="pb-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Related pages</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="/voice-typing-jupyter" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice Typing for Jupyter Notebooks &rarr;</a>
+        <a href="/dictation-windows-developers" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Dictation for Windows Developers &rarr;</a>
+        <a href="/voice-typing-slack" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Dictate Slack Messages &rarr;</a>
+        <a href="/voice-to-text-rsi" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice-to-Text for RSI &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <PricingComparison />
+  <DownloadCTA />
+  <Footer slot="footer" />
+</BaseLayout>

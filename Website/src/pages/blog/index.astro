@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+---
+
+<BaseLayout
+  title="Voice-to-Text Blog — QuickSay Tips, Guides & Updates"
+  description="Tips, guides, and updates about voice-to-text dictation for Windows. Learn how to boost productivity with QuickSay's AI-powered transcription."
+  canonicalUrl="https://quicksay.app/blog"
+  breadcrumbs={[{ name: 'Home', url: 'https://quicksay.app' }, { name: 'Blog', url: 'https://quicksay.app/blog' }]}
+>
+  <Navbar slot="header" />
+
+  <section class="max-w-4xl mx-auto px-6 pt-28 pb-20">
+    <h1 class="font-headline font-bold text-3xl md:text-4xl text-text-primary mb-3 text-balance">
+      Blog
+    </h1>
+    <p class="text-text-secondary text-lg mb-12 max-w-xl">
+      Articles about voice-to-text, dictation, productivity, and QuickSay updates.
+    </p>
+
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => {
+        const formattedDate = new Date(post.data.date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+        return (
+          <a
+            href={`/blog/${post.id}`}
+            class="group block rounded-xl border border-border bg-surface p-6 card-hover"
+          >
+            <time datetime={post.data.date} class="text-text-tertiary text-xs font-medium">
+              {formattedDate}
+            </time>
+            {post.data.readingTime && (
+              <span class="text-text-quaternary text-xs mx-2">|</span>
+              <span class="text-text-tertiary text-xs">{post.data.readingTime}</span>
+            )}
+            <h2 class="font-headline font-semibold text-text-primary text-lg mt-2 mb-2 group-hover:text-accent-teal transition-colors leading-snug">
+              {post.data.title}
+            </h2>
+            <p class="text-text-secondary text-sm leading-relaxed line-clamp-2">
+              {post.data.description}
+            </p>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>

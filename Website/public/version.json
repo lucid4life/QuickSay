@@ -1,0 +1,9 @@
+﻿{
+    "version":  "1.8.1",
+    "download_url":  "https://quicksay.app/download",
+    "release_date":  "2026-02-16",
+    "changelog":  [
+                      "Fix license agreement version sync",
+                      "Add license version to release automation"
+                  ]
+}

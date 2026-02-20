@@ -1,0 +1,359 @@
+---
+/**
+ * Beta Landing Page — invite-only signup for QuickSay beta testers.
+ * noindex/nofollow: this page is not for public search indexing.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import BetaSignupForm from '../../components/beta/BetaSignupForm.astro';
+
+const betaFaqs = [
+  {
+    id: 'safe',
+    question: 'Is this safe to install?',
+    answer: 'QuickSay is code-signed, about 105 MB, and built with native Windows technologies — no Electron, no background services, no telemetry, zero screen capture, zero tracking. It runs only when you use it.',
+  },
+  {
+    id: 'cost',
+    question: 'Do I need to pay anything?',
+    answer: 'No. Beta testers get free lifetime access to QuickSay. At public launch (March 31), it will be $39 launch pricing, $74 regular after that. Your license is permanent and free.',
+  },
+  {
+    id: 'after-beta',
+    question: 'What happens after the beta?',
+    answer: 'You keep your license forever. No expiration, no strings attached. A short testimonial would be appreciated — you would be the first real users featured on the website — but it is completely optional.',
+  },
+  {
+    id: 'offline',
+    question: 'Does it work offline?',
+    answer: 'No. QuickSay uses cloud-based transcription for accuracy and speed. Transcription typically completes in under 2 seconds. An internet connection is required.',
+  },
+  {
+    id: 'voice-data',
+    question: 'Is my voice data stored?',
+    answer: 'Your audio is sent to Groq for transcription and immediately discarded. QuickSay stores zero voice data, zero tracking data, and zero screen captures. Unlike competitors, we never capture your screen.',
+  },
+  {
+    id: 'groq-key',
+    question: 'Do I need a Groq API key?',
+    answer: 'Yes, but it is free and takes about 2 minutes to set up. Groq offers a generous free tier — roughly 8 hours of transcription per day. We walk you through every step.',
+  },
+  {
+    id: 'groq-changes',
+    question: 'What if Groq changes their free tier?',
+    answer: 'It is your Groq account, not ours. If the free tier changes, the paid tier is only a few dollars per month for heavy usage. Your QuickSay license is separate and permanent — it never expires regardless of what Groq does.',
+  },
+];
+---
+
+<BaseLayout
+  title="Join the QuickSay Beta — Free Voice-to-Text for Windows"
+  description="Get free lifetime access to QuickSay, a voice-to-text app for Windows powered by Groq Whisper with AI text cleanup. Help shape the product before launch."
+  canonicalUrl="https://quicksay.app/beta"
+>
+  <Navbar slot="header" />
+
+  <!-- ============================================
+       SECTION 1: HERO
+       ============================================ -->
+  <section class="py-24 md:py-32 px-6 text-center">
+    <div class="max-w-3xl mx-auto">
+      <!-- Beta badge -->
+      <div class="fade-in-up flex justify-center mb-8">
+        <span class="font-mono text-xs uppercase tracking-widest text-accent-teal border border-accent-teal/30 rounded-full px-4 py-1.5">
+          Beta Access
+        </span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl lg:text-6xl text-text-primary text-balance" style="transition-delay: 50ms">
+        Help Shape the Future of Voice-to-Text on Windows
+      </h1>
+
+      <!-- Subheadline -->
+      <p class="fade-in-up font-body text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mt-6" style="transition-delay: 100ms">
+        Join the QuickSay beta — get free lifetime access in exchange for your honest feedback. Public launch March 31.
+      </p>
+
+      <!-- Bullet points -->
+      <ul class="fade-in-up mt-10 space-y-4 text-left max-w-xl mx-auto" style="transition-delay: 150ms">
+        <li class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-accent-teal shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span class="font-body text-text-secondary">
+            <span class="text-text-primary font-medium">Works in any app</span> — VS Code, Slack, Google Docs, and everywhere else you type
+          </span>
+        </li>
+        <li class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-accent-teal shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span class="font-body text-text-secondary">
+            <span class="text-text-primary font-medium">Powered by Groq Whisper</span> — fast, accurate, 25 languages, auto-detection
+          </span>
+        </li>
+        <li class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-accent-teal shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <span class="font-body text-text-secondary">
+            <span class="text-text-primary font-medium">AI text cleanup</span> — filler words removed, grammar fixed, formatting handled
+          </span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 2: EMAIL CAPTURE FORM
+       ============================================ -->
+  <BetaSignupForm />
+
+  <!-- Cross-links to getting started and feedback -->
+  <div class="text-center py-8 px-6 space-y-2">
+    <p class="text-text-secondary text-sm">
+      Already signed up? <a href="/beta/getting-started" class="text-accent-teal hover:underline font-medium">Jump to the Getting Started guide &rarr;</a>
+    </p>
+    <p class="text-text-secondary text-sm">
+      Already testing? <a href="/beta/feedback" class="text-accent-orange hover:underline font-medium">Share your feedback &rarr;</a>
+    </p>
+  </div>
+
+  <!-- Getting Started CTA -->
+  <section class="pb-12 px-6">
+    <div class="max-w-xl mx-auto text-center">
+      <a
+        href="/beta/getting-started"
+        class="inline-flex items-center gap-2 border border-accent-teal/40 text-accent-teal font-headline font-semibold rounded-lg px-6 py-3 hover:bg-accent-teal/10 hover:border-accent-teal/60 active:scale-[0.98] transition-all duration-200"
+      >
+        Read the Getting Started Guide
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 3: WHAT TO EXPECT — 3-COLUMN CARDS
+       ============================================ -->
+  <section class="py-20 md:py-28 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="fade-in-up font-headline font-semibold text-3xl md:text-4xl text-text-primary text-center mb-14">
+        What to Expect
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Card 1: What You Get -->
+        <div class="fade-in-up bg-surface border border-border rounded-xl p-8 hover:-translate-y-1 transition-transform duration-200">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-lg bg-accent-teal/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-accent-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+              </svg>
+            </div>
+            <h3 class="font-headline font-semibold text-xl text-text-primary">What You Get</h3>
+          </div>
+          <ul class="space-y-3 font-body text-text-secondary text-[15px] leading-relaxed">
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-teal mt-1 shrink-0">-</span>
+              <span>Free lifetime license <span class="text-text-tertiary">($39 at launch, $74 regular — yours free forever)</span></span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-teal mt-1 shrink-0">-</span>
+              <span>All future updates included</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-teal mt-1 shrink-0">-</span>
+              <span>Direct line to Adrian, the developer</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-teal mt-1 shrink-0">-</span>
+              <span>Your name in the credits</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-teal mt-1 shrink-0">-</span>
+              <span>Be the first real voice on the website <span class="text-text-tertiary">(all current testimonials are placeholders)</span></span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Card 2: What We Need -->
+        <div class="fade-in-up bg-surface border border-border rounded-xl p-8 hover:-translate-y-1 transition-transform duration-200" style="transition-delay: 75ms">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-lg bg-accent-orange/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-accent-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+              </svg>
+            </div>
+            <h3 class="font-headline font-semibold text-xl text-text-primary">What We Need</h3>
+          </div>
+          <ul class="space-y-3 font-body text-text-secondary text-[15px] leading-relaxed">
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-orange mt-1 shrink-0">-</span>
+              <span>15 minutes of testing</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-orange mt-1 shrink-0">-</span>
+              <span>Honest feedback via structured form</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-orange mt-1 shrink-0">-</span>
+              <span>Bug reports if you find any</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-orange mt-1 shrink-0">-</span>
+              <span>Optional short testimonial</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Card 3: The Timeline -->
+        <div class="fade-in-up bg-surface border border-border rounded-xl p-8 hover:-translate-y-1 transition-transform duration-200" style="transition-delay: 150ms">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-10 h-10 rounded-lg bg-accent-teal/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-accent-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="font-headline font-semibold text-xl text-text-primary">The Timeline</h3>
+          </div>
+          <ul class="space-y-3 font-body text-text-secondary text-[15px] leading-relaxed">
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-teal mt-1 shrink-0">-</span>
+              <span>Beta period: ~2-3 weeks <span class="text-text-tertiary">(public launch March 31)</span></span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-teal mt-1 shrink-0">-</span>
+              <span>Feedback form takes ~5 minutes</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="text-accent-teal mt-1 shrink-0">-</span>
+              <span>Keep your license forever</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 4: ABOUT THE DEVELOPER
+       ============================================ -->
+  <section class="py-20 md:py-28 px-6">
+    <div class="max-w-2xl mx-auto text-center">
+      <div class="fade-in-up bg-surface border border-border rounded-xl p-8 md:p-12">
+        <!-- Avatar placeholder — subtle initial -->
+        <div class="w-16 h-16 rounded-full bg-accent-teal/10 border border-accent-teal/20 flex items-center justify-center mx-auto mb-6">
+          <span class="font-headline font-bold text-2xl text-accent-teal">A</span>
+        </div>
+
+        <p class="font-body text-text-secondary text-lg leading-relaxed mb-6">
+          I'm Adrian, a solo developer in Alberta, Canada. I got tired of paying $15/month to rent voice-to-text, so I built my own — and used it to build itself. Before I charge anyone $39 for it, I want to make sure it works great on your machine, with your workflow, in your apps. That's why I need your help.
+        </p>
+
+        <p class="text-text-tertiary text-sm font-mono">
+          Solo developer &middot; Alberta, Canada
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 5: FAQ ACCORDION
+       ============================================ -->
+  <section id="beta-faq" class="py-20 md:py-28 px-6">
+    <div class="max-w-[700px] mx-auto">
+      <h2 class="fade-in-up font-headline font-semibold text-3xl md:text-4xl text-text-primary text-center mb-12">
+        Questions? Answered.
+      </h2>
+
+      <div class="space-y-4">
+        {betaFaqs.map((faq, index) => (
+          <div class="fade-in-up border border-border rounded-lg bg-surface overflow-hidden" style={`transition-delay: ${index * 50}ms`}>
+            <input
+              type="radio"
+              id={`beta-faq-${faq.id}`}
+              name="beta-faq-accordion"
+              class="peer hidden"
+            />
+            <label
+              for={`beta-faq-${faq.id}`}
+              class="flex items-center justify-between cursor-pointer py-5 px-6 select-none transition-colors duration-200"
+            >
+              <span class="font-headline font-medium text-base text-text-primary pr-4">
+                {faq.question}
+              </span>
+              <svg
+                class="w-5 h-5 shrink-0 text-text-tertiary transition-transform duration-200"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </label>
+            <div class="beta-faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out peer-checked:max-h-96">
+              <div class="px-6 pb-5">
+                <p class="font-body text-text-secondary text-[15px] leading-[1.7]">
+                  {faq.answer}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       FINAL CTA — Scroll back to signup
+       ============================================ -->
+  <section class="py-16 md:py-24 px-6 text-center">
+    <div class="fade-in-up max-w-xl mx-auto">
+      <h2 class="font-headline font-bold text-2xl md:text-3xl text-text-primary mb-4">
+        Ready to try it?
+      </h2>
+      <p class="font-body text-text-secondary mb-8">
+        Sign up above and we'll send you everything you need.
+      </p>
+      <a
+        href="#signup"
+        class="inline-flex items-center justify-center bg-accent-teal text-background font-headline font-semibold text-lg rounded-lg px-8 py-3.5 hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-glow active:scale-[0.98] transition-all duration-150"
+      >
+        Get Beta Access
+      </a>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  /* Apply teal color to question text when checked */
+  input[type="radio"]:checked + label span {
+    color: #22d3c5;
+  }
+
+  /* Rotate chevron when checked */
+  input[type="radio"]:checked + label svg {
+    transform: rotate(180deg);
+    color: #22d3c5;
+  }
+
+  /* Expand answer when checked */
+  input[type="radio"]:checked ~ .beta-faq-answer {
+    max-height: 24rem;
+  }
+
+  /* Mobile: ensure minimum tap area */
+  @media (max-width: 640px) {
+    label {
+      min-height: 48px;
+    }
+  }
+</style>

@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<XML_DIZ_INFO>
+  <MASTER_PAD_VERSION_INFO>
+    <MASTER_PAD_VERSION>4.0</MASTER_PAD_VERSION>
+    <MASTER_PAD_EDITOR>Hand-coded</MASTER_PAD_EDITOR>
+    <MASTER_PAD_EDITOR_URL>https://quicksay.app</MASTER_PAD_EDITOR_URL>
+    <MASTER_PAD_INFO>Portable Application Description, or PAD(TM), is a machine-readable document for software distribution.</MASTER_PAD_INFO>
+    <CERTIFIED>N</CERTIFIED>
+    <CERTIFICATE_ID></CERTIFICATE_ID>
+    <CERTIFICATE_LICENSE></CERTIFICATE_LICENSE>
+  </MASTER_PAD_VERSION_INFO>
+  <Company_Info>
+    <PublisherID></PublisherID>
+    <BrandID></BrandID>
+    <Company_Name>QuickSay</Company_Name>
+    <Country>United States</Country>
+    <State_Province></State_Province>
+    <City_Town></City_Town>
+    <Zip_Postal_Code></Zip_Postal_Code>
+    <Address_1></Address_1>
+    <Address_2></Address_2>
+    <Company_WebSite_URL>https://quicksay.app</Company_WebSite_URL>
+    <Contact_Info>
+      <Contact_First_Name>Adrian</Contact_First_Name>
+      <Contact_Last_Name></Contact_Last_Name>
+      <Contact_Email>say@quicksay.app</Contact_Email>
+      <Author_First_Name>Adrian</Author_First_Name>
+      <Author_Last_Name></Author_Last_Name>
+      <Author_Email>say@quicksay.app</Author_Email>
+      <Contact_Phone></Contact_Phone>
+    </Contact_Info>
+    <Support_Info>
+      <Sales_Email>say@quicksay.app</Sales_Email>
+      <Support_Email>support@quicksay.app</Support_Email>
+      <General_Email>say@quicksay.app</General_Email>
+      <Sales_Phone></Sales_Phone>
+      <Support_Phone></Support_Phone>
+      <General_Phone></General_Phone>
+      <Fax_Phone></Fax_Phone>
+    </Support_Info>
+  </Company_Info>
+  <Program_Info>
+    <Program_Name>QuickSay</Program_Name>
+    <Program_Version>1.8.1</Program_Version>
+    <Program_Release_Month>02</Program_Release_Month>
+    <Program_Release_Day>16</Program_Release_Day>
+    <Program_Release_Year>2026</Program_Release_Year>
+    <Program_Cost_Dollars>39</Program_Cost_Dollars>
+    <Program_Type>Commercial</Program_Type>
+    <Program_Category_Class>Audio::Speech</Program_Category_Class>
+    <Program_Specific_Category>Utilities</Program_Specific_Category>
+    <Program_Release_Status>New Release</Program_Release_Status>
+    <Program_Install_Support>Install and Uninstall</Program_Install_Support>
+    <Program_Target_Platform>Windows</Program_Target_Platform>
+    <Program_OS_Support>Win10 x32,Win10 x64,Win11 x64</Program_OS_Support>
+    <Program_Language>English,Arabic,Bulgarian,Chinese,ChineseSimplified,ChineseTraditional,Czech,Danish,Dutch,Finnish,French,German,Greek,Hindi,Hungarian,Indonesian,Italian,Japanese,Korean,Malay,Norwegian,Polish,Portuguese,Romanian,Russian,Slovak,Spanish,Swedish,Thai,Turkish,Ukrainian,Vietnamese</Program_Language>
+    <Program_Change_Info>Fix license agreement version sync. Add license version to release automation</Program_Change_Info>
+    <Program_System_Requirements>Windows 10 or later, internet connection, free Groq API key</Program_System_Requirements>
+    <Limitations>Free tier requires your own Groq API key</Limitations>
+    <File_Info>
+      <File_Size_Bytes>30568136</File_Size_Bytes>
+      <File_Size_K>29851</File_Size_K>
+      <File_Size_MB>29.15</File_Size_MB>
+    </File_Info>
+    <Expire_Info>
+      <Has_Expire_Info>N</Has_Expire_Info>
+      <Expire_Count></Expire_Count>
+      <Expire_Based_On></Expire_Based_On>
+      <Expire_Year></Expire_Year>
+      <Expire_Other_Info></Expire_Other_Info>
+      <Expire_Month></Expire_Month>
+      <Expire_Day></Expire_Day>
+    </Expire_Info>
+  </Program_Info>
+  <Web_Info>
+    <Application_URLs>
+      <Application_Info_URL>https://quicksay.app</Application_Info_URL>
+      <Application_Order_URL>https://quicksay.app/download</Application_Order_URL>
+      <Application_Screenshot_URL>https://quicksay.app/og-image.png</Application_Screenshot_URL>
+      <Application_Icon_URL>https://quicksay.app/favicon-32x32.png</Application_Icon_URL>
+      <Application_XML_File_URL>https://quicksay.app/pad.xml</Application_XML_File_URL>
+    </Application_URLs>
+    <Download_URLs>
+      <Primary_Download_URL>https://quicksay.app/downloads/QuickSay-Setup.exe</Primary_Download_URL>
+      <Secondary_Download_URL></Secondary_Download_URL>
+      <Additional_Download_URL_1></Additional_Download_URL_1>
+      <Additional_Download_URL_2></Additional_Download_URL_2>
+    </Download_URLs>
+  </Web_Info>
+  <Program_Descriptions>
+    <English>
+      <Keywords>voice to text,speech to text,dictation,voice typing,transcription,Windows,whisper,voice commands</Keywords>
+      <Char_Desc_45>Voice-to-text for Windows. Hold, speak, done.</Char_Desc_45>
+      <Char_Desc_80>Voice-to-text for Windows. Hold a hotkey, speak, release. Clean text at your cursor.</Char_Desc_80>
+      <Char_Desc_250>Voice-to-text for Windows. Hold a hotkey, speak, release — clean text appears at your cursor. Works in any text field. Uses Groq Whisper for transcription with AI text cleanup. 25 languages, custom voice commands. $39 one-time purchase with free tier.</Char_Desc_250>
+      <Char_Desc_450>Voice-to-text for Windows. Hold a hotkey, speak, release — clean text appears at your cursor. Works in any text field across any application. Uses Groq Whisper API for fast transcription with optional AI text cleanup in 4 modes. 25 languages, 25+ voice commands for punctuation and formatting. Floating widget overlay. $39 one-time purchase with a free tier. Zero telemetry, zero screen capture.</Char_Desc_450>
+      <Char_Desc_2000>Voice-to-text for Windows. Hold a hotkey, speak, release — clean text appears at your cursor. Works in any text field across any application. Uses Groq Whisper API for transcription with optional AI text cleanup. QuickSay is built for people who type all day — developers, writers, support agents, anyone dealing with RSI or who just thinks faster than they type. The interface is simple: one global hotkey, no windows to manage, no modes to remember. Audio is sent to Groq for transcription, cleaned up by AI if enabled, and pasted at your cursor. The whole round trip takes under a second. QuickSay supports 25 languages with automatic detection. Voice commands handle punctuation, formatting, and editing — say "new paragraph" or "open paren" and it just works. Four AI cleanup modes (Standard, Email, Code, Casual) adapt the output to what you are writing. A floating widget gives you visual feedback without stealing focus. The app runs from the system tray and uses about 15 MB of RAM when idle. $39 one-time purchase — no subscription, no recurring fees. A free tier is available for users who bring their own Groq API key. Zero telemetry, zero screen capture, zero data collection. Audio is processed on Groq servers and never stored. Code-signed with Microsoft Azure Trusted Signing.</Char_Desc_2000>
+    </English>
+  </Program_Descriptions>
+  <Permissions>
+    <Distribution_Permissions>QuickSay installer may be distributed freely in unchanged form through software download sites and directories.</Distribution_Permissions>
+    <EULA>https://quicksay.app/terms</EULA>
+  </Permissions>
+</XML_DIZ_INFO>

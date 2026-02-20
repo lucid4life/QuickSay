@@ -1,0 +1,60 @@
+---
+import SEOLandingLayout from '../layouts/SEOLandingLayout.astro';
+---
+
+<SEOLandingLayout
+  title="Dictate in Microsoft Teams with QuickSay — Voice-to-Text"
+  description="Dictate messages in Microsoft Teams chat, channels, and meetings on Windows with QuickSay. AI cleanup ensures professional text. Free open beta."
+  h1="Dictate in Microsoft Teams with QuickSay"
+  canonicalUrl="https://quicksay.app/voice-typing-teams"
+  relatedPages={[
+    { href: '/voice-typing-outlook', label: 'Dictate Emails in Outlook' },
+    { href: '/voice-typing-slack', label: 'Dictate Slack Messages' },
+    { href: '/voice-typing-meetings', label: 'Dictate Meeting Notes' },
+    { href: '/voice-to-text-windows', label: 'Voice to Text for Windows' },
+  ]}
+>
+  <Fragment slot="hero-subtitle">
+    Teams has meeting transcription, but no dictation for chat messages. QuickSay adds voice-to-text for every Teams text field.
+  </Fragment>
+
+  <p class="text-lg">
+    Microsoft Teams has become the default communication platform for millions of organizations. It handles video calls, screen sharing, and meeting transcription well. But when it comes to typing messages in chat, channels, or the meeting conversation sidebar, you are on your own with the keyboard. QuickSay adds voice-to-text dictation to every text input in Teams, with AI cleanup that turns spoken words into polished messages.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Chat Messages by Voice</h2>
+  <p>
+    Click into any Teams chat input — a one-on-one conversation, a group chat, or a channel post. Hold your QuickSay keyboard shortcut, speak your message, and release. The transcription arrives cleaned and formatted, ready to send. This works in both the Teams desktop application and the Teams web app.
+  </p>
+  <div class="bg-surface border border-border rounded-xl p-5 my-4">
+    <p class="text-text-tertiary text-sm font-mono mb-2">Spoken into a team channel:</p>
+    <p class="text-text-secondary italic">"the staging environment is back up I deployed the fix for the connection timeout issue and ran the smoke tests everything looks good we should be clear to proceed with the release tomorrow morning"</p>
+    <p class="text-text-tertiary text-sm font-mono mt-4 mb-2">After QuickSay cleanup:</p>
+    <p class="text-text-primary">"The staging environment is back up. I deployed the fix for the connection timeout issue and ran the smoke tests — everything looks good. We should be clear to proceed with the release tomorrow morning."</p>
+  </div>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">During Meetings</h2>
+  <p>
+    One of the most valuable uses of QuickSay in Teams is typing messages during live meetings. The meeting conversation sidebar lets participants share links, notes, and comments without interrupting the speaker. But typing during a meeting is slow and audible — keyboard clicks bleed into your microphone. Voice dictation through QuickSay is faster and, when your microphone is muted, completely silent to other participants. Hold the keyboard shortcut, whisper your message, and it appears cleaned in the chat.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Channel Posts and Announcements</h2>
+  <p>
+    Teams channel posts are often longer and more structured than chat messages. Project updates, weekly summaries, and announcements benefit from clear writing. Dictating these through QuickSay produces well-punctuated text with proper sentence structure — professional enough for a channel-wide audience without spending time editing a draft.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Search, Status, and More</h2>
+  <p>
+    QuickSay works in every Teams text field, not just the message composer. Dictate search queries to find old conversations quickly. Set your status message by voice. Type responses in the wiki tab, the tasks panel, or the Planner integration. Any text input that accepts keyboard input accepts QuickSay's pasted text.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">25 Languages for Global Organizations</h2>
+  <p>
+    Enterprise Teams environments often span multiple countries and languages. QuickSay supports 25 languages with AI transcription and automatic language detection. Message your London team in English, your Paris office in French, and your Tokyo colleagues in Japanese — all using the same keyboard shortcut and the same workflow. No manual language switching between conversations.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">No Teams App or Admin Approval</h2>
+  <p>
+    QuickSay is not a Teams app or integration. It does not appear in your organization's Teams admin center, does not require IT approval, and does not access the Microsoft Graph API. It runs as a standalone Windows application that pastes text via the clipboard — the same mechanism your keyboard uses. For regulated industries where Teams integrations require security review, QuickSay avoids that process entirely. Zero screen capture, zero telemetry, zero data collection.
+  </p>
+</SEOLandingLayout>
