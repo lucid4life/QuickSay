@@ -1,0 +1,205 @@
+---
+/**
+ * Beta Changelog — timeline of updates during the QuickSay beta period.
+ * noindex/nofollow: this page is not for public search indexing.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+interface ChangelogEntry {
+  date: string;
+  version: string;
+  changes: {
+    type: 'New' | 'Improvement' | 'Fix';
+    text: string;
+  }[];
+}
+
+const entries: ChangelogEntry[] = [
+  {
+    date: 'February 16, 2026',
+    version: 'v1.8.1',
+    changes: [
+      { type: 'Fix', text: 'Fix license agreement version sync' },
+      { type: 'New', text: 'Add license version to release automation' },
+    ],
+  },
+  {
+    date: 'February 16, 2026',
+    version: 'v1.8.0',
+    changes: [
+      { type: 'Improvement', text: 'Fixed UTF-8 encoding bug causing garbled text with hyphenated words (e.g. step-by-step)' },
+      { type: 'Improvement', text: 'Improved all 4 mode prompts with stronger injection defense and better cleanup rules' },
+      { type: 'Improvement', text: 'Added brand name and proper noun preservation to Standard mode' },
+      { type: 'Improvement', text: 'Added file path and URL dictation support to Code mode' },
+      { type: 'Improvement', text: 'Added recipient name detection to Email mode' },
+      { type: 'Improvement', text: 'Fixed regex fallback JSON parser to handle all Unicode escape sequences' },
+      { type: 'Improvement', text: 'Synced mode prompts between runtime and settings UI' },
+    ],
+  },
+  {
+    date: 'February 16, 2026',
+    version: 'v1.7.3',
+    changes: [
+      { type: 'Improvement', text: 'Bug fixes and improvements' },
+    ],
+  },
+  {
+    date: 'February 14, 2026',
+    version: 'v1.7.2',
+    changes: [
+      { type: 'Fix', text: 'Fix update checker crash when changelog is an array' },
+    ],
+  },
+  {
+    date: 'February 14, 2026',
+    version: 'v1.7.1',
+    changes: [
+      { type: 'Improvement', text: 'Switch default LLM to GPT-OSS 20B' },
+      { type: 'New', text: 'Add config auto-migration for existing users' },
+      { type: 'New', text: 'Add LLM model debug logging' },
+    ],
+  },
+  {
+    date: 'February 12, 2026',
+    version: 'v1.5.0',
+    changes: [
+      { type: 'New', text: 'Settings reorganized into clear sections — Hotkey, Behavior, Feedback, Language, Data' },
+      { type: 'New', text: 'Hotkey test button — verify your hotkey works with a 5-second live test' },
+      { type: 'New', text: 'Auto-update checking — QuickSay checks for new versions on startup' },
+      { type: 'New', text: '25 new voice commands — parentheses, braces, brackets, undo, and more' },
+      { type: 'Improvement', text: 'Floating widget — free positioning anywhere on screen, single-click recording' },
+      { type: 'Improvement', text: 'AI prompts rewritten for all 4 cleanup modes (Standard, Email, Code, Casual)' },
+      { type: 'Improvement', text: 'Terminal paste support using Shift+Insert for CMD, PowerShell, and WSL' },
+      { type: 'Improvement', text: 'Dark-themed native controls — selects, scrollbars, and radio buttons' },
+      { type: 'Fix', text: 'Widget no longer steals focus from your active app when clicked' },
+      { type: 'Fix', text: '122 stability and security fixes from comprehensive audit' },
+    ],
+  },
+  {
+    date: 'February 7, 2026',
+    version: 'v1.4.0 (Beta Launch)',
+    changes: [
+      { type: 'New', text: 'Initial beta release' },
+      { type: 'New', text: 'Built-in onboarding wizard with 3-step setup' },
+      { type: 'New', text: 'Settings walkthrough for first-time users' },
+      { type: 'New', text: 'Custom Modes — create and switch between AI cleanup profiles' },
+      { type: 'New', text: 'Floating Widget — always-on-top status indicator with click-to-record' },
+      { type: 'New', text: 'Statistics Dashboard — 7-day chart, time saved, top apps, WPM tracking' },
+      { type: 'New', text: 'File Transcription — transcribe existing audio files from tray menu' },
+      { type: 'Improvement', text: 'Custom Dictionary for domain-specific terms' },
+      { type: 'Improvement', text: 'Import/Export Settings — backup and restore your configuration' },
+    ],
+  },
+];
+
+function getBadgeClasses(type: string): string {
+  switch (type) {
+    case 'New':
+      return 'bg-accent-teal/20 text-accent-teal border border-accent-teal/30';
+    case 'Improvement':
+      return 'bg-accent-teal/10 text-accent-teal border border-accent-teal/20';
+    case 'Fix':
+      return 'bg-accent-orange/10 text-accent-orange border border-accent-orange/20';
+    default:
+      return 'bg-surface text-text-secondary border border-border';
+  }
+}
+---
+
+<BaseLayout
+  title="Beta Changelog — QuickSay"
+  description="Track updates and improvements made during the QuickSay beta period."
+  canonicalUrl="https://quicksay.app/beta/changelog"
+>
+  <!-- noindex for beta page -->
+  <meta name="robots" content="noindex, nofollow" slot="head" />
+
+  <Navbar slot="header" />
+
+  <!-- Header -->
+  <section class="pt-32 pb-4 md:pt-40 md:pb-8 px-6">
+    <div class="max-w-3xl mx-auto">
+      <!-- Beta badge -->
+      <div class="fade-in-up flex justify-center mb-8">
+        <span class="font-mono text-xs uppercase tracking-widest text-accent-teal border border-accent-teal/30 rounded-full px-4 py-1.5">
+          Beta
+        </span>
+      </div>
+
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-center text-balance">
+        Beta Changelog
+      </h1>
+      <p class="fade-in-up text-text-secondary text-lg mt-4 text-center max-w-2xl mx-auto">
+        Updates and improvements during the beta period. Your feedback drives every change.
+      </p>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="pb-24 md:pb-32 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="border-l-2 border-border ml-4 pl-8 space-y-12 mt-12">
+        {entries.map((entry, entryIndex) => (
+          <div class="fade-in-up relative" style={`transition-delay: ${entryIndex * 100}ms`}>
+            <!-- Timeline dot -->
+            <div class="absolute -left-[25px] top-1 w-3 h-3 bg-accent-teal rounded-full border-2 border-background"></div>
+
+            <!-- Date + Version -->
+            <div class="font-mono text-sm text-accent-teal mb-4">
+              {entry.date} &mdash; {entry.version}
+            </div>
+
+            <!-- Changes list -->
+            <div class="bg-surface border border-border rounded-xl p-6 space-y-3">
+              {entry.changes.map((change) => (
+                <div class="flex items-start gap-3">
+                  <span class:list={[
+                    'inline-flex items-center shrink-0 font-mono text-xs font-semibold px-2.5 py-0.5 rounded-md mt-0.5',
+                    getBadgeClasses(change.type),
+                  ]}>
+                    {change.type}
+                  </span>
+                  <span class="font-body text-text-primary text-[15px] leading-relaxed">
+                    {change.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Empty state hint for future entries -->
+      <div class="fade-in-up mt-16 text-center">
+        <div class="inline-flex items-center gap-2 bg-surface border border-border rounded-lg px-5 py-3">
+          <svg class="w-4 h-4 text-accent-teal shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="font-body text-text-secondary text-sm">
+            New entries appear here as updates ship during the beta.
+          </span>
+        </div>
+      </div>
+
+      <!-- Feedback prompt -->
+      <div class="fade-in-up mt-12 text-center">
+        <p class="text-text-secondary text-base mb-6">
+          Found a bug or have a feature request?
+        </p>
+        <a
+          href="/beta/feedback"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-accent-teal text-background font-headline font-semibold rounded-lg transition-all duration-150 hover:bg-[#1ebfb3] active:scale-98"
+        >
+          <span>Share Feedback</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>

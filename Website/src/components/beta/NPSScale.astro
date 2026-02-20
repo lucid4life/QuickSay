@@ -1,0 +1,62 @@
+---
+/**
+ * NPSScale — 0-10 Net Promoter Score component for beta feedback.
+ * Renders 11 numbered radio buttons in a row. Highlights selected value.
+ * Keyboard-navigable. Gracefully degrades to plain radios without JS.
+ */
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+const values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+---
+
+<fieldset class="nps-scale-fieldset" role="radiogroup" aria-label="How likely are you to recommend QuickSay? 0 means not likely, 10 means very likely.">
+  <legend class="block font-headline font-semibold text-text-primary mb-3">
+    How likely are you to recommend QuickSay? <span class="text-accent-orange">*</span>
+  </legend>
+
+  <div class="nps-scale" data-nps-group={name}>
+    <div class="flex gap-1 md:gap-2 flex-wrap">
+      {values.map((value) => (
+        <label class="nps-btn-label" data-value={value}>
+          <input
+            type="radio"
+            name={name}
+            value={String(value)}
+            required
+            class="sr-only nps-radio"
+            aria-label={`${value} out of 10`}
+          />
+          <span class="nps-btn inline-flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-lg border border-border text-text-secondary text-sm font-mono cursor-pointer hover:border-accent-teal hover:text-accent-teal transition-colors duration-150">
+            {value}
+          </span>
+        </label>
+      ))}
+    </div>
+
+    <div class="flex justify-between mt-2 px-1">
+      <span class="text-text-tertiary text-xs font-body">Not likely</span>
+      <span class="text-text-tertiary text-xs font-body">Very likely</span>
+    </div>
+  </div>
+
+  <noscript>
+    <p class="text-text-tertiary text-xs mt-1">Select a score from 0 (not likely) to 10 (very likely)</p>
+  </noscript>
+</fieldset>
+
+<style>
+  .nps-btn-label:focus-within .nps-btn {
+    border-color: var(--accent-teal);
+    box-shadow: 0 0 0 2px var(--accent-teal);
+    outline: none;
+  }
+
+  .nps-btn-label.selected .nps-btn {
+    background-color: var(--accent-teal);
+    color: var(--background);
+    border-color: var(--accent-teal);
+  }
+</style>

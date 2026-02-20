@@ -1,0 +1,36 @@
+---
+/* Hero — The signature moment of the site */
+import BetaCTA from './BetaCTA.astro';
+import HeroDemo from './HeroDemo.astro';
+---
+
+<section id="hero" class="min-h-screen flex items-center justify-center px-6 py-24 md:py-32">
+  <div class="max-w-4xl mx-auto text-center">
+    <!-- Headline -->
+    <h1 class="font-headline font-bold text-text-primary text-balance mb-6">
+      <span class="block text-6xl md:text-7xl">QuickSay</span>
+      <span class="block text-2xl md:text-3xl font-semibold text-text-secondary mt-2">Instant Voice-to-Text for Windows</span>
+    </h1>
+
+    <!-- Subheadline -->
+    <p class="font-body text-text-secondary text-xl md:text-2xl mb-16 max-w-2xl mx-auto">
+      Speak naturally. Get perfect text.
+    </p>
+
+    <!-- Interactive Transformation Demo -->
+    <HeroDemo />
+
+    <!-- Value prop messaging -->
+    <p class="text-text-secondary text-sm max-w-xl mx-auto mb-10">
+      Free during open beta. No credit card required.
+    </p>
+
+    <!-- CTA block -->
+    <div class="text-center">
+      <BetaCTA text="Join the Open Beta — Free" />
+      <p class="text-text-tertiary text-xs mt-3">
+        Windows 10+ | ~105 MB
+      </p>
+    </div>
+  </div>
+</section>

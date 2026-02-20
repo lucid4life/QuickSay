@@ -1,0 +1,835 @@
+---
+/**
+ * Beta Feedback — Structured feedback form for QuickSay beta testers.
+ * Collects setup experience, usage patterns, NPS, and testimonial consent.
+ * Submits via fetch to /api/beta-feedback Cloudflare Pages Function.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import StarRating from '../../components/beta/StarRating.astro';
+import NPSScale from '../../components/beta/NPSScale.astro';
+---
+
+<BaseLayout
+  title="Beta Feedback — QuickSay"
+  description="Share your QuickSay beta experience. Rate features, report bugs, and suggest improvements. Your feedback directly shapes what we build."
+  canonicalUrl="https://quicksay.app/beta/feedback"
+>
+  <!-- noindex for beta feedback page -->
+  <meta name="robots" content="noindex, nofollow" slot="head" />
+
+  <Navbar slot="header" />
+
+  <!-- Form Section -->
+  <section class="pt-32 pb-16 md:pt-40 md:pb-20 px-6">
+    <div class="max-w-2xl mx-auto">
+
+      <!-- Page Header -->
+      <div class="fade-in-up text-center mb-12">
+        <h1 class="font-headline font-bold text-4xl md:text-5xl text-text-primary">
+          Beta Feedback
+        </h1>
+        <p class="font-body text-lg text-text-secondary max-w-2xl mx-auto mt-4">
+          Thanks for testing QuickSay! Your feedback directly shapes what we build next. This takes about 5 minutes.
+        </p>
+      </div>
+
+      <!-- Feedback Form -->
+      <form id="beta-feedback-form" novalidate class="space-y-8">
+
+        <!-- Section 1: About You -->
+        <div class="fade-in-up bg-surface border border-border rounded-xl p-8">
+          <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">About You</h2>
+
+          <!-- Name -->
+          <div class="mb-5">
+            <label for="fb-name" class="block font-body text-sm font-medium text-text-secondary mb-2">
+              Name <span class="text-accent-orange">*</span>
+            </label>
+            <input
+              type="text"
+              id="fb-name"
+              name="name"
+              required
+              autocomplete="name"
+              placeholder="Your name"
+              class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors"
+              aria-describedby="fb-name-error"
+            />
+            <p id="fb-name-error" class="hidden text-red-400 text-sm mt-1 font-body" role="alert"></p>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-5">
+            <label for="fb-email" class="block font-body text-sm font-medium text-text-secondary mb-2">
+              Email <span class="text-accent-orange">*</span>
+            </label>
+            <input
+              type="email"
+              id="fb-email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="you@example.com"
+              class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors"
+              aria-describedby="fb-email-error"
+            />
+            <p id="fb-email-error" class="hidden text-red-400 text-sm mt-1 font-body" role="alert"></p>
+          </div>
+
+          <!-- How did you hear about QuickSay? -->
+          <div>
+            <label for="fb-referral" class="block font-body text-sm font-medium text-text-secondary mb-2">
+              How did you hear about QuickSay?
+            </label>
+            <select
+              id="fb-referral"
+              name="referralSource"
+              class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors appearance-none"
+              style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238a8a95%22 stroke-width=%222%22%3E%3Cpath d=%22M6 9l6 6 6-6%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center;"
+            >
+              <option value="" disabled selected class="text-text-tertiary">Select one...</option>
+              <option value="reddit">Reddit</option>
+              <option value="product-hunt">Product Hunt</option>
+              <option value="twitter">Twitter/X</option>
+              <option value="indie-hackers">Indie Hackers</option>
+              <option value="friend">Friend/referral</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Section 2: Setup Experience -->
+        <div class="fade-in-up bg-surface border border-border rounded-xl p-8">
+          <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Setup Experience</h2>
+
+          <div class="space-y-6">
+            <StarRating name="installEase" label="How easy was it to install QuickSay?" required={true} />
+
+            <StarRating name="groqSetupEase" label="How easy was it to set up your Groq API key?" required={true} />
+
+            <!-- Setup Issues -->
+            <div>
+              <label for="fb-setup-issues" class="block font-headline font-semibold text-text-primary mb-3">
+                Did you encounter any issues during setup?
+              </label>
+              <textarea
+                id="fb-setup-issues"
+                name="setupIssues"
+                rows="3"
+                placeholder="Describe any problems you ran into..."
+                class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
+              ></textarea>
+            </div>
+
+            <StarRating name="onboardingHelpfulness" label="How helpful was the onboarding walkthrough?" required={true} />
+          </div>
+        </div>
+
+        <!-- Section 3: Usage & Performance -->
+        <div class="fade-in-up bg-surface border border-border rounded-xl p-8">
+          <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Usage &amp; Performance</h2>
+
+          <!-- Mode preference -->
+          <fieldset class="mb-6">
+            <legend class="block font-headline font-semibold text-text-primary mb-3">
+              Which mode do you primarily use? <span class="text-accent-orange">*</span>
+            </legend>
+            <div class="space-y-2">
+              {['Hot Key (hold to talk)', 'Sticky Key (toggle)', 'Both'].map((option) => (
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="mode"
+                    value={option.toLowerCase().replace(/[^a-z]/g, '-')}
+                    required
+                    class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
+                  />
+                  <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">{option}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <!-- App usage -->
+          <fieldset class="mb-6">
+            <legend class="block font-headline font-semibold text-text-primary mb-3">
+              What apps do you use QuickSay with most?
+            </legend>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {[
+                'VS Code / code editor',
+                'Google Docs',
+                'Microsoft Word',
+                'Slack',
+                'Teams',
+                'Notion',
+                'Outlook',
+                'Chrome / browser',
+                'Discord',
+                'Email client',
+                'Note-taking apps',
+                'Other'
+              ].map((app) => (
+                <label class="flex items-center gap-3 cursor-pointer group py-1">
+                  <input
+                    type="checkbox"
+                    name="apps"
+                    value={app.toLowerCase().replace(/[^a-z]/g, '-')}
+                    class="w-4 h-4 text-accent-teal border-border bg-background rounded focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
+                  />
+                  <span class="font-body text-text-secondary text-sm group-hover:text-text-primary transition-colors">{app}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <div class="space-y-6">
+            <StarRating name="transcriptionAccuracy" label="How would you rate transcription accuracy?" required={true} />
+            <StarRating name="transcriptionSpeed" label="How would you rate transcription speed?" required={true} />
+            <StarRating name="textCleanup" label="How would you rate the AI text cleanup?" required={true} />
+          </div>
+
+          <!-- Performance issues -->
+          <div class="mt-6">
+            <label for="fb-perf-issues" class="block font-headline font-semibold text-text-primary mb-3">
+              Any specific accuracy or performance issues?
+            </label>
+            <textarea
+              id="fb-perf-issues"
+              name="performanceIssues"
+              rows="3"
+              placeholder="E.g., slow in certain apps, misheard words, etc."
+              class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Section 4: Overall Impressions -->
+        <div class="fade-in-up bg-surface border border-border rounded-xl p-8">
+          <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Overall Impressions</h2>
+
+          <div class="space-y-6">
+            <!-- NPS -->
+            <NPSScale name="nps" />
+
+            <!-- Favorite thing -->
+            <div>
+              <label for="fb-favorite" class="block font-headline font-semibold text-text-primary mb-3">
+                What's your favorite thing about QuickSay? <span class="text-accent-orange">*</span>
+              </label>
+              <textarea
+                id="fb-favorite"
+                name="favoriteThing"
+                rows="3"
+                required
+                placeholder="What keeps you coming back?"
+                class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
+                aria-describedby="fb-favorite-error"
+              ></textarea>
+              <p id="fb-favorite-error" class="hidden text-red-400 text-sm mt-1 font-body" role="alert"></p>
+            </div>
+
+            <!-- Top improvement -->
+            <div>
+              <label for="fb-improvement" class="block font-headline font-semibold text-text-primary mb-3">
+                What's the ONE thing you'd most want us to improve? <span class="text-accent-orange">*</span>
+              </label>
+              <textarea
+                id="fb-improvement"
+                name="topImprovement"
+                rows="3"
+                required
+                placeholder="If we could fix one thing, what should it be?"
+                class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
+                aria-describedby="fb-improvement-error"
+              ></textarea>
+              <p id="fb-improvement-error" class="hidden text-red-400 text-sm mt-1 font-body" role="alert"></p>
+            </div>
+
+            <!-- Bugs -->
+            <div>
+              <label for="fb-bugs" class="block font-headline font-semibold text-text-primary mb-3">
+                Any bugs or issues to report?
+              </label>
+              <textarea
+                id="fb-bugs"
+                name="bugs"
+                rows="3"
+                placeholder="Steps to reproduce, what happened vs. what you expected..."
+                class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
+              ></textarea>
+            </div>
+
+            <!-- Testimonial consent -->
+            <fieldset>
+              <legend class="block font-headline font-semibold text-text-primary mb-3">
+                Would you be willing to leave a short testimonial? <span class="text-accent-orange">*</span>
+              </legend>
+              <div class="space-y-2">
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="testimonialConsent"
+                    value="yes-public"
+                    required
+                    class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
+                    data-show-testimonial="true"
+                  />
+                  <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">Yes, use my feedback as a testimonial</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="testimonialConsent"
+                    value="yes-anonymous"
+                    required
+                    class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
+                    data-show-testimonial="true"
+                  />
+                  <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">Yes, but keep it anonymous</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="testimonialConsent"
+                    value="no"
+                    required
+                    class="w-4 h-4 text-accent-teal border-border bg-background focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
+                    data-show-testimonial="false"
+                  />
+                  <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">No thanks</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <!-- Conditional testimonial textarea -->
+            <div id="testimonial-field" class="hidden">
+              <label for="fb-testimonial" class="block font-headline font-semibold text-text-primary mb-3">
+                Write your testimonial here (1-3 sentences):
+              </label>
+              <textarea
+                id="fb-testimonial"
+                name="testimonialText"
+                rows="3"
+                placeholder="E.g., 'QuickSay has completely changed how I write code. The transcription is so fast I forget I'm not typing.'"
+                class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 5: Final Thoughts -->
+        <div class="fade-in-up bg-surface border border-border rounded-xl p-8">
+          <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Final Thoughts</h2>
+
+          <div class="space-y-6">
+            <!-- Anything else -->
+            <div>
+              <label for="fb-anything-else" class="block font-headline font-semibold text-text-primary mb-3">
+                Anything else you'd like to tell us?
+              </label>
+              <textarea
+                id="fb-anything-else"
+                name="anythingElse"
+                rows="3"
+                placeholder="Feature ideas, shout-outs, gripes, hopes, dreams..."
+                class="w-full bg-background border border-border rounded-lg px-4 py-3 text-text-primary font-body placeholder:text-text-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors resize-y"
+              ></textarea>
+            </div>
+
+            <!-- Follow-up consent -->
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                name="followUpConsent"
+                value="yes"
+                checked
+                class="w-4 h-4 text-accent-teal border-border bg-background rounded focus:ring-accent-teal focus:ring-2 accent-[#22d3c5]"
+              />
+              <span class="font-body text-text-secondary group-hover:text-text-primary transition-colors">Can we follow up via email?</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Honeypot -->
+        <input type="text" name="company" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+        <!-- Error message -->
+        <div id="fb-global-error" class="hidden p-4 rounded-lg bg-red-900/20 border border-red-500/30 text-red-400 text-sm font-body text-center" role="alert" aria-live="assertive">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="fade-in-up">
+          <button
+            type="submit"
+            id="fb-submit"
+            class="w-full bg-accent-teal text-background font-headline font-semibold text-lg rounded-lg px-8 py-3.5 hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-glow active:scale-[0.98] transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          >
+            Submit Feedback
+          </button>
+        </div>
+      </form>
+
+      <!-- Success State (hidden by default) -->
+      <div id="fb-success" class="hidden">
+        <div class="bg-surface border border-border rounded-xl p-8 md:p-12 text-center">
+          <!-- Teal check circle -->
+          <div class="flex justify-center mb-6">
+            <svg class="w-16 h-16 text-accent-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+
+          <h2 class="font-headline font-semibold text-3xl text-accent-teal mb-4">
+            Thank you! Your feedback means everything.
+          </h2>
+
+          <p class="font-body text-text-secondary text-lg mb-3">
+            We'll review every response personally and use it to make QuickSay better before launch.
+          </p>
+          <p class="font-body text-text-secondary mb-8">
+            If you opted into a testimonial, we may reach out to confirm the wording.
+          </p>
+
+          <div class="pt-4 border-t border-border">
+            <p class="font-headline font-semibold text-text-primary mb-4 mt-6">
+              Want to help even more? Share QuickSay with someone who'd love it.
+            </p>
+            <button
+              id="copy-beta-link"
+              class="inline-flex items-center gap-2 bg-accent-teal text-background font-headline font-semibold rounded-lg px-6 py-3 hover:scale-[1.02] hover:shadow-lg hover:shadow-teal-glow active:scale-[0.98] transition-all duration-200 cursor-pointer"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+              </svg>
+              <span id="copy-btn-text">Copy beta link</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<script>
+  // --------------------------------------------------
+  // Email pre-fill from URL params
+  // --------------------------------------------------
+  const urlParams = new URLSearchParams(window.location.search);
+  const emailParam = urlParams.get('email');
+  if (emailParam) {
+    const emailInput = document.getElementById('fb-email') as HTMLInputElement;
+    if (emailInput) emailInput.value = emailParam;
+  }
+
+  // --------------------------------------------------
+  // Star Rating Interactivity
+  // --------------------------------------------------
+  document.querySelectorAll('[data-star-group]').forEach((group) => {
+    const labels = group.querySelectorAll('.star-label') as NodeListOf<HTMLLabelElement>;
+    const valueLabel = group.querySelector('.star-value-label');
+
+    function updateStars(selectedValue: number, isHover = false) {
+      labels.forEach((label) => {
+        const val = parseInt(label.dataset.value || '0');
+        if (val <= selectedValue) {
+          label.classList.add(isHover ? 'hovered' : 'filled');
+          if (!isHover) label.classList.remove('hovered');
+        } else {
+          label.classList.remove(isHover ? 'hovered' : 'filled');
+        }
+      });
+      if (valueLabel && !isHover) {
+        valueLabel.textContent = selectedValue > 0 ? `${selectedValue}/5` : '';
+      }
+    }
+
+    // Get current checked value
+    function getCheckedValue(): number {
+      const checked = group.querySelector('input[type="radio"]:checked') as HTMLInputElement;
+      return checked ? parseInt(checked.value) : 0;
+    }
+
+    // Hover effects
+    labels.forEach((label) => {
+      label.addEventListener('mouseenter', () => {
+        const val = parseInt(label.dataset.value || '0');
+        updateStars(val, true);
+      });
+
+      label.addEventListener('mouseleave', () => {
+        // Remove hover state, restore checked state
+        labels.forEach((l) => l.classList.remove('hovered'));
+        updateStars(getCheckedValue(), false);
+      });
+    });
+
+    // Click / change events
+    group.querySelectorAll('input[type="radio"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        const val = parseInt((radio as HTMLInputElement).value);
+        // Clear all hovered states and set filled
+        labels.forEach((l) => l.classList.remove('hovered'));
+        updateStars(val, false);
+      });
+    });
+
+    // Keyboard: arrow keys navigate between stars
+    group.addEventListener('keydown', (e: Event) => {
+      const key = (e as KeyboardEvent).key;
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key)) return;
+
+      e.preventDefault();
+      const current = getCheckedValue();
+      let next = current;
+
+      if (key === 'ArrowRight' || key === 'ArrowUp') {
+        next = Math.min(current + 1, 5);
+      } else if (key === 'ArrowLeft' || key === 'ArrowDown') {
+        next = Math.max(current - 1, 1);
+      }
+
+      if (next !== current && next >= 1) {
+        const radio = group.querySelector(`input[value="${next}"]`) as HTMLInputElement;
+        if (radio) {
+          radio.checked = true;
+          radio.focus();
+          radio.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+    });
+  });
+
+  // --------------------------------------------------
+  // NPS Scale Interactivity
+  // --------------------------------------------------
+  document.querySelectorAll('[data-nps-group]').forEach((group) => {
+    const labels = group.querySelectorAll('.nps-btn-label') as NodeListOf<HTMLLabelElement>;
+
+    group.querySelectorAll('input[type="radio"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        const val = (radio as HTMLInputElement).value;
+        labels.forEach((label) => {
+          if (label.dataset.value === val) {
+            label.classList.add('selected');
+          } else {
+            label.classList.remove('selected');
+          }
+        });
+      });
+    });
+
+    // Keyboard: arrow keys navigate between NPS buttons
+    group.addEventListener('keydown', (e: Event) => {
+      const key = (e as KeyboardEvent).key;
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key)) return;
+
+      e.preventDefault();
+      const checked = group.querySelector('input[type="radio"]:checked') as HTMLInputElement;
+      const current = checked ? parseInt(checked.value) : -1;
+      let next = current;
+
+      if (key === 'ArrowRight' || key === 'ArrowUp') {
+        next = Math.min(current + 1, 10);
+      } else if (key === 'ArrowLeft' || key === 'ArrowDown') {
+        next = Math.max(current - 1, 0);
+      }
+
+      if (next !== current && next >= 0) {
+        const radio = group.querySelector(`input[value="${next}"]`) as HTMLInputElement;
+        if (radio) {
+          radio.checked = true;
+          radio.focus();
+          radio.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+    });
+  });
+
+  // --------------------------------------------------
+  // Testimonial textarea conditional show/hide
+  // --------------------------------------------------
+  const testimonialField = document.getElementById('testimonial-field');
+  const testimonialRadios = document.querySelectorAll('input[name="testimonialConsent"]');
+
+  testimonialRadios.forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const showTestimonial = (radio as HTMLInputElement).dataset.showTestimonial === 'true';
+      if (testimonialField) {
+        testimonialField.classList.toggle('hidden', !showTestimonial);
+      }
+    });
+  });
+
+  // --------------------------------------------------
+  // Form validation helpers
+  // --------------------------------------------------
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function showFieldError(id: string, message: string) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = message;
+      el.classList.remove('hidden');
+    }
+  }
+
+  function hideFieldError(id: string) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = '';
+      el.classList.add('hidden');
+    }
+  }
+
+  function showGlobalError(message: string) {
+    const el = document.getElementById('fb-global-error');
+    if (el) {
+      el.textContent = message;
+      el.classList.remove('hidden');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function hideGlobalError() {
+    const el = document.getElementById('fb-global-error');
+    if (el) {
+      el.textContent = '';
+      el.classList.add('hidden');
+    }
+  }
+
+  // --------------------------------------------------
+  // Form submission
+  // --------------------------------------------------
+  const form = document.getElementById('beta-feedback-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('fb-submit') as HTMLButtonElement;
+  const successEl = document.getElementById('fb-success');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideGlobalError();
+    hideFieldError('fb-name-error');
+    hideFieldError('fb-email-error');
+    hideFieldError('fb-favorite-error');
+    hideFieldError('fb-improvement-error');
+
+    // Gather form data
+    const formData = new FormData(form);
+    const name = (formData.get('name') as string || '').trim();
+    const email = (formData.get('email') as string || '').trim();
+    const referralSource = formData.get('referralSource') as string || '';
+    const installEase = formData.get('installEase') as string || '';
+    const groqSetupEase = formData.get('groqSetupEase') as string || '';
+    const setupIssues = (formData.get('setupIssues') as string || '').trim();
+    const onboardingHelpfulness = formData.get('onboardingHelpfulness') as string || '';
+    const mode = formData.get('mode') as string || '';
+    const apps = formData.getAll('apps') as string[];
+    const transcriptionAccuracy = formData.get('transcriptionAccuracy') as string || '';
+    const transcriptionSpeed = formData.get('transcriptionSpeed') as string || '';
+    const textCleanup = formData.get('textCleanup') as string || '';
+    const performanceIssues = (formData.get('performanceIssues') as string || '').trim();
+    const nps = formData.get('nps') as string || '';
+    const favoriteThing = (formData.get('favoriteThing') as string || '').trim();
+    const topImprovement = (formData.get('topImprovement') as string || '').trim();
+    const bugs = (formData.get('bugs') as string || '').trim();
+    const testimonialConsent = formData.get('testimonialConsent') as string || '';
+    const testimonialText = (formData.get('testimonialText') as string || '').trim();
+    const anythingElse = (formData.get('anythingElse') as string || '').trim();
+    const followUpConsent = formData.get('followUpConsent') === 'yes';
+    const honeypot = (formData.get('company') as string || '').trim();
+
+    // Client-side validation
+    let hasError = false;
+
+    if (!name) {
+      showFieldError('fb-name-error', 'Please enter your name.');
+      if (!hasError) document.getElementById('fb-name')?.focus();
+      hasError = true;
+    }
+
+    if (!email) {
+      showFieldError('fb-email-error', 'Please enter your email address.');
+      if (!hasError) document.getElementById('fb-email')?.focus();
+      hasError = true;
+    } else if (!emailRegex.test(email)) {
+      showFieldError('fb-email-error', 'Please enter a valid email address.');
+      if (!hasError) document.getElementById('fb-email')?.focus();
+      hasError = true;
+    }
+
+    if (!installEase) {
+      if (!hasError) showGlobalError('Please rate how easy it was to install QuickSay.');
+      hasError = true;
+    }
+
+    if (!groqSetupEase) {
+      if (!hasError) showGlobalError('Please rate how easy it was to set up your Groq API key.');
+      hasError = true;
+    }
+
+    if (!onboardingHelpfulness) {
+      if (!hasError) showGlobalError('Please rate how helpful the onboarding walkthrough was.');
+      hasError = true;
+    }
+
+    if (!mode) {
+      if (!hasError) showGlobalError('Please select which mode you primarily use.');
+      hasError = true;
+    }
+
+    if (!transcriptionAccuracy) {
+      if (!hasError) showGlobalError('Please rate transcription accuracy.');
+      hasError = true;
+    }
+
+    if (!transcriptionSpeed) {
+      if (!hasError) showGlobalError('Please rate transcription speed.');
+      hasError = true;
+    }
+
+    if (!textCleanup) {
+      if (!hasError) showGlobalError('Please rate the AI text cleanup.');
+      hasError = true;
+    }
+
+    if (!nps && nps !== '0') {
+      if (!hasError) showGlobalError('Please select how likely you are to recommend QuickSay.');
+      hasError = true;
+    }
+
+    if (!favoriteThing) {
+      showFieldError('fb-favorite-error', 'Please share what you like most about QuickSay.');
+      if (!hasError) document.getElementById('fb-favorite')?.focus();
+      hasError = true;
+    }
+
+    if (!topImprovement) {
+      showFieldError('fb-improvement-error', 'Please share the one thing you\'d most want us to improve.');
+      if (!hasError) document.getElementById('fb-improvement')?.focus();
+      hasError = true;
+    }
+
+    if (!testimonialConsent) {
+      if (!hasError) showGlobalError('Please let us know about testimonial consent.');
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // Disable button during submission
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    const payload = {
+      name,
+      email,
+      referralSource,
+      installEase,
+      groqSetupEase,
+      setupIssues,
+      onboardingHelpfulness,
+      mode,
+      apps,
+      transcriptionAccuracy,
+      transcriptionSpeed,
+      textCleanup,
+      performanceIssues,
+      nps,
+      favoriteThing,
+      topImprovement,
+      bugs,
+      testimonialConsent,
+      testimonialText,
+      anythingElse,
+      followUpConsent,
+      company: honeypot,
+    };
+
+    try {
+      const response = await fetch('/api/beta-feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Hide form, show success
+        form.classList.add('hidden');
+        document.getElementById('fb-global-error')?.classList.add('hidden');
+        if (successEl) {
+          successEl.classList.remove('hidden');
+          successEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        showGlobalError(data.error || 'Something went wrong. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Feedback';
+      }
+    } catch (err) {
+      showGlobalError('Network error. Please check your connection and try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Feedback';
+    }
+  });
+
+  // --------------------------------------------------
+  // Copy beta link button
+  // --------------------------------------------------
+  const copyBtn = document.getElementById('copy-beta-link');
+  const copyBtnText = document.getElementById('copy-btn-text');
+
+  copyBtn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText('https://quicksay.app/beta');
+      if (copyBtnText) {
+        copyBtnText.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtnText.textContent = 'Copy beta link';
+        }, 2000);
+      }
+    } catch (err) {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = 'https://quicksay.app/beta';
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      if (copyBtnText) {
+        copyBtnText.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtnText.textContent = 'Copy beta link';
+        }, 2000);
+      }
+    }
+  });
+</script>
+
+<style>
+  /* Smooth textarea resize */
+  textarea {
+    transition: height 0.2s ease;
+  }
+
+  /* Custom checkbox / radio accent for webkit */
+  input[type="checkbox"],
+  input[type="radio"] {
+    cursor: pointer;
+  }
+
+  /* Ensure select dropdown arrow is visible on dark bg */
+  select option {
+    background-color: var(--background);
+    color: var(--text-primary);
+  }
+</style>

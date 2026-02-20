@@ -1,0 +1,63 @@
+---
+import SEOLandingLayout from '../layouts/SEOLandingLayout.astro';
+---
+
+<SEOLandingLayout
+  title="Dictate Emails in Microsoft Outlook — QuickSay"
+  description="Compose Outlook emails by voice with QuickSay for Windows. AI cleans up dictation into professional email prose. Desktop and web Outlook. Free open beta."
+  h1="Dictate Emails in Microsoft Outlook"
+  canonicalUrl="https://quicksay.app/voice-typing-outlook"
+  relatedPages={[
+    { href: '/voice-typing-teams', label: 'Dictate in Microsoft Teams' },
+    { href: '/voice-typing-word', label: 'Voice-to-Text for Microsoft Word' },
+    { href: '/voice-typing-slack', label: 'Dictate Slack Messages' },
+    { href: '/voice-typing-meetings', label: 'Dictate Meeting Notes' },
+  ]}
+>
+  <Fragment slot="hero-subtitle">
+    Email is the most time-consuming writing task of the workday. QuickSay turns spoken drafts into professional Outlook emails in seconds.
+  </Fragment>
+
+  <p class="text-lg">
+    Outlook's built-in dictation feature transcribes what you say, but it does not rewrite it. The result is often a long, rambling paragraph that reads exactly like someone talking — because it is. QuickSay adds a critical second step: after AI transcription transcribes your speech, AI restructures it into clear, professional email prose. The difference is the gap between a rough voice memo and a ready-to-send message.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">From Spoken Draft to Professional Email</h2>
+  <p>
+    Professional email has conventions that spoken language does not follow naturally. Greetings, paragraph breaks, concise sentences, and sign-offs all need to be present and correct. When you dictate through QuickSay, the AI cleanup pass handles these automatically.
+  </p>
+  <div class="bg-surface border border-border rounded-xl p-5 my-4">
+    <p class="text-text-tertiary text-sm font-mono mb-2">What you say:</p>
+    <p class="text-text-secondary italic">"hey Sarah just wanted to follow up on the budget proposal from last week I think we should increase the marketing allocation by about fifteen percent based on the Q3 results and also can you send me the updated timeline when you get a chance thanks"</p>
+    <p class="text-text-tertiary text-sm font-mono mt-4 mb-2">What QuickSay types:</p>
+    <p class="text-text-primary">"Hi Sarah,<br/><br/>Just wanted to follow up on the budget proposal from last week. I think we should increase the marketing allocation by about 15% based on the Q3 results.<br/><br/>Could you also send me the updated timeline when you get a chance?<br/><br/>Thanks"</p>
+  </div>
+  <p>
+    That transformation happens in under two seconds. The spoken version is 50 words of stream-of-consciousness. The cleaned version is a properly structured email ready to send.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Desktop and Web Outlook</h2>
+  <p>
+    QuickSay operates at the Windows system level, which means it works identically in the Outlook desktop app, the Outlook web app in any browser, and the new Outlook for Windows. Click into the compose field, hold your keyboard shortcut, speak your email, and release. The cleaned text pastes directly into the compose window. No add-in installation, no Outlook-specific configuration.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Reply Faster Without Sacrificing Quality</h2>
+  <p>
+    The average office worker spends 28% of their workday on email. Much of that time is spent composing replies — choosing words, fixing typos, rewriting for tone. Voice dictation with cleanup collapses this process. You speak your intent once, and the result is polished enough to send. For managers handling 50+ emails daily, reclaiming even 30 seconds per reply adds up to meaningful time savings.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Subject Lines and Quick Replies</h2>
+  <p>
+    QuickSay is not only for long emails. It works equally well for subject lines, one-sentence replies, and calendar invite descriptions. Click into any text field in Outlook — the subject line, the body, a calendar event title — and dictate. Short dictations of a sentence or two are cleaned just as effectively as longer passages.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Multilingual Correspondence</h2>
+  <p>
+    For professionals who correspond in multiple languages, QuickSay's 25-language support via AI transcription eliminates the need to switch input methods. Dictate an email in English to your New York office, then compose one in German for your Munich team, using the same keyboard shortcut and the same workflow. Language detection is automatic — no manual switching required.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">No Add-ins, No IT Approval</h2>
+  <p>
+    Many organizations restrict Outlook add-ins and require IT approval for new software integrations. QuickSay sidesteps this entirely. It runs as a standalone Windows application and interacts with Outlook the same way your keyboard does — via the clipboard. There is no Outlook API access, no Exchange permissions, and no data leaving your machine beyond the audio sent to the cloud for transcription. Zero screen capture, zero telemetry.
+  </p>
+</SEOLandingLayout>

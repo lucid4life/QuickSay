@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import FounderNote from '../components/FounderNote.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="About QuickSay — Built by Adrian"
+  description="QuickSay is built by Adrian, a solo developer in Alberta, Canada. One person, one price, no subscriptions."
+  canonicalUrl="https://quicksay.app/about"
+>
+  <Navbar slot="header" />
+
+  <section class="pt-32 pb-16 md:pt-40 md:pb-20 px-6">
+    <div class="max-w-[680px] mx-auto">
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance mb-10">
+        About QuickSay
+      </h1>
+
+      <div class="prose-about fade-in-up space-y-6">
+        <h2>Why QuickSay exists</h2>
+        <p>
+          I got tired of paying $15/month to rent software. Not just the money — the principle. You pay forever, and the moment you stop, it's gone. For something I use every single day, that felt wrong.
+        </p>
+        <p>
+          I looked at the alternatives. Wispr Flow: $180/year. Aqua Voice: $120/year. Good tools, but I'd be paying rent indefinitely for something that should just work. The free options were either inaccurate or came with privacy trade-offs I wasn't comfortable with — screen capture, telemetry, data collection.
+        </p>
+        <p>
+          So I built QuickSay. You pay once. You own it. No telemetry, no screen capture, no subscription tax. That's the deal.
+        </p>
+
+        <h2>I use QuickSay to build QuickSay</h2>
+        <p>
+          About 95% of my day-to-day typing goes through QuickSay. Emails, documentation, code comments, commit messages, feature planning — I dictate most of it. When the transcription is off, I feel it immediately. When the AI cleanup gets punctuation wrong, I see it in my own work.
+        </p>
+        <p>
+          That tight feedback loop made the product better, faster. When you use your own tool every day, you notice the rough edges. You fix them because they annoy <em>you</em>, not because a user filed a ticket.
+        </p>
+        <p>
+          It also validated the core premise: voice typing isn't just for accessibility or dictating emails. It's legitimately faster for most writing tasks once you trust the transcription quality.
+        </p>
+
+        <h2>The pricing philosophy</h2>
+        <p>
+          QuickSay is free during the open beta. No credit card required. When the beta ends, it will be a one-time purchase — no subscription.
+        </p>
+        <p>
+          But here's the thing: QuickSay doesn't host the AI. You bring your own Groq API key. Groq's free tier gives you roughly 8 hours of transcription per day. If you somehow exceed that, their paid tier is a few dollars per month for unlimited. You pay Groq directly. No markup. No middleman tax.
+        </p>
+        <p>
+          This keeps QuickSay's incentives aligned with yours. I'm not trying to maximize your usage to justify a subscription. I'm trying to build software that works well and stays out of your way. You pay once, I keep improving it, and we both benefit from Groq's competitive pricing.
+        </p>
+        <p>
+          All updates are free. Check the <a href="/changelog">changelog</a> to see what's shipped. If you bought v1.0, you get v1.4, v2.0, and beyond at no extra cost.
+        </p>
+
+        <h2>What's next</h2>
+        <p>
+          I'm one person, so updates won't be daily. But I use QuickSay constantly, which means I'm constantly finding small improvements. Faster startup, better dictionary learning, smarter punctuation handling, tighter integrations.
+        </p>
+        <p>
+          The <a href="/changelog">changelog</a> is the source of truth. If something breaks or you have feedback, email me at <a href="mailto:say@quicksay.app">say@quicksay.app</a>. I read everything.
+        </p>
+        <p>
+          QuickSay will stay a one-time purchase. No pivots, no "we're adding a Pro tier," no bait-and-switch. The business model is simple: build something people want, charge a fair price once, keep improving it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Founder Note (without redundant glass card since whole page is first-person) -->
+  <FounderNote />
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .prose-about h2 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose-about p {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--text-secondary);
+  }
+
+  .prose-about a {
+    color: var(--accent-teal);
+    text-decoration: none;
+    transition: all 150ms ease;
+  }
+
+  .prose-about a:hover {
+    text-decoration: underline;
+  }
+
+  .prose-about em {
+    font-style: italic;
+    color: var(--text-primary);
+  }
+
+  /* Fade-in animation */
+  @media (prefers-reduced-motion: no-preference) {
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 400ms ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+
+  /* Ensure visible if animations disabled */
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in-up {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

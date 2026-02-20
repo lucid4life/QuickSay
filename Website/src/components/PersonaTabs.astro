@@ -1,0 +1,783 @@
+---
+/* PersonaTabs — Tabbed interface showing QuickSay in different work contexts */
+import BetaCTA from './BetaCTA.astro';
+---
+
+<section id="personas" class="py-24 md:py-32">
+  <div class="mx-auto max-w-6xl px-6">
+    <!-- Headline -->
+    <h2 class="font-headline font-semibold text-3xl md:text-4xl text-text-primary text-balance text-center mb-12 fade-in-up">
+      Built for how you work.
+    </h2>
+
+    <!-- Tab bar — desktop horizontal, hidden on mobile -->
+    <div class="hidden md:flex justify-center gap-2 mb-10 fade-in-up" role="tablist" aria-label="Persona tabs" id="persona-tablist">
+      <button
+        role="tab"
+        aria-selected="true"
+        aria-controls="panel-developer"
+        id="tab-developer"
+        class="persona-tab font-headline font-medium text-sm py-3 px-6 cursor-pointer rounded-lg transition-colors duration-150 text-accent-teal border-b-2 border-accent-teal"
+      >Developer</button>
+      <button
+        role="tab"
+        aria-selected="false"
+        aria-controls="panel-writer"
+        id="tab-writer"
+        class="persona-tab font-headline font-medium text-sm py-3 px-6 cursor-pointer rounded-lg transition-colors duration-150 text-text-secondary border-b-2 border-transparent"
+      >Writer</button>
+      <button
+        role="tab"
+        aria-selected="false"
+        aria-controls="panel-knowledge"
+        id="tab-knowledge"
+        class="persona-tab font-headline font-medium text-sm py-3 px-6 cursor-pointer rounded-lg transition-colors duration-150 text-text-secondary border-b-2 border-transparent"
+      >Knowledge Worker</button>
+      <button
+        role="tab"
+        aria-selected="false"
+        aria-controls="panel-accessibility"
+        id="tab-accessibility"
+        class="persona-tab font-headline font-medium text-sm py-3 px-6 cursor-pointer rounded-lg transition-colors duration-150 text-text-secondary border-b-2 border-transparent"
+      >Accessibility</button>
+    </div>
+
+    <!-- Desktop Tab Panels -->
+    <div class="hidden md:block relative fade-in-up">
+      <!-- Developer Panel -->
+      <div role="tabpanel" id="panel-developer" aria-labelledby="tab-developer" class="persona-panel transition-opacity duration-300 opacity-100">
+        <div class="bg-[#0e0e10] border border-border rounded-xl overflow-hidden" style="aspect-ratio: 16/10;">
+          <!-- VS Code title bar -->
+          <div class="bg-[#1e1e22] flex items-center justify-between px-3 py-2 border-b border-[rgba(255,255,255,0.06)]">
+            <span class="font-mono text-[11px] text-text-tertiary">utils.py - QuickSay Project</span>
+            <!-- Windows controls (right-aligned) -->
+            <div class="flex items-center gap-0">
+              <!-- Minimize -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[rgba(255,255,255,0.08)] transition-colors duration-75" title="Minimize">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-tertiary"/></svg>
+              </button>
+              <!-- Maximize -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[rgba(255,255,255,0.08)] transition-colors duration-75" title="Maximize">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none" class="text-text-tertiary"/></svg>
+              </button>
+              <!-- Close -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[#c42b1c] transition-colors duration-75 group" title="Close">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-tertiary group-hover:text-white"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex h-[calc(100%-68px)]">
+            <!-- VS Code Activity Bar -->
+            <div class="w-12 bg-[#18181b] border-r border-[rgba(255,255,255,0.05)] flex flex-col items-center py-3 gap-4 shrink-0">
+              <!-- Files icon -->
+              <svg class="w-5 h-5 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+              <!-- Search icon -->
+              <svg class="w-5 h-5 text-text-quaternary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <!-- Git icon -->
+              <svg class="w-5 h-5 text-text-quaternary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M12 15V9m-3.5-1.5L12 9m3.5-1.5L12 9"/></svg>
+              <!-- Extensions icon -->
+              <svg class="w-5 h-5 text-text-quaternary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+            </div>
+            <!-- VS Code Sidebar: File Explorer -->
+            <div class="w-48 bg-[#18181b] border-r border-[rgba(255,255,255,0.05)] shrink-0 overflow-hidden">
+              <div class="px-3 py-2 text-[10px] font-mono uppercase tracking-wider text-text-quaternary">Explorer</div>
+              <div class="px-2 space-y-0.5 text-[11px] font-mono">
+                <div class="flex items-center gap-1.5 px-1 py-0.5 text-text-tertiary">
+                  <span class="text-text-quaternary">&#9660;</span>
+                  <span>quicksay-project</span>
+                </div>
+                <div class="flex items-center gap-1.5 pl-5 py-0.5 text-text-tertiary">
+                  <span class="text-text-quaternary">&#9660;</span>
+                  <span>src</span>
+                </div>
+                <div class="flex items-center gap-1.5 pl-9 py-0.5 text-text-secondary bg-[rgba(255,255,255,0.05)] rounded">
+                  <span class="text-[#519aba]">&#9830;</span>
+                  <span>utils.py</span>
+                </div>
+                <div class="flex items-center gap-1.5 pl-9 py-0.5 text-text-tertiary">
+                  <span class="text-[#519aba]">&#9830;</span>
+                  <span>main.py</span>
+                </div>
+                <div class="flex items-center gap-1.5 pl-9 py-0.5 text-text-tertiary">
+                  <span class="text-[#519aba]">&#9830;</span>
+                  <span>config.py</span>
+                </div>
+                <div class="flex items-center gap-1.5 pl-5 py-0.5 text-text-tertiary">
+                  <span class="text-text-quaternary">&#9654;</span>
+                  <span>tests</span>
+                </div>
+                <div class="flex items-center gap-1.5 pl-5 py-0.5 text-text-tertiary">
+                  <span class="text-[#6d8a88]">&#9830;</span>
+                  <span>README.md</span>
+                </div>
+              </div>
+            </div>
+            <!-- VS Code Editor Area -->
+            <div class="flex-1 flex flex-col min-w-0">
+              <!-- Tab bar -->
+              <div class="flex bg-[#18181b] border-b border-[rgba(255,255,255,0.05)]">
+                <div class="flex items-center gap-2 px-4 py-1.5 bg-[#0e0e10] border-r border-[rgba(255,255,255,0.05)] border-t-2 border-t-accent-teal">
+                  <span class="text-[#519aba] text-[10px]">&#9830;</span>
+                  <span class="font-mono text-[11px] text-text-secondary">utils.py</span>
+                  <span class="text-text-quaternary text-[10px] ml-1 hover:text-text-tertiary">&times;</span>
+                </div>
+                <div class="flex items-center gap-2 px-4 py-1.5 border-r border-[rgba(255,255,255,0.05)]">
+                  <span class="text-[#519aba] text-[10px]">&#9830;</span>
+                  <span class="font-mono text-[11px] text-text-quaternary">main.py</span>
+                </div>
+              </div>
+              <!-- Editor content: raw vs clean -->
+              <div class="flex-1 p-5 overflow-hidden">
+                <div class="space-y-5">
+                  <!-- Raw section -->
+                  <div>
+                    <div class="flex items-center gap-2 mb-2.5">
+                      <span class="text-[10px] font-mono text-text-tertiary uppercase tracking-wider">Raw dictation</span>
+                      <span class="flex-1 h-px bg-border"></span>
+                    </div>
+                    <div class="flex gap-3">
+                      <div class="flex flex-col items-end text-text-quaternary font-mono text-[11px] leading-[1.8] select-none shrink-0">
+                        <span>14</span><span>15</span><span>16</span>
+                      </div>
+                      <p class="font-mono text-text-secondary text-xs leading-[1.8]">okay so uh create a function that takes a list of numbers and returns the average but make sure to handle the empty list case</p>
+                    </div>
+                  </div>
+                  <!-- Clean section -->
+                  <div>
+                    <div class="flex items-center gap-2 mb-2.5">
+                      <span class="text-[10px] font-mono text-accent-teal uppercase tracking-wider">QuickSay output</span>
+                      <span class="flex-1 h-px bg-accent-teal/20"></span>
+                    </div>
+                    <div class="flex gap-3">
+                      <div class="flex flex-col items-end text-text-quaternary font-mono text-[11px] leading-[1.8] select-none shrink-0">
+                        <span>14</span><span>15</span>
+                      </div>
+                      <p class="font-body text-text-primary text-sm leading-[1.8]">Create a function that accepts a list of numbers and returns their average. Handle the empty list edge case.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- VS Code Status Bar -->
+          <div class="flex items-center justify-between px-3 py-1 bg-[#007acc] text-[10px] font-mono text-white/90">
+            <div class="flex items-center gap-3">
+              <span>main</span>
+              <span>Python 3.11</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="flex items-center gap-1">
+                <span class="inline-block w-2 h-2 rounded-full bg-accent-teal animate-pulse"></span>
+                QuickSay: Listening
+              </span>
+              <span>UTF-8</span>
+              <span>Ln 15, Col 1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Writer Panel -->
+      <div role="tabpanel" id="panel-writer" aria-labelledby="tab-writer" class="persona-panel transition-opacity duration-300 opacity-0 hidden">
+        <div class="bg-[#0e0e10] border border-border rounded-xl overflow-hidden" style="aspect-ratio: 16/10;">
+          <!-- Docs title bar -->
+          <div class="bg-[#1e1e22] flex items-center justify-between px-3 py-2 border-b border-[rgba(255,255,255,0.06)]">
+            <span class="font-body text-[11px] text-text-tertiary">Draft - Remote Work Analysis</span>
+            <!-- Windows controls (right-aligned) -->
+            <div class="flex items-center gap-0">
+              <!-- Minimize -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[rgba(255,255,255,0.08)] transition-colors duration-75" title="Minimize">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-tertiary"/></svg>
+              </button>
+              <!-- Maximize -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[rgba(255,255,255,0.08)] transition-colors duration-75" title="Maximize">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none" class="text-text-tertiary"/></svg>
+              </button>
+              <!-- Close -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[#c42b1c] transition-colors duration-75 group" title="Close">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-tertiary group-hover:text-white"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-col h-[calc(100%-68px)]">
+            <!-- Toolbar / Ribbon -->
+            <div class="flex items-center gap-1 px-4 py-2 bg-[#1a1a1e] border-b border-[rgba(255,255,255,0.05)]">
+              <!-- Font selector -->
+              <div class="flex items-center gap-1 px-2 py-1 rounded bg-[rgba(255,255,255,0.04)] text-[10px] font-body text-text-tertiary">
+                <span>DM Sans</span>
+                <span class="text-text-quaternary ml-1">&#9660;</span>
+              </div>
+              <div class="flex items-center gap-1 px-2 py-1 rounded bg-[rgba(255,255,255,0.04)] text-[10px] font-mono text-text-tertiary">
+                <span>11</span>
+                <span class="text-text-quaternary ml-0.5">&#9660;</span>
+              </div>
+              <span class="w-px h-4 bg-[rgba(255,255,255,0.06)] mx-1"></span>
+              <!-- B I U -->
+              <button class="w-7 h-7 flex items-center justify-center rounded text-[11px] font-bold text-text-tertiary hover:bg-[rgba(255,255,255,0.05)]">B</button>
+              <button class="w-7 h-7 flex items-center justify-center rounded text-[11px] italic text-text-tertiary hover:bg-[rgba(255,255,255,0.05)]">I</button>
+              <button class="w-7 h-7 flex items-center justify-center rounded text-[11px] underline text-text-tertiary hover:bg-[rgba(255,255,255,0.05)]">U</button>
+              <span class="w-px h-4 bg-[rgba(255,255,255,0.06)] mx-1"></span>
+              <!-- Alignment icons -->
+              <button class="w-7 h-7 flex items-center justify-center rounded text-text-tertiary hover:bg-[rgba(255,255,255,0.05)]">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h12M3 18h18"/></svg>
+              </button>
+              <button class="w-7 h-7 flex items-center justify-center rounded text-text-tertiary hover:bg-[rgba(255,255,255,0.05)]">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+              </button>
+              <span class="w-px h-4 bg-[rgba(255,255,255,0.06)] mx-1"></span>
+              <!-- List buttons -->
+              <button class="w-7 h-7 flex items-center justify-center rounded text-text-tertiary hover:bg-[rgba(255,255,255,0.05)]">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+              </button>
+              <button class="w-7 h-7 flex items-center justify-center rounded text-text-tertiary hover:bg-[rgba(255,255,255,0.05)]">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 6h9M12 12h9M12 18h9M3 6l3 3-3 3M3 18l3-3-3-3"/></svg>
+              </button>
+            </div>
+            <!-- Ruler -->
+            <div class="px-16 py-1 border-b border-[rgba(255,255,255,0.04)] bg-[#16161a]">
+              <div class="flex justify-between text-[8px] font-mono text-text-quaternary">
+                <span>|</span><span>1</span><span>|</span><span>2</span><span>|</span><span>3</span><span>|</span><span>4</span><span>|</span><span>5</span><span>|</span><span>6</span><span>|</span>
+              </div>
+            </div>
+            <!-- Document area -->
+            <div class="flex-1 flex justify-center overflow-hidden bg-[#111114]">
+              <div class="w-full max-w-xl px-12 py-6 space-y-6">
+                <!-- Document title -->
+                <h3 class="font-headline text-xl text-text-primary font-semibold">Remote Work Productivity Analysis</h3>
+                <div class="w-16 h-0.5 bg-accent-teal/30"></div>
+                <!-- Raw section -->
+                <div>
+                  <div class="flex items-center gap-2 mb-2.5">
+                    <span class="text-[10px] font-mono text-text-tertiary uppercase tracking-wider">Raw dictation</span>
+                    <span class="flex-1 h-px bg-border"></span>
+                  </div>
+                  <p class="font-mono text-text-secondary text-xs leading-relaxed">the thing about remote work is that its actually you know more productive for most people but companies dont want to admit it because of control issues</p>
+                </div>
+                <!-- Clean section -->
+                <div>
+                  <div class="flex items-center gap-2 mb-2.5">
+                    <span class="text-[10px] font-mono text-accent-teal uppercase tracking-wider">QuickSay output</span>
+                    <span class="flex-1 h-px bg-accent-teal/20"></span>
+                  </div>
+                  <p class="font-body text-text-primary text-sm leading-relaxed">Remote work is more productive for most people, but many companies resist it due to concerns about oversight and control.</p>
+                </div>
+              </div>
+            </div>
+            <!-- Status bar -->
+            <div class="flex items-center justify-between px-4 py-1.5 bg-[#18181b] border-t border-[rgba(255,255,255,0.05)] text-[10px] font-mono text-text-quaternary">
+              <div class="flex items-center gap-3">
+                <span>Page 1 of 1</span>
+                <span>Words: 24</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="inline-block w-2 h-2 rounded-full bg-accent-teal animate-pulse"></span>
+                <span class="text-accent-teal/80">QuickSay active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Knowledge Worker Panel -->
+      <div role="tabpanel" id="panel-knowledge" aria-labelledby="tab-knowledge" class="persona-panel transition-opacity duration-300 opacity-0 hidden">
+        <div class="bg-[#0e0e10] border border-border rounded-xl overflow-hidden" style="aspect-ratio: 16/10;">
+          <!-- Slack title bar -->
+          <div class="bg-[#1e1e22] flex items-center justify-between px-3 py-2 border-b border-[rgba(255,255,255,0.06)]">
+            <span class="font-headline text-[11px] text-text-tertiary font-medium">Workspace - Acme Corp</span>
+            <!-- Windows controls (right-aligned) -->
+            <div class="flex items-center gap-0">
+              <!-- Minimize -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[rgba(255,255,255,0.08)] transition-colors duration-75" title="Minimize">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-tertiary"/></svg>
+              </button>
+              <!-- Maximize -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[rgba(255,255,255,0.08)] transition-colors duration-75" title="Maximize">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none" class="text-text-tertiary"/></svg>
+              </button>
+              <!-- Close -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[#c42b1c] transition-colors duration-75 group" title="Close">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-tertiary group-hover:text-white"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex h-[calc(100%-68px)]">
+            <!-- Slack Sidebar -->
+            <div class="w-52 bg-[#18181b] border-r border-[rgba(255,255,255,0.05)] flex flex-col shrink-0 overflow-hidden">
+              <!-- Workspace name -->
+              <div class="px-4 py-3 border-b border-[rgba(255,255,255,0.05)]">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded bg-accent-teal/20 flex items-center justify-center text-accent-teal text-[10px] font-bold">A</div>
+                  <span class="font-headline text-sm text-text-primary font-medium">Acme Corp</span>
+                </div>
+              </div>
+              <!-- Channels -->
+              <div class="px-3 py-3 space-y-0.5 text-[12px] font-body">
+                <div class="px-2 py-1 text-[10px] font-mono uppercase tracking-wider text-text-quaternary mb-1">Channels</div>
+                <div class="flex items-center gap-2 px-2 py-1 rounded text-text-tertiary">
+                  <span class="text-text-quaternary text-[11px]">#</span>
+                  <span>general</span>
+                </div>
+                <div class="flex items-center gap-2 px-2 py-1 rounded bg-[rgba(255,255,255,0.06)] text-text-primary">
+                  <span class="text-text-tertiary text-[11px]">#</span>
+                  <span>quarterly-review</span>
+                </div>
+                <div class="flex items-center gap-2 px-2 py-1 rounded text-text-tertiary">
+                  <span class="text-text-quaternary text-[11px]">#</span>
+                  <span>project-updates</span>
+                </div>
+                <div class="flex items-center gap-2 px-2 py-1 rounded text-text-tertiary">
+                  <span class="text-text-quaternary text-[11px]">#</span>
+                  <span>design</span>
+                </div>
+                <div class="flex items-center gap-2 px-2 py-1 rounded text-text-tertiary">
+                  <span class="text-text-quaternary text-[11px]">#</span>
+                  <span>random</span>
+                </div>
+                <div class="px-2 py-1 text-[10px] font-mono uppercase tracking-wider text-text-quaternary mt-3 mb-1">Direct Messages</div>
+                <div class="flex items-center gap-2 px-2 py-1 rounded text-text-tertiary">
+                  <span class="w-2 h-2 rounded-full bg-[#28c840]"></span>
+                  <span>Sarah K.</span>
+                </div>
+                <div class="flex items-center gap-2 px-2 py-1 rounded text-text-tertiary">
+                  <span class="w-2 h-2 rounded-full bg-text-quaternary"></span>
+                  <span>James M.</span>
+                </div>
+              </div>
+            </div>
+            <!-- Slack Main Area -->
+            <div class="flex-1 flex flex-col min-w-0">
+              <!-- Channel header -->
+              <div class="flex items-center justify-between px-5 py-2.5 border-b border-[rgba(255,255,255,0.05)]">
+                <div class="flex items-center gap-2">
+                  <span class="text-text-tertiary font-body text-sm">#</span>
+                  <span class="font-headline text-sm text-text-primary font-medium">quarterly-review</span>
+                  <span class="text-text-quaternary text-[10px] font-mono ml-1">12 members</span>
+                </div>
+              </div>
+              <!-- Messages area -->
+              <div class="flex-1 px-5 py-4 space-y-4 overflow-hidden">
+                <!-- Previous message 1 -->
+                <div class="flex gap-3">
+                  <div class="w-8 h-8 rounded bg-[#e88a4a]/20 flex items-center justify-center text-[#e88a4a] text-[10px] font-bold shrink-0">SK</div>
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="font-headline text-[12px] text-text-primary font-medium">Sarah K.</span>
+                      <span class="text-[10px] text-text-quaternary font-mono">2:14 PM</span>
+                    </div>
+                    <p class="font-body text-text-secondary text-[12px] leading-relaxed">Q3 dashboard is updated. Revenue tracking looks solid. Can someone confirm the pipeline numbers before Friday?</p>
+                  </div>
+                </div>
+                <!-- Previous message 2 -->
+                <div class="flex gap-3">
+                  <div class="w-8 h-8 rounded bg-[#7c5cc4]/20 flex items-center justify-center text-[#7c5cc4] text-[10px] font-bold shrink-0">JM</div>
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="font-headline text-[12px] text-text-primary font-medium">James M.</span>
+                      <span class="text-[10px] text-text-quaternary font-mono">2:18 PM</span>
+                    </div>
+                    <p class="font-body text-text-secondary text-[12px] leading-relaxed">Will verify by EOD. The ops team flagged a discrepancy in APAC numbers.</p>
+                  </div>
+                </div>
+                <!-- Divider -->
+                <div class="flex items-center gap-3 py-1">
+                  <span class="flex-1 h-px bg-border"></span>
+                  <span class="text-[10px] font-mono text-text-quaternary">Your message</span>
+                  <span class="flex-1 h-px bg-border"></span>
+                </div>
+                <!-- Raw dictation -->
+                <div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-[10px] font-mono text-text-tertiary uppercase tracking-wider">Raw dictation</span>
+                    <span class="flex-1 h-px bg-border"></span>
+                  </div>
+                  <p class="font-mono text-text-secondary text-xs leading-relaxed">hey just wanted to check in about the quarterly numbers did we hit our targets and also when is the next review meeting</p>
+                </div>
+                <!-- Clean output -->
+                <div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-[10px] font-mono text-accent-teal uppercase tracking-wider">QuickSay output</span>
+                    <span class="flex-1 h-px bg-accent-teal/20"></span>
+                  </div>
+                  <p class="font-body text-text-primary text-sm leading-relaxed">Hi — checking in on the quarterly numbers. Did we hit our targets? Also, when is the next review meeting?</p>
+                </div>
+              </div>
+              <!-- Compose bar -->
+              <div class="mx-4 mb-3 rounded-lg border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)]">
+                <div class="flex items-center px-3 py-2.5 gap-2">
+                  <span class="flex items-center gap-1.5 text-accent-teal">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                    <span class="text-[10px] font-mono">QuickSay</span>
+                  </span>
+                  <span class="text-text-quaternary text-[11px] font-body ml-1">Message #quarterly-review</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Status bar -->
+          <div class="flex items-center justify-end px-4 py-1 bg-[#16161a] border-t border-[rgba(255,255,255,0.04)] text-[10px] font-mono text-text-quaternary">
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block w-2 h-2 rounded-full bg-accent-teal animate-pulse"></span>
+              <span class="text-accent-teal/80">QuickSay: Listening</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accessibility Panel -->
+      <div role="tabpanel" id="panel-accessibility" aria-labelledby="tab-accessibility" class="persona-panel transition-opacity duration-300 opacity-0 hidden">
+        <div class="bg-[#0e0e10] border border-border rounded-xl overflow-hidden" style="aspect-ratio: 16/10;">
+          <!-- Browser title bar -->
+          <div class="bg-[#1e1e22] flex items-center justify-between px-3 py-2 border-b border-[rgba(255,255,255,0.06)]">
+            <!-- Tab -->
+            <div class="flex items-center gap-2 px-3 py-1 bg-[#0e0e10] rounded-t text-[11px] font-body text-text-secondary border-t border-x border-[rgba(255,255,255,0.06)]">
+              <span>Project Update Form</span>
+              <span class="text-text-quaternary text-[10px]">&times;</span>
+            </div>
+            <!-- Windows controls (right-aligned) -->
+            <div class="flex items-center gap-0">
+              <!-- Minimize -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[rgba(255,255,255,0.08)] transition-colors duration-75" title="Minimize">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-tertiary"/></svg>
+              </button>
+              <!-- Maximize -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[rgba(255,255,255,0.08)] transition-colors duration-75" title="Maximize">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none" class="text-text-tertiary"/></svg>
+              </button>
+              <!-- Close -->
+              <button class="w-11 h-7 flex items-center justify-center hover:bg-[#c42b1c] transition-colors duration-75 group" title="Close">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-tertiary group-hover:text-white"/></svg>
+              </button>
+            </div>
+          </div>
+          <!-- Browser toolbar -->
+          <div class="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a1e] border-b border-[rgba(255,255,255,0.05)]">
+            <!-- Nav buttons -->
+            <div class="flex items-center gap-1.5 text-text-quaternary">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+              <svg class="w-3.5 h-3.5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </div>
+            <!-- Address bar -->
+            <div class="flex-1 flex items-center px-3 py-1 bg-[rgba(255,255,255,0.04)] rounded text-[11px] font-mono text-text-tertiary">
+              <svg class="w-3 h-3 mr-1.5 text-text-quaternary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <span>intranet.example.com/forms/project-update</span>
+            </div>
+          </div>
+          <!-- Browser content: form being filled -->
+          <div class="flex h-[calc(100%-104px)]">
+            <div class="flex-1 overflow-hidden">
+              <div class="max-w-2xl mx-auto px-8 py-5">
+                <!-- Accessibility callout -->
+                <p class="font-body text-text-secondary text-xs leading-relaxed border-l-2 border-accent-teal/30 pl-3 mb-5">
+                  For users with repetitive strain injury or mobility challenges, QuickSay removes the friction between thought and text. Speak naturally, and your words appear — formatted, punctuated, and ready.
+                </p>
+                <!-- Form title -->
+                <h3 class="font-headline text-lg text-text-primary font-semibold mb-4">Project Update Form</h3>
+                <!-- Form fields -->
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-[10px] font-mono text-text-tertiary uppercase tracking-wider mb-1">Project Name</label>
+                    <div class="px-3 py-2 bg-[rgba(255,255,255,0.04)] rounded border border-[rgba(255,255,255,0.06)] text-[12px] font-body text-text-secondary">QuickSay v2.3 Release</div>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-mono text-text-tertiary uppercase tracking-wider mb-1">Status Update</label>
+                    <div class="px-3 py-2 bg-[rgba(255,255,255,0.04)] rounded border border-accent-teal/30 min-h-[60px]">
+                      <!-- Raw -->
+                      <div class="mb-3">
+                        <div class="flex items-center gap-2 mb-1.5">
+                          <span class="text-[9px] font-mono text-text-tertiary uppercase tracking-wider">Raw</span>
+                          <span class="flex-1 h-px bg-border"></span>
+                        </div>
+                        <p class="font-mono text-text-secondary text-[11px] leading-relaxed">so i wanted to send a quick update to the team about where we are with the project and when we expect to ship the first beta</p>
+                      </div>
+                      <!-- Clean -->
+                      <div>
+                        <div class="flex items-center gap-2 mb-1.5">
+                          <span class="text-[9px] font-mono text-accent-teal uppercase tracking-wider">QuickSay</span>
+                          <span class="flex-1 h-px bg-accent-teal/20"></span>
+                        </div>
+                        <p class="font-body text-text-primary text-[12px] leading-relaxed">I wanted to send a quick update to the team about where we are with the project and when we expect to ship the first beta.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-mono text-text-tertiary uppercase tracking-wider mb-1">Next Steps</label>
+                    <div class="px-3 py-2 bg-[rgba(255,255,255,0.04)] rounded border border-[rgba(255,255,255,0.06)] text-[12px] font-body text-text-quaternary italic">Click to enter or speak with QuickSay...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- QuickSay system tray indicator -->
+            <div class="absolute bottom-10 right-5 flex items-center gap-2 px-3 py-1.5 bg-[#1c1c20] rounded-lg border border-[rgba(255,255,255,0.08)] shadow-lg">
+              <span class="inline-block w-2 h-2 rounded-full bg-accent-teal animate-pulse"></span>
+              <span class="text-[10px] font-mono text-accent-teal/90">QuickSay</span>
+              <span class="text-[9px] font-mono text-text-quaternary ml-1">Ctrl+Shift+Space</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Accordion -->
+    <div class="md:hidden space-y-3 fade-in-up">
+      <!-- Developer -->
+      <div class="border border-border rounded-xl overflow-hidden">
+        <button class="accordion-trigger w-full flex items-center justify-between px-5 py-4 font-headline font-medium text-text-primary text-left" aria-expanded="true" data-panel="acc-developer">
+          Developer
+          <svg class="accordion-icon w-5 h-5 text-accent-teal transition-transform duration-200 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-developer" class="accordion-panel">
+          <div class="bg-[#0e0e10] mx-3 mb-3 rounded-lg overflow-hidden">
+            <!-- Mini VS Code bar -->
+            <div class="flex items-center justify-between px-3 py-1.5 bg-[#1e1e22] border-b border-[rgba(255,255,255,0.05)]">
+              <span class="text-[9px] font-mono text-text-quaternary">utils.py</span>
+              <!-- Windows controls (mobile, smaller) -->
+              <div class="flex items-center gap-0">
+                <button class="w-7 h-5 flex items-center justify-center" title="Minimize">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-quaternary"/></svg>
+                </button>
+                <button class="w-7 h-5 flex items-center justify-center" title="Maximize">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none" class="text-text-quaternary"/></svg>
+                </button>
+                <button class="w-7 h-5 flex items-center justify-center" title="Close">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-quaternary"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="p-4 space-y-4">
+              <div>
+                <span class="text-[10px] font-mono text-text-tertiary uppercase tracking-wider">Raw</span>
+                <div class="flex gap-2 mt-2">
+                  <div class="flex flex-col items-end text-text-quaternary font-mono text-[9px] leading-relaxed select-none shrink-0">
+                    <span>14</span><span>15</span><span>16</span>
+                  </div>
+                  <p class="font-mono text-text-secondary text-xs leading-relaxed">okay so uh create a function that takes a list of numbers and returns the average but make sure to handle the empty list case</p>
+                </div>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-accent-teal uppercase tracking-wider">QuickSay</span>
+                <div class="flex gap-2 mt-2">
+                  <div class="flex flex-col items-end text-text-quaternary font-mono text-[9px] leading-relaxed select-none shrink-0">
+                    <span>14</span><span>15</span>
+                  </div>
+                  <p class="font-body text-text-primary text-sm leading-relaxed">Create a function that accepts a list of numbers and returns their average. Handle the empty list edge case.</p>
+                </div>
+              </div>
+            </div>
+            <!-- Mini status bar -->
+            <div class="flex items-center justify-between px-3 py-1 bg-[#007acc] text-[8px] font-mono text-white/80">
+              <span>Python 3.11</span>
+              <span class="flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-accent-teal animate-pulse"></span>
+                QuickSay: Listening
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Writer -->
+      <div class="border border-border rounded-xl overflow-hidden">
+        <button class="accordion-trigger w-full flex items-center justify-between px-5 py-4 font-headline font-medium text-text-primary text-left" aria-expanded="false" data-panel="acc-writer">
+          Writer
+          <svg class="accordion-icon w-5 h-5 text-text-tertiary transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-writer" class="accordion-panel hidden">
+          <div class="bg-[#0e0e10] mx-3 mb-3 rounded-lg overflow-hidden">
+            <!-- Mini doc bar -->
+            <div class="flex items-center justify-between px-3 py-1.5 bg-[#1e1e22] border-b border-[rgba(255,255,255,0.05)]">
+              <span class="text-[9px] font-body text-text-quaternary">Draft - Remote Work Analysis</span>
+              <!-- Windows controls (mobile, smaller) -->
+              <div class="flex items-center gap-0">
+                <button class="w-7 h-5 flex items-center justify-center" title="Minimize">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-quaternary"/></svg>
+                </button>
+                <button class="w-7 h-5 flex items-center justify-center" title="Maximize">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none" class="text-text-quaternary"/></svg>
+                </button>
+                <button class="w-7 h-5 flex items-center justify-center" title="Close">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-quaternary"/></svg>
+                </button>
+              </div>
+            </div>
+            <!-- Mini toolbar -->
+            <div class="flex items-center gap-1 px-3 py-1.5 bg-[#1a1a1e] border-b border-[rgba(255,255,255,0.04)] text-[9px] text-text-quaternary">
+              <span class="font-bold">B</span>
+              <span class="italic">I</span>
+              <span class="underline">U</span>
+              <span class="w-px h-3 bg-[rgba(255,255,255,0.06)] mx-1"></span>
+              <span>DM Sans</span>
+              <span>11</span>
+            </div>
+            <div class="p-4 space-y-4">
+              <h4 class="font-headline text-sm text-text-primary font-semibold">Remote Work Productivity Analysis</h4>
+              <div>
+                <span class="text-[10px] font-mono text-text-tertiary uppercase tracking-wider">Raw</span>
+                <p class="font-mono text-text-secondary text-xs leading-relaxed mt-2">the thing about remote work is that its actually you know more productive for most people but companies dont want to admit it because of control issues</p>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-accent-teal uppercase tracking-wider">QuickSay</span>
+                <p class="font-body text-text-primary text-sm leading-relaxed mt-2">Remote work is more productive for most people, but many companies resist it due to concerns about oversight and control.</p>
+              </div>
+            </div>
+            <!-- Mini status bar -->
+            <div class="flex items-center justify-between px-3 py-1 bg-[#18181b] border-t border-[rgba(255,255,255,0.04)] text-[8px] font-mono text-text-quaternary">
+              <span>Words: 24</span>
+              <span class="flex items-center gap-1 text-accent-teal/80">
+                <span class="w-1.5 h-1.5 rounded-full bg-accent-teal animate-pulse"></span>
+                QuickSay
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Knowledge Worker -->
+      <div class="border border-border rounded-xl overflow-hidden">
+        <button class="accordion-trigger w-full flex items-center justify-between px-5 py-4 font-headline font-medium text-text-primary text-left" aria-expanded="false" data-panel="acc-knowledge">
+          Knowledge Worker
+          <svg class="accordion-icon w-5 h-5 text-text-tertiary transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-knowledge" class="accordion-panel hidden">
+          <div class="bg-[#0e0e10] mx-3 mb-3 rounded-lg overflow-hidden">
+            <!-- Mini Slack bar -->
+            <div class="flex items-center justify-between px-3 py-1.5 bg-[#1e1e22] border-b border-[rgba(255,255,255,0.05)]">
+              <span class="text-[9px] font-headline text-text-quaternary"># quarterly-review</span>
+              <!-- Windows controls (mobile, smaller) -->
+              <div class="flex items-center gap-0">
+                <button class="w-7 h-5 flex items-center justify-center" title="Minimize">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-quaternary"/></svg>
+                </button>
+                <button class="w-7 h-5 flex items-center justify-center" title="Maximize">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none" class="text-text-quaternary"/></svg>
+                </button>
+                <button class="w-7 h-5 flex items-center justify-center" title="Close">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-quaternary"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <!-- Previous message -->
+              <div class="flex gap-2">
+                <div class="w-5 h-5 rounded bg-[#e88a4a]/20 flex items-center justify-center text-[#e88a4a] text-[7px] font-bold shrink-0">SK</div>
+                <div>
+                  <span class="font-headline text-[10px] text-text-tertiary font-medium">Sarah K.</span>
+                  <p class="font-body text-text-quaternary text-[10px] leading-relaxed">Q3 dashboard is updated. Can someone confirm pipeline numbers?</p>
+                </div>
+              </div>
+              <div class="h-px bg-border"></div>
+              <div>
+                <span class="text-[10px] font-mono text-text-tertiary uppercase tracking-wider">Raw</span>
+                <p class="font-mono text-text-secondary text-xs leading-relaxed mt-2">hey just wanted to check in about the quarterly numbers did we hit our targets and also when is the next review meeting</p>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-accent-teal uppercase tracking-wider">QuickSay</span>
+                <p class="font-body text-text-primary text-sm leading-relaxed mt-2">Hi — checking in on the quarterly numbers. Did we hit our targets? Also, when is the next review meeting?</p>
+              </div>
+            </div>
+            <!-- Compose hint -->
+            <div class="mx-3 mb-3 px-3 py-1.5 rounded border border-[rgba(255,255,255,0.06)] flex items-center gap-1.5">
+              <svg class="w-3 h-3 text-accent-teal" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+              <span class="text-[9px] font-mono text-accent-teal/80">QuickSay</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accessibility -->
+      <div class="border border-border rounded-xl overflow-hidden">
+        <button class="accordion-trigger w-full flex items-center justify-between px-5 py-4 font-headline font-medium text-text-primary text-left" aria-expanded="false" data-panel="acc-accessibility">
+          Accessibility
+          <svg class="accordion-icon w-5 h-5 text-text-tertiary transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-accessibility" class="accordion-panel hidden">
+          <div class="bg-[#0e0e10] mx-3 mb-3 rounded-lg overflow-hidden">
+            <!-- Mini browser bar -->
+            <div class="flex items-center justify-between px-3 py-1.5 bg-[#1e1e22] border-b border-[rgba(255,255,255,0.05)]">
+              <span class="text-[9px] font-mono text-text-quaternary">intranet.example.com</span>
+              <!-- Windows controls (mobile, smaller) -->
+              <div class="flex items-center gap-0">
+                <button class="w-7 h-5 flex items-center justify-center" title="Minimize">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><line x1="2" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-quaternary"/></svg>
+                </button>
+                <button class="w-7 h-5 flex items-center justify-center" title="Maximize">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none" class="text-text-quaternary"/></svg>
+                </button>
+                <button class="w-7 h-5 flex items-center justify-center" title="Close">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-text-quaternary"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <p class="font-body text-text-secondary text-xs leading-relaxed border-l-2 border-accent-teal/30 pl-3">
+                For users with repetitive strain injury or mobility challenges, QuickSay removes the friction between thought and text.
+              </p>
+              <h4 class="font-headline text-sm text-text-primary font-semibold">Project Update Form</h4>
+              <div>
+                <span class="text-[10px] font-mono text-text-tertiary uppercase tracking-wider">Raw</span>
+                <p class="font-mono text-text-secondary text-xs leading-relaxed mt-2">so i wanted to send a quick update to the team about where we are with the project and when we expect to ship the first beta</p>
+              </div>
+              <div>
+                <span class="text-[10px] font-mono text-accent-teal uppercase tracking-wider">QuickSay</span>
+                <p class="font-body text-text-primary text-sm leading-relaxed mt-2">I wanted to send a quick update to the team about where we are with the project and when we expect to ship the first beta.</p>
+              </div>
+              <!-- Hotkey indicator -->
+              <div class="flex items-center gap-2 pt-1">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-accent-teal animate-pulse"></span>
+                <span class="text-[9px] font-mono text-text-quaternary">Ctrl+Shift+Space</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center mt-12 fade-in-up">
+      <BetaCTA text="Join the Open Beta — Free" />
+    </div>
+  </div>
+</section>
+
+<script>
+  /* Desktop tab switching — ~250 bytes */
+  document.querySelectorAll('.persona-tab').forEach(tab=>{
+    tab.addEventListener('click',()=>{
+      document.querySelectorAll('.persona-tab').forEach(t=>{
+        t.classList.remove('text-accent-teal','border-accent-teal');
+        t.classList.add('text-text-secondary','border-transparent');
+        t.setAttribute('aria-selected','false');
+      });
+      tab.classList.add('text-accent-teal','border-accent-teal');
+      tab.classList.remove('text-text-secondary','border-transparent');
+      tab.setAttribute('aria-selected','true');
+      document.querySelectorAll('.persona-panel').forEach(p=>{
+        p.classList.add('opacity-0','hidden');
+      });
+      const panel=document.getElementById(tab.getAttribute('aria-controls'));
+      panel.classList.remove('hidden');
+      requestAnimationFrame(()=>panel.classList.remove('opacity-0'));
+    });
+  });
+  /* Mobile accordion */
+  document.querySelectorAll('.accordion-trigger').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const expanded=btn.getAttribute('aria-expanded')==='true';
+      const panel=document.getElementById(btn.dataset.panel);
+      const icon=btn.querySelector('.accordion-icon');
+      if(expanded){
+        panel.classList.add('hidden');
+        btn.setAttribute('aria-expanded','false');
+        icon.classList.remove('rotate-180');
+        icon.classList.remove('text-accent-teal');
+        icon.classList.add('text-text-tertiary');
+      }else{
+        panel.classList.remove('hidden');
+        btn.setAttribute('aria-expanded','true');
+        icon.classList.add('rotate-180');
+        icon.classList.add('text-accent-teal');
+        icon.classList.remove('text-text-tertiary');
+      }
+    });
+  });
+</script>

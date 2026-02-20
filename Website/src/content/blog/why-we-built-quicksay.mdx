@@ -1,0 +1,53 @@
+---
+title: "Why We Built QuickSay: A $39 Voice-to-Text App"
+description: "The story behind QuickSay — why we built a $39 one-time voice-to-text app for Windows in a world of subscription voice tools."
+date: "2026-02-01"
+author: "QuickSay Team"
+readingTime: "4 min read"
+---
+
+Voice-to-text tools have been around for years. Dragon NaturallySpeaking was doing it in the 1990s. So why build another one?
+
+Because somewhere along the way, the voice typing space got expensive, bloated, and invasive. We thought there was room for something better.
+
+## The Subscription Problem
+
+The current generation of voice-to-text tools operates on subscription pricing. Wispr Flow costs $144/year. Aqua Voice runs $96/year. These are useful products, but the pricing model assumes you want a recurring relationship with a voice typing app.
+
+We didn't think that made sense. Voice typing is a utility. You press a key, you speak, text appears. It should work like a tool you buy once and own, not a service that bills you monthly for the privilege of using your own voice.
+
+That's why QuickSay is $39. One-time. No subscription. No annual renewal. You pay once, you own it.
+
+## Windows Deserved Better
+
+Most of the innovation in voice typing has happened on macOS. SuperWhisper is Mac-only. Wispr Flow launched Mac-first. If you're on Windows, you've been stuck with the built-in Windows Speech Recognition (which hasn't been meaningfully updated in years) or web-based tools that require a browser tab.
+
+We built QuickSay specifically for Windows. It runs natively, starts instantly, and works in every Windows app. Whether you're typing in VS Code, Slack, Word, or a browser text field, QuickSay puts the text where your cursor is.
+
+## The Privacy Question
+
+Some voice-to-text tools offer optional screen capture features. They read what's on your display to add "context" to their transcriptions. We understand the appeal from a product perspective, but we weren't comfortable building something that can watch your screen while you work.
+
+QuickSay takes a different approach: **zero screen capture** and **zero telemetry**. We don't look at your screen. We don't track what apps you use. We don't collect usage analytics from the desktop app. Your audio goes to Groq's Whisper API for transcription, gets cleaned up by AI, and the text appears in your app. That's the entire data flow.
+
+## How It Actually Works
+
+The technology stack is straightforward. When you hold your keyboard shortcut and speak, QuickSay records audio and sends it to Groq's Whisper API for transcription. The raw transcript then passes through AI for cleanup — fixing punctuation, removing filler words, formatting the text naturally. The polished result gets placed wherever your cursor is.
+
+The whole process happens in seconds. And thanks to Groq's free tier, you get 8 hours of free daily transcription without paying anything beyond the initial $39.
+
+## Staying Small on Purpose
+
+QuickSay's install size is about 105 MB. We think small software is better software. Fewer moving parts, fewer things to break, less stuff running in the background.
+
+We're not trying to build a platform. We're not adding AI chat, screen reading, or workflow automation. QuickSay does one thing: it turns your voice into text, accurately and fast. We'd rather do that one thing well than do ten things poorly.
+
+## The Bet We're Making
+
+We're betting that there's a market for tools that are simple, fairly priced, and respectful of privacy. Not every piece of software needs to be a subscription. Not every product needs to capture your screen to be useful. Not every startup needs to maximize revenue extraction from its users.
+
+QuickSay costs $39 because that's a fair price for what it does. If it saves you time, prevents wrist strain, or makes your work easier, we think that's a trade worth making.
+
+---
+
+Ready to try it? [Download QuickSay for $39](/download) and see if voice typing fits into your workflow.

@@ -1,0 +1,173 @@
+---
+import '../styles/global.css';
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  faqItems?: FAQItem[];
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const {
+  title = 'QuickSay — Voice-to-Text for Windows | Free Open Beta',
+  description = 'Instant voice-to-text dictation for Windows. AI transcription + AI text cleanup. Free during open beta. No credit card required. Zero screen capture. Zero tracking.',
+  canonicalUrl = 'https://quicksay.app',
+  ogImage = 'https://quicksay.app/og-image.png',
+  faqItems = [],
+  breadcrumbs = [],
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#121214" />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="QuickSay" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "QuickSay",
+          "url": "https://quicksay.app",
+          "description": "Voice-to-text dictation software for Windows"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "QuickSay",
+          "operatingSystem": "Windows 10+",
+          "applicationCategory": "UtilitiesApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock",
+            "url": "https://quicksay.app/beta"
+          },
+          "description": "Instant voice-to-text dictation for Windows. AI transcription and AI text cleanup."
+        },
+        ...(faqItems.length > 0 ? [{
+          "@type": "FAQPage",
+          "mainEntity": faqItems.map(faq => ({
+            "@type": "Question",
+            "name": faq.question,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": faq.answer
+            }
+          }))
+        }] : []),
+        ...(breadcrumbs.length > 0 ? [{
+          "@type": "BreadcrumbList",
+          "itemListElement": breadcrumbs.map((crumb, i) => ({
+            "@type": "ListItem",
+            "position": i + 1,
+            "name": crumb.name,
+            "item": crumb.url
+          }))
+        }] : [])
+      ]
+    })} />
+
+    <!-- Font Preloads (critical path — all 3 fonts used above the fold) -->
+    <link rel="preload" href="/fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://plausible.io" crossorigin />
+
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="QuickSay Blog" href="/rss.xml" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo-256.png" />
+
+    <!-- CONFIGURE: Replace data-domain with your actual domain -->
+    <script defer data-domain="quicksay.app" src="https://plausible.io/js/script.js"></script>
+
+    <!-- Additional head content (meta tags, etc.) -->
+    <slot name="head" />
+  </head>
+  <body>
+    <!-- Skip Navigation -->
+    <a href="#main" class="skip-nav">Skip to content</a>
+
+    <!-- Header slot for navigation -->
+    <slot name="header" />
+
+    <!-- Main Content -->
+    <main id="main">
+      <slot />
+    </main>
+
+    <!-- Footer slot -->
+    <slot name="footer" />
+
+    <!-- IntersectionObserver for scroll-triggered animations (<1KB) -->
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+      );
+      document.querySelectorAll('.fade-in-up').forEach((el) => observer.observe(el));
+    </script>
+
+    <!-- Plausible custom events for data-analytics elements -->
+    <script>
+      document.querySelectorAll('[data-analytics]').forEach(el => {
+        el.addEventListener('click', () => {
+          if (window.plausible) plausible(el.dataset.analytics);
+        });
+      });
+    </script>
+  </body>
+</html>

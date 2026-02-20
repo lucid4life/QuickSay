@@ -1,0 +1,252 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Privacy Policy — QuickSay"
+  description="QuickSay's privacy policy. Zero screen capture. Zero telemetry. Learn exactly how your data is handled."
+  canonicalUrl="https://quicksay.app/privacy"
+>
+  <Navbar slot="header" />
+
+  <section class="pt-32 pb-24 md:pt-40 md:pb-32 px-6">
+    <div class="legal-prose max-w-[720px] mx-auto">
+      <h1 class="font-headline font-bold text-4xl md:text-5xl text-text-primary mb-4">
+        Privacy Policy
+      </h1>
+      <p class="text-text-tertiary text-sm mb-12">Last updated: February 2026</p>
+
+      <!-- Table of Contents -->
+      <nav class="mb-16 p-6 rounded-lg bg-surface border border-border" aria-label="Table of contents">
+        <p class="font-headline font-semibold text-text-primary text-sm uppercase tracking-wider mb-4">On this page</p>
+        <ol class="flex flex-col gap-2 list-decimal list-inside text-sm">
+          <li><a href="#data-controller" class="text-accent-teal hover:underline">Data Controller</a></li>
+          <li><a href="#what-quicksay-collects" class="text-accent-teal hover:underline">What QuickSay Collects &amp; Stores Locally</a></li>
+          <li><a href="#data-sent-to-third-parties" class="text-accent-teal hover:underline">Data Sent to Third Parties</a></li>
+          <li><a href="#what-quicksay-does-not-do" class="text-accent-teal hover:underline">What QuickSay Does NOT Do</a></li>
+          <li><a href="#data-retention" class="text-accent-teal hover:underline">Data Retention</a></li>
+          <li><a href="#cross-border-transfers" class="text-accent-teal hover:underline">Cross-Border Data Transfers</a></li>
+          <li><a href="#byok-users" class="text-accent-teal hover:underline">BYOK Users</a></li>
+          <li><a href="#your-rights" class="text-accent-teal hover:underline">Your Rights</a></li>
+          <li><a href="#children" class="text-accent-teal hover:underline">Children&rsquo;s Privacy</a></li>
+          <li><a href="#breach-notification" class="text-accent-teal hover:underline">Breach Notification</a></li>
+          <li><a href="#contact" class="text-accent-teal hover:underline">Contact</a></li>
+          <li><a href="#updates" class="text-accent-teal hover:underline">Updates to This Policy</a></li>
+        </ol>
+      </nav>
+
+      <p class="text-text-secondary text-lg leading-relaxed mb-12">
+        QuickSay is a voice-to-text tool that runs on your computer. We built it with a simple principle: your data is yours. This policy explains exactly what happens with your information when you use QuickSay.
+      </p>
+
+      <!-- Section 1: Data Controller -->
+      <section id="data-controller" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">1. Data Controller</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          The data controller for QuickSay is:<br/>
+          <strong class="text-text-primary">Adrian Beek</strong><br/>
+          Calgary, Alberta, Canada<br/>
+          <a href="mailto:privacy@quicksay.app" class="text-accent-teal hover:underline">privacy@quicksay.app</a>
+        </p>
+      </section>
+
+      <!-- Section 2: What QuickSay Collects -->
+      <section id="what-quicksay-collects" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">2. What QuickSay Collects &amp; Stores Locally</h2>
+
+        <p class="text-text-secondary text-lg leading-relaxed mb-6">
+          QuickSay stores the following data <strong class="text-text-primary">locally on your machine</strong>. None of this data is sent to our servers.
+        </p>
+
+        <h3 class="font-headline font-medium text-lg text-text-primary mb-3">Audio recordings</h3>
+        <p class="text-text-secondary text-lg leading-relaxed mb-6">
+          When you dictate, QuickSay records your voice. If the <strong class="text-text-primary">"Save recordings"</strong> setting is enabled (on by default), audio files are saved locally in <code class="font-mono text-sm bg-glass border border-border rounded px-1">data\audio\</code>. You can disable this in Settings &gt; General, or delete saved recordings at any time.
+        </p>
+
+        <h3 class="font-headline font-medium text-lg text-text-primary mb-3">Dictation history</h3>
+        <p class="text-text-secondary text-lg leading-relaxed mb-6">
+          Your dictation history is stored locally in <code class="font-mono text-sm bg-glass border border-border rounded px-1">data\history.json</code>. This includes the transcribed text, timestamps, duration, and the <strong class="text-text-primary">name of the active window</strong> at the time of dictation (used to display which application you were using). This data is never transmitted to any server.
+        </p>
+
+        <h3 class="font-headline font-medium text-lg text-text-primary mb-3">Usage statistics</h3>
+        <p class="text-text-secondary text-lg leading-relaxed mb-6">
+          QuickSay stores local usage statistics (word counts, daily streaks, per-application breakdowns) in <code class="font-mono text-sm bg-glass border border-border rounded px-1">data\statistics.json</code>. This data stays on your machine and is never transmitted.
+        </p>
+
+        <h3 class="font-headline font-medium text-lg text-text-primary mb-3">Custom dictionary entries</h3>
+        <p class="text-text-secondary text-lg leading-relaxed mb-6">
+          Any custom words or phrases you add to your dictionary are stored locally on your machine. They never leave your computer.
+        </p>
+
+        <h3 class="font-headline font-medium text-lg text-text-primary mb-3">Configuration &amp; API key</h3>
+        <p class="text-text-secondary text-lg leading-relaxed mb-6">
+          Your settings and API key are stored locally in <code class="font-mono text-sm bg-glass border border-border rounded px-1">config.json</code>. Your API key is encrypted using Windows DPAPI before storage. We never see or have access to your API key.
+        </p>
+
+        <h3 class="font-headline font-medium text-lg text-text-primary mb-3">Debug &amp; temporary files</h3>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          QuickSay may create local debug logs and temporary API response files (<code class="font-mono text-sm bg-glass border border-border rounded px-1">debug_log.txt</code>, <code class="font-mono text-sm bg-glass border border-border rounded px-1">payload.json</code>, <code class="font-mono text-sm bg-glass border border-border rounded px-1">response.txt</code>) for troubleshooting. These remain on your machine and are not transmitted.
+        </p>
+      </section>
+
+      <!-- Section 3: Third-Party Services -->
+      <section id="data-sent-to-third-parties" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">3. Data Sent to Third Parties</h2>
+
+        <h3 class="font-headline font-medium text-lg text-text-primary mb-3">Groq API (transcription &amp; text cleanup)</h3>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          When you dictate, QuickSay sends your <strong class="text-text-primary">audio recording</strong> to Groq's servers for transcription via the Whisper API. The transcribed text is then sent to Groq's API for text cleanup (punctuation, formatting). This means your audio data leaves your machine and is processed by Groq.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          <strong class="text-text-primary">Groq's data handling:</strong> By default, Groq may retain data for up to 30 days for abuse monitoring and service improvement. Groq offers a Zero Data Retention (ZDR) option that can be enabled on your Groq account. We encourage you to review
+          <a href="https://groq.com/privacy-policy/" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">Groq's privacy policy</a> and
+          <a href="https://console.groq.com/docs/your-data" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">Groq's data handling documentation</a>
+          for full details.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed mb-6">
+          If you use your own API key (BYOK), you interact with Groq directly under Groq's terms. See the <a href="#byok-users" class="text-accent-teal hover:underline">BYOK section</a> below.
+        </p>
+
+        <h3 class="font-headline font-medium text-lg text-text-primary mb-3">Payment processor</h3>
+        <p class="text-text-secondary text-lg leading-relaxed mb-6">
+          Payments are handled by LemonSqueezy. They process all payment data on our behalf. QuickSay never sees or stores your credit card information. You can review
+          <a href="https://www.lemonsqueezy.com/privacy" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">LemonSqueezy's privacy policy</a>
+          for details.
+        </p>
+
+        <h3 class="font-headline font-medium text-lg text-text-primary mb-3">Plausible Analytics (website only)</h3>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          This website uses <a href="https://plausible.io" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">Plausible Analytics</a>, a privacy-focused, cookieless analytics tool. It collects no personal data and uses no cookies. The QuickSay desktop app does not include any analytics or telemetry.
+        </p>
+      </section>
+
+      <!-- Section 4: What QuickSay Does NOT Do -->
+      <section id="what-quicksay-does-not-do" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">4. What QuickSay Does NOT Do</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">To be absolutely clear:</p>
+        <ul class="flex flex-col gap-3 text-text-secondary text-lg leading-relaxed">
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10005;</span>
+            <span>QuickSay does <strong class="text-text-primary">not</strong> capture your screen. No screenshots. No screen content. Ever.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10005;</span>
+            <span>QuickSay does <strong class="text-text-primary">not</strong> include any telemetry or usage analytics in the desktop app.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10005;</span>
+            <span>QuickSay does <strong class="text-text-primary">not</strong> store your data on our servers. We do not operate data servers.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10005;</span>
+            <span>QuickSay does <strong class="text-text-primary">not</strong> sell or share your data with third parties.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10005;</span>
+            <span>QuickSay does <strong class="text-text-primary">not</strong> use cookies for tracking. This website uses cookieless analytics.</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Section 5: Data Retention -->
+      <section id="data-retention" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">5. Data Retention</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          <strong class="text-text-primary">Local data:</strong> Dictation history, audio recordings, statistics, and debug files are stored on your machine indefinitely until you choose to delete them. You can clear your history from Settings &gt; History, delete audio files from the <code class="font-mono text-sm bg-glass border border-border rounded px-1">data\audio\</code> folder, or uninstall QuickSay to remove all local data.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          <strong class="text-text-primary">Groq (third-party):</strong> Groq may retain audio and text data for up to 30 days by default for service monitoring. You can enable Zero Data Retention on your Groq account. See <a href="https://console.groq.com/docs/your-data" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">Groq's data handling page</a> for details.
+        </p>
+      </section>
+
+      <!-- Section 6: Cross-Border Transfers -->
+      <section id="cross-border-transfers" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">6. Cross-Border Data Transfers</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          When you use QuickSay, your audio is sent to Groq's API servers located in the <strong class="text-text-primary">United States</strong> (hosted on Google Cloud Platform). If you are located outside the United States, this constitutes a cross-border transfer of your data. By using QuickSay, you consent to this transfer. Groq processes data in accordance with their
+          <a href="https://groq.com/privacy-policy/" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+        </p>
+      </section>
+
+      <!-- Section 7: BYOK Users -->
+      <section id="byok-users" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">7. BYOK Users</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          QuickSay operates on a Bring Your Own Key (BYOK) model — you provide your own Groq API key. Your audio is sent to Groq under your own account and API key. Groq's data handling is governed by your direct agreement with them. QuickSay acts as the interface — your API key is stored locally on your machine (encrypted with Windows DPAPI) and is never transmitted to us.
+        </p>
+      </section>
+
+      <!-- Section 8: Your Rights -->
+      <section id="your-rights" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">8. Your Rights</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          Because QuickSay does not collect or store personal data on our servers, most privacy rights relate to your local data and to Groq's processing. You have the right to:
+        </p>
+        <ul class="flex flex-col gap-3 text-text-secondary text-lg leading-relaxed">
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Access</strong> your data — all QuickSay data is stored locally in the app's data folder. You can view, copy, or export it at any time.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Delete</strong> your data — you can delete your dictation history, saved recordings, statistics, and all other local data at any time through the app or by deleting the files directly.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Correct</strong> your data — you can edit your custom dictionary and configuration at any time.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&#10003;</span>
+            <span><strong class="text-text-primary">Control Groq's processing</strong> — you can enable Zero Data Retention on your Groq account, or stop using the service at any time.</span>
+          </li>
+        </ul>
+        <p class="text-text-secondary text-lg leading-relaxed mt-4">
+          For questions about your data or to exercise any rights, contact us at <a href="mailto:privacy@quicksay.app" class="text-accent-teal hover:underline">privacy@quicksay.app</a>.
+        </p>
+      </section>
+
+      <!-- Section 9: Children's Privacy -->
+      <section id="children" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">9. Children&rsquo;s Privacy</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          QuickSay is not intended for use by children under 13 years of age. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has used QuickSay, please contact us at <a href="mailto:privacy@quicksay.app" class="text-accent-teal hover:underline">privacy@quicksay.app</a>.
+        </p>
+      </section>
+
+      <!-- Section 10: Breach Notification -->
+      <section id="breach-notification" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">10. Breach Notification</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          Because QuickSay does not operate servers or store user data remotely, the risk of a data breach on our end is minimal. However, if we become aware of a security incident that affects QuickSay users — including any breach at a third-party service provider — we will notify affected users through the application and on this website within 72 hours of becoming aware of the incident, as required by applicable law.
+        </p>
+      </section>
+
+      <!-- Section 11: Contact -->
+      <section id="contact" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">11. Contact</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          If you have questions about this privacy policy or how QuickSay handles your data, reach out at
+          <a href="mailto:privacy@quicksay.app" class="text-accent-teal hover:underline">privacy@quicksay.app</a>.
+        </p>
+      </section>
+
+      <!-- Section 12: Updates -->
+      <section id="updates">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">12. Updates to This Policy</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          If we make material changes to this policy, we will update the "Last updated" date at the top and notify users through the application or on this website. We are committed to keeping this policy straightforward and honest.
+        </p>
+      </section>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .legal-prose h2 {
+    scroll-margin-top: 5rem;
+  }
+</style>

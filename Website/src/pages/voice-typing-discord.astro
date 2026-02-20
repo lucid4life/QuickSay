@@ -1,0 +1,63 @@
+---
+import SEOLandingLayout from '../layouts/SEOLandingLayout.astro';
+---
+
+<SEOLandingLayout
+  title="Voice Typing for Discord Messages — QuickSay"
+  description="Type Discord messages with your voice using QuickSay on Windows. Dictate into channels, DMs, and threads with AI cleanup. Free open beta."
+  h1="Voice Typing for Discord Messages"
+  canonicalUrl="https://quicksay.app/voice-typing-discord"
+  relatedPages={[
+    { href: '/voice-typing-slack', label: 'Dictate Slack Messages' },
+    { href: '/voice-typing-teams', label: 'Dictate in Microsoft Teams' },
+    { href: '/voice-to-text-windows', label: 'Voice to Text for Windows' },
+    { href: '/dictation-windows-developers', label: 'Dictation for Windows Developers' },
+  ]}
+>
+  <Fragment slot="hero-subtitle">
+    Discord has voice channels for talking but no voice-to-text for typing. QuickSay lets you dictate messages into any Discord conversation.
+  </Fragment>
+
+  <p class="text-lg">
+    Discord is built around real-time communication. You jump between servers, respond to threads, coordinate in DMs, and participate in community channels — all of which require typing. Voice channels handle spoken conversation, but when you need to type a message, you are back to the keyboard. QuickSay bridges that gap by letting you dictate text messages into any Discord input field.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">How It Works in Discord</h2>
+  <p>
+    Click into any Discord message box — a channel, a DM, a thread reply, a forum post. Hold your QuickSay keyboard shortcut and speak your message. When you release, AI transcription transcribes your words and AI cleans the output into readable text. The message pastes into the Discord input field, ready for you to review and hit Enter. Because QuickSay works at the Windows system level, it works in both the Discord desktop app and the Discord web app.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Natural Tone for Casual Conversations</h2>
+  <p>
+    Discord conversations tend to be informal. Messages are short, conversational, and relaxed. AI's cleanup preserves this tone — it fixes punctuation and capitalization without making your messages sound like corporate email. Your spoken style comes through naturally.
+  </p>
+  <div class="bg-surface border border-border rounded-xl p-5 my-4">
+    <p class="text-text-tertiary text-sm font-mono mb-2">What you say:</p>
+    <p class="text-text-secondary italic">"yeah I tried that build and it keeps crashing on startup I think its something with the new dependency we added yesterday can you check the package lock file"</p>
+    <p class="text-text-tertiary text-sm font-mono mt-4 mb-2">What QuickSay types:</p>
+    <p class="text-text-primary">"Yeah, I tried that build and it keeps crashing on startup. I think it's something with the new dependency we added yesterday. Can you check the package lock file?"</p>
+  </div>
+  <p>
+    The cleanup adds punctuation, fixes contractions, and breaks the stream-of-consciousness into sentences — without formalizing the language or removing your voice from the message.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Developer Communities and Tech Servers</h2>
+  <p>
+    Many developers spend significant time in Discord communities — framework servers, open source projects, study groups, and team coordination channels. Explaining technical concepts, answering questions, and discussing architecture all require typing detailed messages. Voice dictation handles this faster than typing, especially for longer explanations that would take a minute or more to compose by hand.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Forum Posts and Threads</h2>
+  <p>
+    Discord's forum channels and threads often call for longer-form writing. Bug reports, feature requests, tutorial explanations, and project updates all benefit from clean, well-structured text. QuickSay handles these longer dictations naturally — speak for 30 seconds or a minute, and the cleanup produces multiple properly punctuated paragraphs ready to post.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Gaming and Multitasking</h2>
+  <p>
+    If you use Discord while gaming or while working in another application, switching to Discord to type a message is a context break. With QuickSay, you can Alt+Tab to Discord, dictate a quick message by voice, and switch back to what you were doing. The entire interaction takes a few seconds instead of the 15-20 seconds it takes to type out a response.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">No Bot, No Permissions</h2>
+  <p>
+    QuickSay is not a Discord bot. It does not connect to Discord's API, it does not require server permissions, and it does not read your messages or server data. It runs locally on your Windows machine and pastes text into the active message field via the clipboard. Server admins have nothing to approve, and there is no risk of data exposure. Zero screen capture, zero telemetry.
+  </p>
+</SEOLandingLayout>

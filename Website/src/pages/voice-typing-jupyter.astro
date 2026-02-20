@@ -1,0 +1,63 @@
+---
+import SEOLandingLayout from '../layouts/SEOLandingLayout.astro';
+---
+
+<SEOLandingLayout
+  title="Voice Typing for Jupyter Notebooks — QuickSay"
+  description="Dictate markdown cells, code comments, and analysis notes in Jupyter Notebooks with QuickSay on Windows. AI cleanup included. Free open beta."
+  h1="Voice Typing for Jupyter Notebooks"
+  canonicalUrl="https://quicksay.app/voice-typing-jupyter"
+  relatedPages={[
+    { href: '/voice-typing-vscode', label: 'Voice Typing for VS Code' },
+    { href: '/dictation-windows-developers', label: 'Dictation for Windows Developers' },
+    { href: '/voice-typing-obsidian', label: 'Voice Notes in Obsidian' },
+    { href: '/voice-to-text-windows', label: 'Voice to Text for Windows' },
+  ]}
+>
+  <Fragment slot="hero-subtitle">
+    Jupyter has no voice input for markdown cells or code comments. QuickSay lets data scientists dictate documentation, analysis notes, and explanations directly into notebooks.
+  </Fragment>
+
+  <p class="text-lg">
+    Data science notebooks are a mix of code and narrative. The code runs the analysis; the markdown cells explain it. But writing those explanations — methodology descriptions, result interpretations, caveats, and context — is time-consuming typing work that pulls you out of analytical thinking. QuickSay adds voice-to-text to Jupyter Notebooks on Windows, letting you dictate the prose portions of your notebooks without leaving the interface.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Markdown Cells by Voice</h2>
+  <p>
+    Click into a markdown cell in JupyterLab, Jupyter Notebook, or any Jupyter interface running in your browser. Hold your QuickSay keyboard shortcut and describe your analysis, methodology, or findings. When you release, cleaned text appears at your cursor — properly capitalized, punctuated, and ready to render.
+  </p>
+  <div class="bg-surface border border-border rounded-xl p-5 my-4">
+    <p class="text-text-tertiary text-sm font-mono mb-2">Dictated into a markdown cell:</p>
+    <p class="text-text-secondary italic">"the correlation between temperature and ice cream sales is strong at point eight five but we need to account for the seasonal confound because both variables increase during summer months I'm going to run a partial correlation controlling for month"</p>
+    <p class="text-text-tertiary text-sm font-mono mt-4 mb-2">After QuickSay cleanup:</p>
+    <p class="text-text-primary">"The correlation between temperature and ice cream sales is strong at 0.85, but we need to account for the seasonal confound because both variables increase during summer months. I'm going to run a partial correlation controlling for month."</p>
+  </div>
+  <p>
+    The cleanup handles numbers, technical terms, and statistical language naturally. Decimal points, variable names, and methodology terms come through accurately via AI transcription.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Documenting Your Analysis in Real Time</h2>
+  <p>
+    The best data science notebooks tell a story: what question you asked, what data you used, what you tried, what worked, and what the results mean. Most notebooks fall short because writing that narrative after the analysis is tedious. With QuickSay, you can document as you go. Run a code cell, see the output, and immediately dictate your interpretation into the next markdown cell. The analysis and its explanation are created together.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Code Comments and Inline Documentation</h2>
+  <p>
+    QuickSay also works in code cells. Position your cursor where you want a comment, dictate your explanation, and the cleaned text appears. This is particularly useful for complex data transformations, feature engineering steps, and model configuration blocks where a brief explanation saves future readers significant time.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">JupyterLab, Classic Notebook, and VS Code</h2>
+  <p>
+    Because QuickSay works at the Windows system level, it functions identically across every Jupyter environment. JupyterLab in Chrome, the classic Notebook interface in Firefox, Jupyter cells within VS Code — they all accept QuickSay's clipboard-based text input. There is no extension to install per environment and no compatibility to worry about when switching tools.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Custom Dictionary for Domain Terms</h2>
+  <p>
+    Data science has its own vocabulary: algorithm names, library functions, statistical terms, and domain-specific jargon. QuickSay's custom dictionary lets you map spoken phrases to exact text. Say "scikit learn" and get <code class="font-mono text-accent-teal text-sm bg-glass border border-border rounded px-1">scikit-learn</code>. Say "pandas dataframe" and get the exact casing your team expects. The dictionary is a JSON file you can customize in minutes.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Privacy for Research Data</h2>
+  <p>
+    Researchers working with sensitive datasets — medical records, financial data, proprietary research — need tools that respect data boundaries. QuickSay captures zero screen content and collects zero telemetry. It cannot see your notebook cells, your data, or your code. The only information that leaves your machine is the audio recording sent to the cloud for transcription. Your research data stays on your machine.
+  </p>
+</SEOLandingLayout>

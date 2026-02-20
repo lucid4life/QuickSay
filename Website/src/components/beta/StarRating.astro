@@ -1,0 +1,77 @@
+---
+/**
+ * StarRating — Reusable 1-5 star rating component for beta feedback.
+ * Renders 5 radio inputs with star SVGs. Highlights on hover and selection.
+ * Keyboard-navigable (arrow keys). Gracefully degrades to plain radios without JS.
+ */
+interface Props {
+  name: string;
+  label: string;
+  required?: boolean;
+}
+
+const { name, label, required = false } = Astro.props;
+const stars = [1, 2, 3, 4, 5];
+---
+
+<fieldset class="star-rating-fieldset" role="radiogroup" aria-label={label}>
+  <legend class="block font-headline font-semibold text-text-primary mb-3">
+    {label} {required && <span class="text-accent-orange">*</span>}
+  </legend>
+
+  <div class="star-rating flex items-center gap-1" data-star-group={name}>
+    {stars.map((value) => (
+      <label
+        class="star-label relative cursor-pointer p-1 rounded-md focus-within:ring-2 focus-within:ring-accent-teal focus-within:ring-offset-2 focus-within:ring-offset-surface transition-colors"
+        data-value={value}
+      >
+        <input
+          type="radio"
+          name={name}
+          value={String(value)}
+          required={required}
+          class="sr-only star-radio"
+          aria-label={`${value} star${value !== 1 ? 's' : ''} out of 5`}
+        />
+        <svg
+          class="star-svg w-8 h-8 md:w-9 md:h-9 text-text-tertiary transition-colors duration-150"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+      </label>
+    ))}
+    <span class="star-value-label ml-2 text-text-tertiary text-sm font-mono min-w-[2ch]" aria-live="polite"></span>
+  </div>
+
+  <!-- No-JS fallback: show numeric labels next to the stars -->
+  <noscript>
+    <p class="text-text-tertiary text-xs mt-1">Select a rating from 1 (poor) to 5 (excellent)</p>
+  </noscript>
+</fieldset>
+
+<style>
+  /* Base star styles */
+  .star-label:hover .star-svg,
+  .star-label.hovered .star-svg {
+    color: var(--accent-teal);
+    opacity: 0.7;
+  }
+
+  .star-label.filled .star-svg {
+    color: var(--accent-teal);
+    opacity: 1;
+  }
+
+  /* No-JS fallback: show radio inputs visually when JS is unavailable */
+  .star-radio {
+    /* sr-only by default, JS enhances the stars */
+  }
+
+  /* Focus indicator for keyboard navigation */
+  .star-label:focus-within {
+    outline: none;
+  }
+</style>

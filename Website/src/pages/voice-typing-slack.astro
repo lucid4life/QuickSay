@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import PricingComparison from '../components/PricingComparison.astro';
+import DownloadCTA from '../components/DownloadCTA.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Dictate Slack Messages with QuickSay — Voice-to-Text"
+  description="Type Slack messages with your voice using QuickSay. Fast, accurate voice-to-text for Windows knowledge workers. Free open beta."
+  canonicalUrl="https://quicksay.app/voice-typing-slack"
+>
+  <Navbar slot="header" />
+
+  <section class="pt-32 pb-16 md:pt-40 md:pb-20 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance mb-6">
+        Dictate Slack Messages with QuickSay
+      </h1>
+
+      <div class="fade-in-up space-y-6 text-text-secondary leading-relaxed">
+        <p class="text-lg">
+          Slack demands fast replies. Your team asks questions, threads pile up, and every message you type is a context switch away from deep work. QuickSay lets you respond by voice — speak your reply, let AI clean it into professional prose, and paste it directly into Slack. What used to take 45 seconds of typing takes 10 seconds of speaking.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Voice-First Messaging</h2>
+        <p>
+          Click into a Slack message field, hold your QuickSay keyboard shortcut, and speak your reply. When you release the key, your words are transcribed by AI transcription, cleaned by AI, and pasted into the message box. The text arrives properly capitalized, punctuated, and formatted — ready to send. No "uhms," no sentence fragments, no rambling.
+        </p>
+        <p>
+          AI's cleanup is especially valuable for Slack. Spoken replies tend to be informal and stream-of-consciousness. The cleanup pass turns "yeah so the deploy is probably going to be delayed because the CI pipeline is broken again and I think its the same issue from last week with the Docker cache" into a clean, readable message your manager actually wants to read.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Threads and Channels</h2>
+        <p>
+          QuickSay works wherever you can type in Slack — channels, threads, DMs, the search bar, even the "What's your status?" field. Because it operates at the system level and pastes via clipboard, there is no Slack-specific integration to install or maintain. When Slack updates, QuickSay keeps working.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Speed for Knowledge Workers</h2>
+        <p>
+          The average knowledge worker sends 40-60 Slack messages per day. At even 20 seconds saved per message, that is 15-20 minutes reclaimed daily — time that compounds into hours every week. Voice typing is not just faster for long messages; it reduces the mental overhead of composing text, freeing your working memory for the actual problem you are solving.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Professional Tone, Every Time</h2>
+        <p>
+          One of the underappreciated benefits of QuickSay for Slack is consistency. When you type quickly, you make typos, skip capitalization, and drop punctuation. When you dictate through QuickSay, AI ensures every message is properly formatted. Your colleagues see clean, professional communication — even when you are replying from your standing desk between meetings.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">25 Languages for Global Teams</h2>
+        <p>
+          Working with international teammates? QuickSay supports 25 languages via AI transcription with automatic language detection. Speak in Spanish to your Madrid team, switch to English for the all-hands channel, and dictate in French for your Montreal colleagues — all with the same keyboard shortcut, no language switching required.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">No Slack Bot, No Permissions</h2>
+        <p>
+          QuickSay is not a Slack app. It does not need OAuth permissions, admin approval, or access to your workspace data. It runs locally on your Windows machine and types into Slack the same way your keyboard does. Your IT team has nothing to review because QuickSay never touches Slack's API.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Pages -->
+  <section class="pb-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Related pages</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="/voice-typing-teams" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Dictate in Microsoft Teams &rarr;</a>
+        <a href="/voice-typing-discord" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice Typing for Discord &rarr;</a>
+        <a href="/voice-typing-meetings" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Dictate Meeting Notes &rarr;</a>
+        <a href="/voice-to-text-adhd" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice-to-Text for ADHD &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <PricingComparison />
+  <DownloadCTA />
+  <Footer slot="footer" />
+</BaseLayout>

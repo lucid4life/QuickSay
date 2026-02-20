@@ -1,0 +1,39 @@
+---
+interface Props {
+  text?: string;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'default' | 'large' | 'small';
+  href?: string;
+  class?: string;
+}
+
+const {
+  text = 'Join the Open Beta — Free',
+  variant = 'primary',
+  size = 'default',
+  href = '/beta#signup',
+  class: className = '',
+} = Astro.props;
+
+const variantStyles: Record<string, string> = {
+  primary: 'bg-accent-teal text-background font-semibold btn-press cta-glow transition-all duration-150 hover:bg-[#1abfb2] hover:shadow-[0_0_20px_rgba(34,211,197,0.3)]',
+  secondary: 'border border-[rgba(255,255,255,0.15)] text-text-primary font-semibold transition-all duration-150 hover:bg-[rgba(255,255,255,0.05)] btn-press',
+  ghost: 'text-accent-teal font-medium hover:underline transition-all duration-150',
+};
+
+const sizeStyles: Record<string, string> = {
+  small: 'px-5 py-2 rounded-lg text-sm min-h-[44px]',
+  default: 'px-8 py-3 rounded-lg text-base min-h-[44px]',
+  large: 'px-12 py-5 rounded-xl text-xl font-bold',
+};
+
+const classes = `inline-flex items-center justify-center ${variantStyles[variant]} ${sizeStyles[size]} ${className}`.trim();
+---
+
+<a
+  href={href}
+  class={classes}
+  data-analytics="beta-signup-click"
+>
+  {text}
+</a>
