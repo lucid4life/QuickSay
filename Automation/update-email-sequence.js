@@ -8,6 +8,8 @@
 //                accessibility -> Accessibility
 //   v2: Added email -> Email / Communication, notes -> Notes / Documentation mappings (Issue #2)
 //       Added null safety to Update Stage when Notion save fails (Issue #3)
+//   v3: Error isolation -- Send Welcome Email now runs in parallel with Save to Notion (Issue #1)
+//       Email fires even if Notion is down. Update Stage to 1 still depends on Notion (needs page ID).
 
 const N8N_URL = 'https://n8n.beekz.uk/api/v1';
 const N8N_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNDkyZGQyMy04YTc2LTQ2ODAtOGI3ZC0wMzk0ZGMxOTdiYjkiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiMzU5YzRiYTEtMGRiMy00NDVhLWEzNjMtMjI4YTY3ZjgyNTk2IiwiaWF0IjoxNzcxNDQzODk3fQ.H8iQ3dWfX9CUfLd0wFu79SSOSH71HCiyYZdwmQwUGdk';
@@ -447,10 +449,12 @@ const workflow = {
       name: 'Save to Notion',
       type: 'n8n-nodes-base.code',
       typeVersion: 2,
-      position: [448, 208],
+      position: [448, 112],
       continueOnFail: true
     },
     // Node 5: Send Welcome Email
+    // v3: Now parallel to Save to Notion — triggered directly from Extract Signup Data.
+    // Email fires regardless of Notion success/failure.
     {
       parameters: {
         fromEmail: 'beta@quicksay.app',
@@ -467,7 +471,7 @@ const workflow = {
       name: 'Send Welcome Email',
       type: 'n8n-nodes-base.emailSend',
       typeVersion: 2.1,
-      position: [672, 208],
+      position: [448, 368],
       webhookId: '69159307-8d4b-47bb-8a49-cf3648a74557',
       credentials: {
         smtp: {
@@ -477,6 +481,7 @@ const workflow = {
       }
     },
     // Node 6: Update Stage to 1
+    // Stays downstream of Save to Notion only — needs the Notion page ID.
     {
       parameters: {
         jsCode: updateStageCode,
@@ -486,7 +491,7 @@ const workflow = {
       name: 'Update Stage to 1',
       type: 'n8n-nodes-base.code',
       typeVersion: 2,
-      position: [896, 208]
+      position: [672, 112]
     }
   ],
   connections: {
@@ -496,15 +501,19 @@ const workflow = {
         { node: 'Extract Signup Data', type: 'main', index: 0 }
       ]]
     },
+    // v3: Extract Signup Data fans out to both Notion save and email in parallel.
+    // Email no longer waits for Notion — fires immediately after data extraction.
     'Extract Signup Data': {
-      main: [[{ node: 'Save to Notion', type: 'main', index: 0 }]]
+      main: [[
+        { node: 'Save to Notion', type: 'main', index: 0 },
+        { node: 'Send Welcome Email', type: 'main', index: 0 }
+      ]]
     },
+    // Update Stage stays downstream of Notion only (needs the page ID).
     'Save to Notion': {
-      main: [[{ node: 'Send Welcome Email', type: 'main', index: 0 }]]
-    },
-    'Send Welcome Email': {
       main: [[{ node: 'Update Stage to 1', type: 'main', index: 0 }]]
     }
+    // Send Welcome Email is now terminal — no downstream nodes.
   },
   settings: {
     executionOrder: 'v1'
