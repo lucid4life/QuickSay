@@ -21,6 +21,7 @@ class FloatingWidget {
     static mouseDownY := 0
     static wasClick := true
     static timerFn := ""
+    static _tooltipDismissFn := ""
     static configFile := A_ScriptDir "\config.json"
 
     static Show(config := "") {
@@ -108,11 +109,13 @@ class FloatingWidget {
         this._boundMouseMove := ObjBindMethod(this, "OnMouseMove")
         this._boundRButtonUp := ObjBindMethod(this, "OnRButtonUp")
         this._boundMouseActivate := ObjBindMethod(this, "OnMouseActivate")
+        this._boundMouseLeave := ObjBindMethod(this, "OnMouseLeave")
         OnMessage(0x201, this._boundLButtonDown)  ; WM_LBUTTONDOWN
         OnMessage(0x202, this._boundLButtonUp)    ; WM_LBUTTONUP
         OnMessage(0x200, this._boundMouseMove)    ; WM_MOUSEMOVE
         OnMessage(0x205, this._boundRButtonUp)    ; WM_RBUTTONUP
         OnMessage(0x21, this._boundMouseActivate) ; WM_MOUSEACTIVATE
+        OnMessage(0x2A3, this._boundMouseLeave)   ; WM_MOUSELEAVE
 
         this.isVisible := true
         this.currentStatus := "idle"
@@ -138,6 +141,13 @@ class FloatingWidget {
             this.timerFn := ""
         }
 
+        ; Cancel any pending tooltip dismiss timer
+        if (this._tooltipDismissFn) {
+            SetTimer(this._tooltipDismissFn, 0)
+            this._tooltipDismissFn := ""
+        }
+        DarkTooltip.Destroy()
+
         ; Release capture if active
         if (this._captured) {
             DllCall("ReleaseCapture")
@@ -155,6 +165,8 @@ class FloatingWidget {
             OnMessage(0x205, this._boundRButtonUp, 0)
         if (this._boundMouseActivate)
             OnMessage(0x21, this._boundMouseActivate, 0)
+        if (this._boundMouseLeave)
+            OnMessage(0x2A3, this._boundMouseLeave, 0)
         this._boundLButtonDown := ""
         this._boundLButtonUp := ""
         this._boundMouseMove := ""
@@ -335,6 +347,27 @@ class FloatingWidget {
             if (this.isDragging) {
                 newX := this.dragStartWinX + dx
                 newY := this.dragStartWinY + dy
+
+                ; Clamp to monitor work area so widget can't be dragged off-screen
+                centerX := newX + this.width // 2
+                centerY := newY + this.height // 2
+                foundMon := false
+                monCount := MonitorGetCount()
+                Loop monCount {
+                    MonitorGetWorkArea(A_Index, &mL, &mT, &mR, &mB)
+                    if (centerX >= mL && centerX < mR && centerY >= mT && centerY < mB) {
+                        newX := Max(mL, Min(newX, mR - this.width))
+                        newY := Max(mT, Min(newY, mB - this.height))
+                        foundMon := true
+                        break
+                    }
+                }
+                if (!foundMon) {
+                    MonitorGetWorkArea(MonitorGetPrimary(), &mL, &mT, &mR, &mB)
+                    newX := Max(mL, Min(newX, mR - this.width))
+                    newY := Max(mT, Min(newY, mB - this.height))
+                }
+
                 this.gui.Move(newX, newY)
                 this.posX := newX
                 this.posY := newY
@@ -344,6 +377,12 @@ class FloatingWidget {
 
         ; Tooltip on hover (only when not captured, only for our window)
         if (hwnd = this.gui.Hwnd) {
+            ; Cancel any pending dismiss timer from a previous mouse-leave
+            if (this._tooltipDismissFn) {
+                SetTimer(this._tooltipDismissFn, 0)
+                this._tooltipDismissFn := ""
+            }
+
             statusText := "QuickSay"
             switch this.currentStatus {
                 case "idle": statusText := "QuickSay — Ready"
@@ -351,8 +390,24 @@ class FloatingWidget {
                 case "processing": statusText := "QuickSay — Processing..."
                 case "error": statusText := "QuickSay — Error"
             }
-            DarkTooltip.Show(statusText, 1250)
+            DarkTooltip.Show(statusText, 0)  ; No auto-hide while hovering
+
+            ; Request WM_MOUSELEAVE notification from Windows
+            static tme := Buffer(24, 0)
+            cbSize := (A_PtrSize = 8) ? 24 : 16
+            NumPut("UInt", cbSize, tme, 0)
+            NumPut("UInt", 2, tme, 4)       ; TME_LEAVE
+            NumPut("Ptr", hwnd, tme, 8)
+            DllCall("TrackMouseEvent", "Ptr", tme)
         }
+    }
+
+    static OnMouseLeave(wParam, lParam, msg, hwnd) {
+        if (!this.gui || hwnd != this.gui.Hwnd)
+            return
+        ; Start 500ms countdown to dismiss tooltip after cursor leaves
+        this._tooltipDismissFn := ObjBindMethod(DarkTooltip, "Destroy")
+        SetTimer(this._tooltipDismissFn, -500)
     }
 
     static OnRButtonUp(wParam, lParam, msg, hwnd) {
@@ -458,6 +513,30 @@ class FloatingWidget {
     }
 
     static SavePosition() {
+        ; Clamp widget position to nearest monitor work area
+        centerX := this.posX + this.width // 2
+        centerY := this.posY + this.height // 2
+        monCount := MonitorGetCount()
+        clamped := false
+        Loop monCount {
+            MonitorGetWorkArea(A_Index, &mL, &mT, &mR, &mB)
+            if (centerX >= mL && centerX < mR && centerY >= mT && centerY < mB) {
+                this.posX := Max(mL, Min(this.posX, mR - this.width))
+                this.posY := Max(mT, Min(this.posY, mB - this.height))
+                clamped := true
+                break
+            }
+        }
+        if (!clamped) {
+            MonitorGetWorkArea(MonitorGetPrimary(), &mL, &mT, &mR, &mB)
+            this.posX := Max(mL, Min(this.posX, mR - this.width))
+            this.posY := Max(mT, Min(this.posY, mB - this.height))
+        }
+
+        ; Move the GUI to the clamped position (in case it was off-screen)
+        if (this.gui)
+            this.gui.Move(this.posX, this.posY)
+
         ; Update in-memory Config so re-show uses saved position
         global Config
         try {
@@ -499,9 +578,9 @@ class DarkTooltip {
     static _text := ""
 
     static Show(text, duration := 2000) {
-        ; If already showing the same text, just reset the auto-hide timer
+        ; If already showing the same text, just reset the auto-hide timer (if timed)
         if (this._gui && this._text = text) {
-            if (this._timerFn)
+            if (duration > 0 && this._timerFn)
                 SetTimer(this._timerFn, -duration)
             return
         }
@@ -552,9 +631,11 @@ class DarkTooltip {
 
         this._gui := g
 
-        ; Auto-hide after duration
-        this._timerFn := ObjBindMethod(this, "Destroy")
-        SetTimer(this._timerFn, -duration)
+        ; Auto-hide after duration (0 = stay until explicitly destroyed)
+        if (duration > 0) {
+            this._timerFn := ObjBindMethod(this, "Destroy")
+            SetTimer(this._timerFn, -duration)
+        }
     }
 
     static Destroy() {

@@ -22,6 +22,8 @@ class SettingsUI {
     static _iconBigHandle := 0         ; HICON for taskbar/Alt+Tab
     static _iconSmallHandle := 0       ; HICON for title bar
     static _boundOnGetIcon := ""       ; WM_GETICON handler reference
+    static _historyCache := ""         ; Cached parsed history array for pagination
+    static _historyRetention := 0      ; Cached retention limit for pagination
 
     ; Show the Settings Window
     static Show() {
@@ -269,7 +271,12 @@ class SettingsUI {
                 case "exportHistory":
                     this.HandleExportHistory()
                 case "loadHistoryData":
-                    this.HandleLoadHistoryData()
+                    this.HandleLoadHistoryData(0)
+                case "loadMoreHistory":
+                    offset := 0
+                    if (msg.Has("data") && Type(msg["data"]) = "Map" && msg["data"].Has("offset"))
+                        offset := msg["data"]["offset"]
+                    this.HandleLoadHistoryData(offset)
                 case "loadStatisticsData":
                     this.HandleLoadStatisticsData()
                 case "deleteHistoryFile":
@@ -1190,6 +1197,7 @@ class SettingsUI {
     }
 
     static HandleClearHistory() {
+        this._historyCache := ""  ; Invalidate pagination cache
         historyFile := this.historyFile
 
         if FileExist(historyFile) {
@@ -1342,19 +1350,52 @@ class SettingsUI {
     ; ==========================================================================
     ; HISTORY & STATS DATA LOADING
     ; ==========================================================================
-    static HandleLoadHistoryData() {
-        this.Log("HandleLoadHistoryData CALLED")
+    static HandleLoadHistoryData(offset := 0) {
+        this.Log("HandleLoadHistoryData CALLED, offset=" offset)
 
-        data := []
-        if FileExist(this.historyFile) {
-            data := this.LoadJSON(this.historyFile)
-            if !HasProp(data, 'Length') {
-                data := []
+        ; On fresh load (offset=0), read files and cache; on "load more", use cache
+        if (offset = 0 || this._historyCache = "") {
+            data := []
+            if FileExist(this.historyFile) {
+                data := this.LoadJSON(this.historyFile)
+                if !HasProp(data, 'Length') {
+                    data := []
+                }
             }
+
+            ; Read historyRetention from config once
+            cfg := this.LoadJSON(this.configFile)
+            retention := 0
+            if (Type(cfg) = "Map") {
+                if cfg.Has("historyRetention")
+                    retention := cfg["historyRetention"]
+                else if cfg.Has("history_retention")
+                    retention := cfg["history_retention"]
+            }
+            if (retention > 0 && data.Length > retention)
+                data.Length := retention
+
+            this._historyCache := data
+            this._historyRetention := retention
+        }
+
+        data := this._historyCache
+
+        ; Paginate: send pageSize entries starting at offset
+        pageSize := 100
+        total := data.Length
+        hasMore := (offset + pageSize) < total
+
+        page := []
+        endIdx := Min(offset + pageSize, total)
+        idx := offset + 1  ; AHK arrays are 1-based
+        while (idx <= endIdx) {
+            page.Push(data[idx])
+            idx++
         }
 
         ; WebView2 PostWebMessageAsJson cannot send arrays directly - wrap in Map
-        wrapper := Map("history", data)
+        wrapper := Map("history", page, "total", total, "offset", offset, "hasMore", hasMore)
         this.SendToJS("receiveHistoryData", wrapper)
     }
 

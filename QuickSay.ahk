@@ -884,7 +884,7 @@ TranscribeFile(*) {
 
     ; 6.8: Increased timeout to 120s for large file uploads (was 60s)
     formFields := Map("model", sttModel, "language", lang)
-    apiResult := HttpPostFile(WhisperURL, GroqAPIKey, selectedFile, formFields, 120)
+    apiResult := HttpPostFileWithRetry(WhisperURL, GroqAPIKey, selectedFile, formFields, 120, dbg, "File transcription API")
 
     if (apiResult["error"] != "") {
         errorMsg := "Could not reach the transcription service. Check your internet connection."
@@ -2396,6 +2396,35 @@ IsDeviceAvailable(deviceName) {
     }
 }
 
+; Sanitize audio device name to prevent shell injection in FFmpeg commands
+; Blocklist: strip characters that can break out of a double-quoted shell argument
+; Must preserve all valid DirectShow chars (Unicode, accented, trademark symbols, etc.)
+SanitizeDeviceName(name) {
+    return RegExReplace(name, '["><|&\^`]', "")
+}
+
+; Attempt MCI open + start recording with full error UX on failure
+; Returns true on success, false on failure (error feedback already shown)
+TryStartMCICapture(dbg, logContext := "") {
+    global isRecording, ScriptDir
+    mciResult := DllCall("winmm\mciSendString", "Str", "open new type waveaudio alias capture", "Ptr", 0, "UInt", 0, "Ptr", 0)
+    if (mciResult != 0) {
+        isRecording := false
+        TrayTip("Your microphone may be in use by another app (like Zoom or Teams). Close the other app and try again.", "QuickSay", 0x3)
+        PlaySound("error")
+        UpdateRecordingOverlay("error")
+        UpdateWidgetStatus("error")
+        SetTimer(() => HideRecordingOverlay(), -3000)
+        UpdateStatusDisplay(1)
+        UpdateTrayTooltip("Error - Mic In Use")
+        if (dbg)
+            try FileAppend("[" A_Now "] MCI open failed" . (logContext != "" ? " " . logContext : "") . " (mciResult=" mciResult "), mic may be in use`n", ScriptDir . "\debug_log.txt")
+        return false
+    }
+    DllCall("winmm\mciSendString", "Str", "record capture", "Ptr", 0, "UInt", 0, "Ptr", 0)
+    return true
+}
+
 ; ==============================================================================
 ;  DYNAMIC HOTKEY REGISTRATION
 ; ==============================================================================
@@ -2720,73 +2749,29 @@ StartRecording() {
     dbg := Config.Has("debug_logging") && Config["debug_logging"]
 
     if (audioDevice == "" || audioDevice == "Default") {
-        ; --- 4.2: Check MCI open return value for mic-in-use detection ---
-        ; NOTE: MCI open+error handling duplicated in fallback and FFmpeg-missing paths below — keep in sync
-        mciResult := DllCall("winmm\mciSendString", "Str", "open new type waveaudio alias capture", "Ptr", 0, "UInt", 0, "Ptr", 0)
-        if (mciResult != 0) {
-            isRecording := false
-            TrayTip("Your microphone may be in use by another app (like Zoom or Teams). Close the other app and try again.", "QuickSay", 0x3)
-            PlaySound("error")
-            UpdateRecordingOverlay("error")
-            UpdateWidgetStatus("error")
-            SetTimer(() => HideRecordingOverlay(), -3000)
-            UpdateStatusDisplay(1)
-            UpdateTrayTooltip("Error - Mic In Use")
-            if (dbg)
-                try FileAppend("[" A_Now "] MCI open failed (mciResult=" mciResult "), mic may be in use`n", ScriptDir . "\debug_log.txt")
+        if !TryStartMCICapture(dbg)
             return
-        }
-        DllCall("winmm\mciSendString", "Str", "record capture", "Ptr", 0, "UInt", 0, "Ptr", 0)
         if (dbg)
             FileAppend("Recording started: MCI (default device)`n", ScriptDir . "\debug_log.txt")
     } else {
         if !IsDeviceAvailable(audioDevice) {
             if (dbg)
                 FileAppend("WARNING: Device '" . audioDevice . "' not available, falling back to MCI`n", ScriptDir . "\debug_log.txt")
-            ; --- 4.2: Check MCI open return value for mic-in-use detection (fallback path) ---
-            ; NOTE: MCI open+error handling duplicated in default and FFmpeg-missing paths — keep in sync
-            mciResult := DllCall("winmm\mciSendString", "Str", "open new type waveaudio alias capture", "Ptr", 0, "UInt", 0, "Ptr", 0)
-            if (mciResult != 0) {
-                isRecording := false
-                TrayTip("Your microphone may be in use by another app (like Zoom or Teams). Close the other app and try again.", "QuickSay", 0x3)
-                PlaySound("error")
-                UpdateRecordingOverlay("error")
-                UpdateWidgetStatus("error")
-                SetTimer(() => HideRecordingOverlay(), -3000)
-                UpdateStatusDisplay(1)
-                UpdateTrayTooltip("Error - Mic In Use")
-                if (dbg)
-                    try FileAppend("[" A_Now "] MCI open failed on fallback (mciResult=" mciResult "), mic may be in use`n", ScriptDir . "\debug_log.txt")
+            if !TryStartMCICapture(dbg, "on fallback")
                 return
-            }
-            DllCall("winmm\mciSendString", "Str", "record capture", "Ptr", 0, "UInt", 0, "Ptr", 0)
         } else {
             ffmpegPath := GetFFmpegPath()
             if (ffmpegPath == "") {
                 if (dbg)
                     FileAppend("WARNING: FFmpeg not found, falling back to MCI`n", ScriptDir . "\debug_log.txt")
-                ; --- 4.2: Check MCI open return value for mic-in-use detection (FFmpeg-missing path) ---
-                ; NOTE: MCI open+error handling duplicated in default and fallback paths — keep in sync
-                mciResult := DllCall("winmm\mciSendString", "Str", "open new type waveaudio alias capture", "Ptr", 0, "UInt", 0, "Ptr", 0)
-                if (mciResult != 0) {
-                    isRecording := false
-                    TrayTip("Your microphone may be in use by another app (like Zoom or Teams). Close the other app and try again.", "QuickSay", 0x3)
-                    PlaySound("error")
-                    UpdateRecordingOverlay("error")
-                    UpdateWidgetStatus("error")
-                    SetTimer(() => HideRecordingOverlay(), -3000)
-                    UpdateStatusDisplay(1)
-                    UpdateTrayTooltip("Error - Mic In Use")
-                    if (dbg)
-                        try FileAppend("[" A_Now "] MCI open failed on FFmpeg-missing fallback (mciResult=" mciResult "), mic may be in use`n", ScriptDir . "\debug_log.txt")
+                if !TryStartMCICapture(dbg, "on FFmpeg-missing fallback")
                     return
-                }
-                DllCall("winmm\mciSendString", "Str", "record capture", "Ptr", 0, "UInt", 0, "Ptr", 0)
             } else {
                 ; Determine sample rate from recording quality config
                 qualitySetting := Config.Has("recording_quality") ? Config["recording_quality"] : "medium"
                 sampleRate := (qualitySetting = "high") ? "44100" : (qualitySetting = "low") ? "16000" : "22050"
 
+                audioDevice := SanitizeDeviceName(audioDevice)
                 ffmpegCmd := '"' . ffmpegPath . '" -f dshow -rtbufsize 512M -i audio="' . audioDevice . '" -ar ' . sampleRate . ' -ac 1 -flush_packets 1 -y "' . ScriptDir . '\raw.wav"'
                 if (dbg)
                     FileAppend("Recording started: FFmpeg device='" . audioDevice . "' quality=" . qualitySetting . " rate=" . sampleRate . "`n", ScriptDir . "\debug_log.txt")
@@ -2916,7 +2901,7 @@ StopAndProcess() {
 
     ; Use secure WinHTTP COM instead of curl (API key never on command line)
     formFields := Map("model", sttModel, "language", lang)
-    apiResult := HttpPostFile(WhisperURL, GroqAPIKey, TempFile, formFields, 30)
+    apiResult := HttpPostFileWithRetry(WhisperURL, GroqAPIKey, TempFile, formFields, 30, dbg, "STT API")
 
     ; Check for network errors (WinHTTP exception)
     if (apiResult["error"] != "") {
@@ -3343,6 +3328,22 @@ GetApiKey() {
 ;  AUTO-UPDATE VERSION CHECK
 ; ==============================================================================
 
+; HttpPostFile with a single retry on 429 rate limit (2s backoff)
+HttpPostFileWithRetry(url, apiKey, filePath, formFields, timeoutSec, dbg := false, logLabel := "API") {
+    global ScriptDir
+    retries := 0
+    loop {
+        apiResult := HttpPostFile(url, apiKey, filePath, formFields, timeoutSec)
+        if (apiResult["status"] != 429 || retries >= 1)
+            break
+        retries++
+        if (dbg)
+            try FileAppend("[" A_Now "] " . logLabel . " returned 429, retrying after 2s`n", ScriptDir . "\debug_log.txt")
+        Sleep(2000)
+    }
+    return apiResult
+}
+
 ; Simple HTTP GET via WinHTTP COM (for version check)
 ; Returns Map with "status" (int), "body" (string), "error" (string)
 HttpGet(url, timeoutSec := 10) {
@@ -3355,7 +3356,7 @@ HttpGet(url, timeoutSec := 10) {
         http.Send()
 
         result["status"] := http.Status
-        result["body"] := http.ResponseText
+        result["body"] := Utf8Decode(http.ResponseBody)
     } catch as err {
         result["error"] := err.Message
     }
@@ -3539,6 +3540,12 @@ IsWhisperHallucination(text) {
     ; Check for entirely repeated phrases (same phrase 3+ times)
     ; e.g., "Thank you. Thank you. Thank you." or "you you you you"
     if RegExMatch(cleaned, "i)^(.{2,50}?)[\s,.!?]*(\1[\s,.!?]*){2,}$")
+        return true
+
+    ; Language-agnostic: single-word output is likely a hallucination artifact
+    ; Whisper produces brief single-token artifacts from silence/noise in any language
+    wordCount := StrSplit(Trim(stripped), " ", " ").Length
+    if (wordCount <= 1)
         return true
 
     return false
