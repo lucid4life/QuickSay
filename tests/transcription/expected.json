@@ -1,0 +1,103 @@
+{
+  "_comment": "Ground-truth corpus for QuickSay STT regression harness (P0.2). Synthetic placeholders are marked synthetic=true — replace with real clips by running fetch-corpus.ps1. T2.6 owns the full corpus expansion.",
+  "_werThreshold": 0.15,
+  "_werThresholdNote": "15% WER threshold is a placeholder set after first real baseline measurement. Tighten this once real LibriSpeech clips are in place.",
+
+  "baseline": [
+    {
+      "file": "audio/baseline/synthetic-baseline-01.wav",
+      "transcript": "SYNTHETIC_PLACEHOLDER",
+      "synthetic": true,
+      "source": "FFmpeg 440Hz sine tone — replace with LibriSpeech test-clean clip",
+      "replacementNote": "Run fetch-corpus.ps1 to download real LibriSpeech test-clean WAVs with known transcripts"
+    },
+    {
+      "file": "audio/baseline/synthetic-baseline-02.wav",
+      "transcript": "SYNTHETIC_PLACEHOLDER",
+      "synthetic": true,
+      "source": "FFmpeg 550Hz sine tone — replace with LibriSpeech test-clean clip"
+    },
+    {
+      "file": "audio/baseline/synthetic-baseline-03.wav",
+      "transcript": "SYNTHETIC_PLACEHOLDER",
+      "synthetic": true,
+      "source": "FFmpeg 660Hz sine tone — replace with LibriSpeech test-clean clip"
+    },
+    {
+      "file": "audio/baseline/synthetic-baseline-04.wav",
+      "transcript": "SYNTHETIC_PLACEHOLDER",
+      "synthetic": true,
+      "source": "FFmpeg 770Hz sine tone — replace with LibriSpeech test-clean clip"
+    },
+    {
+      "file": "audio/baseline/synthetic-baseline-05.wav",
+      "transcript": "SYNTHETIC_PLACEHOLDER",
+      "synthetic": true,
+      "source": "FFmpeg 500Hz sine tone — replace with LibriSpeech test-clean clip"
+    },
+    {
+      "file": "audio/baseline/synthetic-baseline-06.wav",
+      "transcript": "SYNTHETIC_PLACEHOLDER",
+      "synthetic": true,
+      "source": "FFmpeg 580Hz sine tone — replace with LibriSpeech test-clean clip"
+    },
+    {
+      "file": "audio/baseline/synthetic-baseline-07.wav",
+      "transcript": "SYNTHETIC_PLACEHOLDER",
+      "synthetic": true,
+      "source": "FFmpeg 660Hz sine tone — replace with LibriSpeech test-clean clip"
+    },
+    {
+      "file": "audio/baseline/synthetic-baseline-08.wav",
+      "transcript": "SYNTHETIC_PLACEHOLDER",
+      "synthetic": true,
+      "source": "FFmpeg 740Hz sine tone — replace with LibriSpeech test-clean clip"
+    }
+  ],
+
+  "hallucination": [
+    {
+      "file": "audio/hallucination/synthetic-silence-01.wav",
+      "expectHallucination": true,
+      "synthetic": true,
+      "source": "FFmpeg-generated 3s silence — replace with sachaarbonel/whisper-hallucinations clip",
+      "replacementNote": "Run fetch-corpus.ps1 to download real whisper-hallucination clips from HuggingFace"
+    },
+    {
+      "file": "audio/hallucination/synthetic-near-silence-02.wav",
+      "expectHallucination": true,
+      "synthetic": true,
+      "source": "FFmpeg-generated 3s white noise at very low amplitude — replace with whisper-hallucinations clip"
+    },
+    {
+      "file": "audio/hallucination/synthetic-silence-long-03.wav",
+      "expectHallucination": true,
+      "synthetic": true,
+      "source": "FFmpeg-generated 5s silence — replace with whisper-hallucinations clip"
+    }
+  ],
+
+  "edge": [
+    {
+      "file": "audio/edge/silence.wav",
+      "expectEmpty": true,
+      "expectHallucination": true,
+      "description": "2-second 16kHz mono silence — Whisper should return empty or emit a hallucination phrase",
+      "durationMs": 2000
+    },
+    {
+      "file": "audio/edge/white-noise.wav",
+      "expectEmpty": true,
+      "expectHallucination": true,
+      "description": "2-second 16kHz mono white noise — Whisper should return empty or emit a hallucination phrase",
+      "durationMs": 2000
+    },
+    {
+      "file": "audio/edge/sub-500ms.wav",
+      "expectSkipped": true,
+      "description": "300ms clip — below QuickSay's 500ms minimum. This clip should never reach the STT API in normal app flow. Runner sends it anyway to capture raw Whisper behavior.",
+      "durationMs": 300,
+      "appBehavior": "QuickSay rejects recordings shorter than 500ms before calling the API"
+    }
+  ]
+}

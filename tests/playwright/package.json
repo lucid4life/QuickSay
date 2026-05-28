@@ -1,0 +1,17 @@
+{
+  "name": "quicksay-playwright-tests",
+  "version": "1.0.0",
+  "description": "Playwright/CDP harness for QuickSay WebView2 UIs (settings + onboarding)",
+  "type": "module",
+  "scripts": {
+    "test:settings": "node run.mjs settings",
+    "test:onboarding": "node run.mjs onboarding",
+    "test": "node run.mjs settings && node run.mjs onboarding"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
