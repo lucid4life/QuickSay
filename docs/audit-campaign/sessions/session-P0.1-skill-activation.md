@@ -79,9 +79,11 @@ claude skills list 2>NUL | findstr /I "wcag stride distributed-tracing stripe-in
 
 You should see at least one match per plugin. If the skill names differ slightly (e.g. `wcag-audit-patterns` vs `wcag-audit`), record the actual names in your final report — Track 1/Track 2 prompts may reference them.
 
-### Phase 2 — Author the `quicksay-go-to-paid` custom skill
+### Phase 2 — Verify & refine the `quicksay-go-to-paid` custom skill
 
 **Skill path:** `C:\Users\abeek\.claude\skills\quicksay-go-to-paid\SKILL.md`
+
+> ⚠️ **This skill ALREADY EXISTS** — a complete draft was authored during campaign planning (2026-05-27) and is live in the skill registry. **Do NOT recreate it from scratch or overwrite it wholesale.** Your job in Phase 2 is to (1) read the existing file, (2) verify it against the spec below, (3) fill any gaps and fix anything stale, (4) confirm the pricing reads **$39 launch (first 500 orders) → $74 regular + installment financing** (NOT "$39.99" — that was a corrected mistake), and (5) confirm it triggers. If the existing skill already covers a section below well, leave it. Treat the spec below as a completeness checklist, not a blank-page brief.
 
 This skill consolidates 3 bespoke patterns that no marketplace skill covers cleanly:
 
@@ -200,7 +202,7 @@ The following items are all true. Do not declare complete without verifying each
 
 - [ ] `claude plugin list` shows all 5 plugins active: `payment-processing`, `security-scanning`, `accessibility-compliance`, `observability-monitoring`, `audit-project`.
 - [ ] At least one skill from each of the 5 plugins is visible in `claude skills list`. Names captured in your final report.
-- [ ] `C:\Users\abeek\.claude\skills\quicksay-go-to-paid\SKILL.md` exists, has the YAML frontmatter, and has all 3 body sections.
+- [ ] `C:\Users\abeek\.claude\skills\quicksay-go-to-paid\SKILL.md` exists (it already did — you refined it, didn't recreate it), has the YAML frontmatter, all 3 body sections, and pricing reads `$39 launch → $74 + financing` with NO stray `$39.99`.
 - [ ] Skill triggers on at least 2 of the 3 test prompts in Phase 3 (and does NOT trigger on the negative test).
 - [ ] `docs/audit-campaign/MASTER-PLAN.md` Status Tracker updated: `P0.1 — Skill activation + custom skill creation` → ✅ done.
 - [ ] Branch `audit/P0.1-skill-activation` exists with at least the MASTER-PLAN.md commit. PR opened against `main`.
