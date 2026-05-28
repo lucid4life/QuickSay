@@ -280,7 +280,7 @@ Update this section at the end of every session. Mark with: ⬜ pending · 🟨 
 
 ### Phase 0
 - ✅ P0.1 — Skill activation + custom skill creation (2026-05-28: 5 plugins activated; `quicksay-go-to-paid` skill refined — 380 lines, all 3 sections, correct pricing)
-- ⬜ P0.2 — Test harnesses + baseline inventory
+- ✅ P0.2 — Test harnesses + baseline inventory (2026-05-28: 3 harnesses built; 6 items re-verified — 2 CONFIRMED, 2 REFUTED, 2 PARTIAL; baseline doc at findings/P0.2-baseline.md)
 
 ### Phase 1 — Track 1 (Audit & Harden)
 - ⬜ T1.1 — Core engine audit
