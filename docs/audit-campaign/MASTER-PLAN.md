@@ -283,7 +283,7 @@ Update this section at the end of every session. Mark with: ⬜ pending · 🟨 
 - ✅ P0.2 — Test harnesses + baseline inventory (2026-05-28: 3 harnesses built; 6 items re-verified — 2 CONFIRMED, 2 REFUTED, 2 PARTIAL; baseline doc at findings/P0.2-baseline.md)
 
 ### Phase 1 — Track 1 (Audit & Harden)
-- ⬜ T1.1 — Core engine audit
+- ✅ T1.1 — Core engine audit (2026-05-28: findings/T1.1-core-engine.md — **27 findings: 0 P0, 3 P1, 13 P2, 10 P3** + 5 Category-F verdicts. The 3 P1s: single-word transcriptions silently dropped (015), voice-commands fire keystrokes unconditionally (016), missing try/finally can wedge "processing" state (006). Verified live: 89 orphaned WAVs vs keepLastRecordings=10; single-word drop + voice-command keystroke injection reproduced via standalone harness. Key cross-deps: T1.5 inherits the history cache-resurrection vector + audio rotation; T1.6 owns version `localVersion` hardcode + unguarded weekly-summary config write. Zero source changes.)
 - ⬜ T1.2 — UI/settings + WebView2 bridge audit
 - ⬜ T1.3 — Installer + release.ps1 audit
 - ⬜ T1.4 — Onboarding + widget + sound + dictionary audit
