@@ -1,8 +1,8 @@
 ;@Ahk2Exe-SetCompanyName QuickSay
-;@Ahk2Exe-SetDescription QuickSay Beta v1.8 - Voice-to-Text
-;@Ahk2Exe-SetFileVersion 1.8.1.0
-;@Ahk2Exe-SetProductName QuickSay Beta v1.8
-;@Ahk2Exe-SetProductVersion 1.8.1.0
+;@Ahk2Exe-SetDescription QuickSay Beta v1.9 - Voice-to-Text
+;@Ahk2Exe-SetFileVersion 1.9.0.0
+;@Ahk2Exe-SetProductName QuickSay Beta v1.9
+;@Ahk2Exe-SetProductVersion 1.9.0.0
 ;@Ahk2Exe-SetCopyright Copyright (c) 2024-2026 QuickSay
 ;@Ahk2Exe-SetOrigFilename QuickSay.exe
 ;@Ahk2Exe-SetMainIcon gui\assets\icon.ico
@@ -32,12 +32,13 @@ try {
 #Include widget-overlay.ahk
 #Include lib\WebView2.ahk
 #Include lib\JSON.ahk
+#Include lib\history-core.ahk
 #Include lib\dpapi.ahk
 #Include lib\http.ahk
 #Include lib\settings-ui.ahk
 
 ; ==============================================================================
-;  QuickSay Beta v1.8 - Unified Voice-to-Text Application
+;  QuickSay Beta v1.9 - Unified Voice-to-Text Application
 ;  Single-process architecture for reliable Windows taskbar icon display
 ;  The fastest voice dictation tool - 200ms transcription via Groq
 ;
@@ -87,7 +88,7 @@ global DictReplacements := Map()  ; Map of lowercase keys to replacement values
 ; --- SET APP IDENTITY FOR WINDOWS TASKBAR ---
 ; This ensures Windows recognizes QuickSay as a distinct app with its own icon
 ; when pinned to taskbar (instead of showing generic AutoHotkey icon)
-DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.1.8")
+DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.1.9")
 
 ; --- SET RELAUNCH PROPERTIES FOR TASKBAR PINNING ---
 ; These properties tell Windows which exe and icon to use when pinning to taskbar
@@ -131,9 +132,13 @@ global todayDate := SubStr(A_Now, 1, 8)
 ; Tray menu state
 global CurrentStatusItem := "Status: Idle"
 
-; History in-memory cache (avoids re-reading history file on every save)
-global HistoryTextCache := ""
-global HistoryCacheLoaded := false
+; History clear-generation guard (T1.5). HistoryGeneration is bumped on every
+; "Clear History" (via the 0x5556 message); each recording captures the value at
+; start into RecordingGeneration, and the deferred write drops itself if a clear
+; advanced the generation in between. No long-lived history cache exists — every
+; write re-reads history.json fresh, so cleared entries can never be resurrected.
+global HistoryGeneration := 0
+global RecordingGeneration := 0
 
 ; API/Transcription files
 global TempFile := "recording.wav"
@@ -215,6 +220,15 @@ OnDisplayChange(wParam, lParam, msg, hwnd) {
 OnMessage(0x5555, ReloadConfigMsg)
 ReloadConfigMsg(wParam, lParam, msg, hwnd) {
     SetTimer(ReloadConfig, -100)
+}
+
+; --- LISTEN FOR "HISTORY CLEARED" FROM SETTINGS ---
+; Synchronous (not deferred): bumps the generation immediately so a SaveToHistory
+; deferred before the clear drops itself instead of re-introducing cleared entries.
+OnMessage(0x5556, HistoryClearedMsg)
+HistoryClearedMsg(wParam, lParam, msg, hwnd) {
+    global HistoryGeneration
+    HistoryGeneration += 1
 }
 
 ; --- LOAD CONFIGURATION ---
@@ -701,8 +715,8 @@ SetTaskbarRelaunchProperties() {
 
         ; Set RelaunchDisplayNameResource (the name shown in taskbar)
         NumPut("UShort", 31, propVar, 0)
-        pStr := DllCall("ole32\CoTaskMemAlloc", "UPtr", (StrLen("QuickSay Beta v1.8") + 1) * 2, "Ptr")
-        StrPut("QuickSay Beta v1.8", pStr, "UTF-16")
+        pStr := DllCall("ole32\CoTaskMemAlloc", "UPtr", (StrLen("QuickSay Beta v1.9") + 1) * 2, "Ptr")
+        StrPut("QuickSay Beta v1.9", pStr, "UTF-16")
         NumPut("Ptr", pStr, propVar, 8)
         ComCall(6, pPS, "Ptr", PKEY_RelaunchDisplayName, "Ptr", propVar)
         DllCall("ole32\PropVariantClear", "Ptr", propVar)
@@ -776,9 +790,6 @@ LaunchSettings(*) {
 }
 
 ReloadConfig(*) {
-    global HistoryTextCache, HistoryCacheLoaded
-    HistoryTextCache := ""
-    HistoryCacheLoaded := false
     LoadConfig()
     LoadDictionary()
     LoadActivePrompt()
@@ -1798,88 +1809,60 @@ GetFriendlyAppName() {
 ;  HISTORY FUNCTIONS
 ; ==============================================================================
 
-SaveToHistory(rawText, cleanedText, durationMs, audioFile := "") {
-    global HistoryFile, Config, HistoryTextCache, HistoryCacheLoaded
+; scheduledGen: the clear-generation captured when the recording started. If a
+; "Clear History" advanced HistoryGeneration since, the entry is dropped (the user
+; wiped history mid-flight). Pass -1 (default) to disable the guard — used by the
+; file-transcription path, which is not subject to the clear race.
+SaveToHistory(rawText, cleanedText, durationMs, audioFile := "", scheduledGen := -1) {
+    global HistoryFile, Config, ScriptDir, HistoryGeneration
 
     if !Config.Has("history_enabled") || !Config["history_enabled"]
         return
 
-    ; Format timestamp with space separator to match existing data format
-    timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
     wordCount := StrSplit(cleanedText, " ").Length
-    activeWindow := GetFriendlyAppName()
 
-    ; Get the current hotkey from config
-    hotkey := Config.Has("hotkey") ? Config["hotkey"] : "^LWin"
+    ; Drop the write if history was cleared after this recording started — but the
+    ; transcription still happened, so let UpdateStatistics record it below.
+    if (ShouldWriteHistory(scheduledGen, HistoryGeneration)) {
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        activeWindow := GetFriendlyAppName()
+        hotkey := Config.Has("hotkey") ? Config["hotkey"] : "^LWin"
+        entryId := FormatTime(, "yyyyMMddHHmmss") . "_" . Random(1000, 9999)
 
-    entryId := FormatTime(, "yyyyMMddHHmmss") . "_" . Random(1000, 9999)
+        ; Build entry as a real object (field order matches the existing schema).
+        ; JSON.Stringify handles all escaping — no more fragile string surgery.
+        entry := Map(
+            "appContext", activeWindow,
+            "audioFile", audioFile,
+            "cleanedText", cleanedText,
+            "duration", durationMs,
+            "hotkey", hotkey,
+            "id", entryId,
+            "rawText", rawText,
+            "timestamp", timestamp,
+            "wordCount", wordCount)
 
-    ; Build entry with correct field names matching history.json format
-    entry := '{'
-    entry .= '"appContext": "' . EscapeJson(activeWindow) . '", '
-    entry .= '"audioFile": "' . EscapeJson(audioFile) . '", '
-    entry .= '"cleanedText": "' . EscapeJson(cleanedText) . '", '
-    entry .= '"duration": ' . durationMs . ', '
-    entry .= '"hotkey": "' . hotkey . '", '
-    entry .= '"id": "' . entryId . '", '
-    entry .= '"rawText": "' . EscapeJson(rawText) . '", '
-    entry .= '"timestamp": "' . timestamp . '", '
-    entry .= '"wordCount": ' . wordCount
-    entry .= '}'
+        maxHistory := Config.Has("history_retention") ? Config["history_retention"] : 100
 
-    ; Use in-memory cache to avoid re-reading history file on every save
-    if (!HistoryCacheLoaded) {
-        ; First call: read from disk and populate cache
-        if FileExist(HistoryFile) {
-            HistoryTextCache := Trim(FileRead(HistoryFile))
-        } else {
-            HistoryTextCache := "[]"
+        ; Serialize history writes with the config mutex (cross-process: the
+        ; settings "Clear History" also holds it). Fresh read every time — the
+        ; on-disk file is the single source of truth.
+        hMutex := AcquireConfigLock()
+        try {
+            history := ReadHistoryArray(HistoryFile)
+            if (Config.Has("debug_logging") && Config["debug_logging"]
+                && maxHistory > 0 && history.Length > maxHistory)
+                try FileAppend("[" A_Now "] History retention: trimming " history.Length
+                    . " entries to " maxHistory "`n", ScriptDir . "\debug_log.txt")
+            history := BuildHistoryArray(history, entry, maxHistory)
+            WriteHistoryArray(HistoryFile, history)
+        } catch as histErr {
+            ; A failed history write must never crash the app (runs in a deferred timer).
+            if (Config.Has("debug_logging") && Config["debug_logging"])
+                try FileAppend("[" A_Now "] History write failed: " histErr.Message "`n", ScriptDir . "\debug_log.txt")
+        } finally {
+            ReleaseConfigLock(hMutex)
         }
-        HistoryCacheLoaded := true
-    }
-
-    historyText := HistoryTextCache
-
-    ; Handle flat array format: [...]
-    if (SubStr(historyText, 1, 1) = "[") {
-        ; Check if array is empty
-        if (historyText = "[]") {
-            historyText := "[`n  " . entry . "`n  ]"
-        } else {
-            ; Insert new entry at the beginning (after opening bracket)
-            historyText := "[`n  " . entry . ",`n  " . SubStr(historyText, 2)
-        }
-    }
-
-    ; Enforce history retention limit
-    maxHistory := Config.Has("history_retention") ? Config["history_retention"] : 100
-    entryCount := 0
-    countPos := 1
-    while RegExMatch(historyText, '"id"\s*:', &countMatch, countPos) {
-        entryCount++
-        countPos := countMatch.Pos + countMatch.Len
-    }
-    if (entryCount > maxHistory) {
-        ; Trim oldest entries by finding the Nth-from-end closing brace
-        trimCount := entryCount - maxHistory
-        trimPos := 1
-        trimmed := 0
-        while (trimmed < trimCount) {
-            if RegExMatch(historyText, "\}\s*,", &trimMatch, trimPos) {
-                trimPos := trimMatch.Pos + trimMatch.Len
-                trimmed++
-            } else
-                break
-        }
-        ; Rebuild: keep opening bracket + entries after trim point
-        if (trimmed = trimCount && trimPos > 2)
-            historyText := "[`n  " . SubStr(historyText, trimPos + 1)
-    }
-
-    try {
-        AtomicWriteFile(HistoryFile, historyText)
-        ; Update the in-memory cache with the new state
-        HistoryTextCache := historyText
     }
 
     UpdateStatistics(wordCount, durationMs)
@@ -2704,6 +2687,7 @@ ShowNotification(message, title := "QuickSay") {
 
 StartRecording() {
     global isRecording, isProcessing, StartTime, TempFile, ScriptDir, Config, FFmpegPID
+    global HistoryGeneration, RecordingGeneration
 
     if (isRecording)
         return
@@ -2729,6 +2713,9 @@ StartRecording() {
     ; NOTE: No mid-recording mic disconnect detection. If the mic disconnects during recording,
     ; the recording will produce silence or fail at transcription time.
     StartTime := A_TickCount
+    ; Capture the clear-generation at recording start; if a "Clear History" bumps
+    ; it before this recording's deferred write fires, that write is dropped.
+    RecordingGeneration := HistoryGeneration
     isRecording := true
     UpdateStatusDisplay(2)
     UpdateTrayTooltip("Recording")
@@ -2856,13 +2843,18 @@ StopAndProcess() {
     }
 
     savedAudioPath := ""
-    if Config.Has("save_recordings") && Config["save_recordings"] {
+    saveRecordings := Config.Has("save_recordings") && Config["save_recordings"]
+    if (saveRecordings) {
         audioFilename := "QS_" . FormatTime(, "yyyyMMdd_HHmmss") . ".wav"
         savedAudioPath := AudioDir . "\" . audioFilename
         try {
             FileCopy(TempFile, savedAudioPath)
         }
     }
+    ; Enforce keepLastRecordings (only when saving is on — the just-saved file is
+    ; included in the keep set; the prune never throws and never blocks the save).
+    keepCount := Config.Has("keep_last_recordings") ? Config["keep_last_recordings"] : 10
+    PruneAudioIfEnabled(saveRecordings, AudioDir, keepCount)
 
     GroqAPIKey := GetApiKey()
     if (GroqAPIKey = "") {
@@ -3079,9 +3071,10 @@ StopAndProcess() {
                 return
             }
 
-            ; Defer history/stats writes off the critical path — disk I/O after paste, not before
-            _raw := RawText, _final := FinalText, _dur := recordDuration, _audio := savedAudioPath
-            SetTimer(() => SaveToHistory(_raw, _final, _dur, _audio), -1)
+            ; Defer history/stats writes off the critical path — disk I/O after paste, not before.
+            ; Carry the recording's clear-generation so the write drops itself if history was cleared mid-flight.
+            _raw := RawText, _final := FinalText, _dur := recordDuration, _audio := savedAudioPath, _gen := RecordingGeneration
+            SetTimer(() => SaveToHistory(_raw, _final, _dur, _audio, _gen), -1)
             todayWordCount += StrSplit(FinalText, " ").Length
 
             if (StrLen(FinalText) > 0) {
@@ -3395,7 +3388,7 @@ CheckForUpdates(silent := false) {
         return
 
     ; Current version from app metadata
-    localVersion := "1.8.1"
+    localVersion := "1.9.0"
 
     versionUrl := "https://quicksay.app/version.json"
     apiResult := HttpGet(versionUrl, 10)

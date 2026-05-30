@@ -22,6 +22,7 @@ class SettingsUI {
     static _iconBigHandle := 0         ; HICON for taskbar/Alt+Tab
     static _iconSmallHandle := 0       ; HICON for title bar
     static _boundOnGetIcon := ""       ; WM_GETICON handler reference
+    static _boundConfigReload := ""    ; 0x5555 config-reload handler reference
     static _historyCache := ""         ; Cached parsed history array for pagination
     static _historyRetention := 0      ; Cached retention limit for pagination
 
@@ -54,6 +55,12 @@ class SettingsUI {
         ; Enforce minimum window size via WM_GETMINMAXINFO
         this._boundMinMaxInfo := ObjBindMethod(this, "OnGetMinMaxInfo")
         OnMessage(0x0024, this._boundMinMaxInfo)
+
+        ; Invalidate the pagination caches on a config reload (0x5555) so the
+        ; History tab can't serve a stale retention/entry count. In-process (tray
+        ; menu) this fires alongside the engine's own reload handler.
+        this._boundConfigReload := ObjBindMethod(this, "OnConfigReload")
+        OnMessage(0x5555, this._boundConfigReload)
 
         ; --- WINDOW ICON SETUP ---
         ; Load icons at the system's preferred sizes (DPI-aware). Use LoadImage
@@ -144,6 +151,11 @@ class SettingsUI {
         if (this._boundOnGetIcon) {
             OnMessage(0x007F, this._boundOnGetIcon, 0)
             this._boundOnGetIcon := ""
+        }
+        ; Unregister config-reload handler
+        if (this._boundConfigReload) {
+            OnMessage(0x5555, this._boundConfigReload, 0)
+            this._boundConfigReload := ""
         }
         if (this._iconBigHandle) {
             DllCall("DestroyIcon", "Ptr", this._iconBigHandle)
@@ -632,23 +644,11 @@ class SettingsUI {
     ; NOTE: Guided tour selectors must be updated if tab/section IDs change in settings.html
     ; ==========================================================================
     static HandleTourCompleted() {
-        cfg := this.LoadJSON(this.configFile)
-        if (Type(cfg) != "Map")
-            cfg := Map()
-        cfg["tourCompleted"] := true
-        cfg["showGuidedTour"] := false
-        if cfg.Has("startTourOnOpen")
-            cfg.Delete("startTourOnOpen")
-        this.SaveJSON(this.configFile, cfg)
+        this.UpdateConfigKeys(Map("tourCompleted", true, "showGuidedTour", false), ["startTourOnOpen"])
     }
 
     static HandleClearStartTourFlag() {
-        cfg := this.LoadJSON(this.configFile)
-        if (Type(cfg) != "Map")
-            cfg := Map()
-        if cfg.Has("startTourOnOpen")
-            cfg.Delete("startTourOnOpen")
-        this.SaveJSON(this.configFile, cfg)
+        this.UpdateConfigKeys(Map(), ["startTourOnOpen"])
     }
 
     ; ==========================================================================
@@ -664,11 +664,7 @@ class SettingsUI {
     }
 
     static HandleMarkChangelogSeen(version) {
-        cfg := this.LoadJSON(this.configFile)
-        if (Type(cfg) != "Map")
-            cfg := Map()
-        cfg["lastSeenVersion"] := version
-        this.SaveJSON(this.configFile, cfg)
+        this.UpdateConfigKeys(Map("lastSeenVersion", version))
     }
 
     static HandlePreviewSound(themeName) {
@@ -752,11 +748,7 @@ class SettingsUI {
             }
         }
 
-        cfg := this.LoadJSON(this.configFile)
-        if (Type(cfg) != "Map")
-            cfg := Map()
-        cfg["modes"] := data
-        this.SaveJSON(this.configFile, cfg)
+        this.UpdateConfigKeys(Map("modes", data))
 
         ; Signal engine reload via WM_USER+0x1555 (custom message)
         ; NOTE: The QuickSay engine window must be named "QuickSay_TrayMode" for this to work
@@ -766,11 +758,7 @@ class SettingsUI {
     }
 
     static HandleSetMode(modeId) {
-        cfg := this.LoadJSON(this.configFile)
-        if (Type(cfg) != "Map")
-            cfg := Map()
-        cfg["currentMode"] := modeId
-        this.SaveJSON(this.configFile, cfg)
+        this.UpdateConfigKeys(Map("currentMode", modeId))
 
         ; Signal engine reload
         DetectHiddenWindows(true)
@@ -903,12 +891,18 @@ class SettingsUI {
             if FileExist(this.configFile)
                 FileCopy(this.configFile, this.configFile . ".backup", true)
 
-            ; Atomic write: write to temp file first, then rename
-            tmpPath := this.configFile . ".tmp"
-            if FileExist(tmpPath)
-                FileDelete(tmpPath)
-            FileAppend(importText, tmpPath, "UTF-8")
-            FileMove(tmpPath, this.configFile, 1)
+            ; Atomic write under the config mutex (T1.2-008) — without the lock this
+            ; reused config.json.tmp can collide with a concurrent tray SaveJSON.
+            hMutex := this.AcquireConfigLock()
+            try {
+                tmpPath := this.configFile . ".tmp"
+                if FileExist(tmpPath)
+                    FileDelete(tmpPath)
+                FileAppend(importText, tmpPath, "UTF-8")
+                FileMove(tmpPath, this.configFile, 1)
+            } finally {
+                this.ReleaseConfigLock(hMutex)
+            }
 
             ; Signal engine reload
             DetectHiddenWindows(true)
@@ -1188,21 +1182,31 @@ class SettingsUI {
     }
 
     static HandleGetHistoryCount() {
+        ; Count parsed array entries, NOT physical lines — the pretty-printed file
+        ; has blank separator lines that made the old line-count over-report >2x.
         count := 0
         if FileExist(this.historyFile) {
-            Loop Read, this.historyFile
-                count++
+            data := this.LoadJSON(this.historyFile)
+            if HasProp(data, "Length")
+                count := data.Length
         }
         this.SendToJS("receiveHistoryCount", count)
     }
 
     static HandleClearHistory() {
-        this._historyCache := ""  ; Invalidate pagination cache
+        this.InvalidateHistoryCaches()  ; Invalidate pagination caches
         historyFile := this.historyFile
 
         if FileExist(historyFile) {
             try {
-                FileDelete(historyFile)
+                ; Hold the config mutex across the delete so it serializes with the
+                ; tray's history write (which also holds it) — no TOCTOU window.
+                hMutex := this.AcquireConfigLock()
+                try {
+                    FileDelete(historyFile)
+                } finally {
+                    this.ReleaseConfigLock(hMutex)
+                }
                 OutputDebug("History file deleted successfully")
 
                 ; Send updated count (0) back to UI
@@ -1211,12 +1215,9 @@ class SettingsUI {
                 ; S-25: Refresh history list in UI by sending empty array
                 this.SendToJS("receiveHistoryData", Map("history", []))
 
-                ; Notify tray process to drop its in-memory history cache
-                try {
-                    DetectHiddenWindows(true)
-                    if WinExist("QuickSay_TrayMode ahk_class AutoHotkey")
-                        PostMessage(0x5555, 1, 0)
-                }
+                ; Tell the tray to bump its history generation (drops any in-flight
+                ; deferred write so cleared entries can't come back), then reload config.
+                this.NotifyTrayHistoryCleared()
 
                 ; Show success message via custom modal
                 this.SendToJS("receiveHistoryClearResult", Map("success", true, "message", "History cleared successfully!"))
@@ -1225,10 +1226,37 @@ class SettingsUI {
                 this.SendToJS("receiveHistoryClearResult", Map("success", false, "message", "Failed to clear history: " err.Message))
             }
         } else {
+            ; Already empty — still bump the generation so an in-flight write is dropped.
+            this.NotifyTrayHistoryCleared()
             OutputDebug("No history file to delete")
             this.SendToJS("receiveHistoryCount", 0)
             this.SendToJS("receiveHistoryClearResult", Map("success", true, "message", "History is already empty."))
         }
+    }
+
+    ; Signal the tray that history was cleared: 0x5556 bumps the clear generation
+    ; (synchronous handler — drops a deferred write scheduled before the clear),
+    ; 0x5555 triggers the normal config reload.
+    static NotifyTrayHistoryCleared() {
+        try {
+            DetectHiddenWindows(true)
+            if WinExist("QuickSay_TrayMode ahk_class AutoHotkey") {
+                PostMessage(0x5556, 1, 0)
+                PostMessage(0x5555, 1, 0)
+            }
+        }
+    }
+
+    ; Reset the pagination caches so the next load re-reads retention + entries
+    ; from disk (wired to the 0x5555 config-reload message in Show()).
+    static InvalidateHistoryCaches() {
+        this._historyRetention := 0
+        this._historyCache := ""
+    }
+
+    ; 0x5555 (config reload) handler — keep the History tab from serving stale data.
+    static OnConfigReload(wParam, lParam, msg, hwnd) {
+        this.InvalidateHistoryCaches()
     }
 
     static HandleViewLogs() {
@@ -1502,8 +1530,8 @@ class SettingsUI {
 
             ; Set RelaunchDisplayNameResource
             NumPut("UShort", 31, propVar, 0)
-            pStr := DllCall("ole32\CoTaskMemAlloc", "UPtr", (StrLen("QuickSay Beta v1.8") + 1) * 2, "Ptr")
-            StrPut("QuickSay Beta v1.8", pStr, "UTF-16")
+            pStr := DllCall("ole32\CoTaskMemAlloc", "UPtr", (StrLen("QuickSay Beta v1.9") + 1) * 2, "Ptr")
+            StrPut("QuickSay Beta v1.9", pStr, "UTF-16")
             NumPut("Ptr", pStr, propVar, 8)
             ComCall(6, pPS, "Ptr", PKEY_RelaunchDisplayName, "Ptr", propVar)
             DllCall("ole32\PropVariantClear", "Ptr", propVar)
@@ -1549,17 +1577,49 @@ class SettingsUI {
     static SaveJSON(path, obj) {
         hMutex := this.AcquireConfigLock()
         try {
-            text := JSON.Stringify(obj, "  ") ; Pretty print
-            ; Atomic write: write to .tmp then rename (prevents data loss on crash)
-            tmpPath := path . ".tmp"
-            if FileExist(tmpPath)
-                FileDelete(tmpPath)
-            FileAppend(text, tmpPath, "UTF-8")
-            FileMove(tmpPath, path, 1)
-            return true
+            return this._WriteJSONAtomic(path, obj)
         } catch as err {
             try FileDelete(path . ".tmp")
             MsgBox("Failed to save file: " path "`n" err.Message)
+            return false
+        } finally {
+            this.ReleaseConfigLock(hMutex)
+        }
+    }
+
+    ; Atomic JSON write WITHOUT acquiring the lock — caller must already hold it.
+    static _WriteJSONAtomic(path, obj) {
+        text := JSON.Stringify(obj, "  ") ; Pretty print
+        tmpPath := path . ".tmp"
+        if FileExist(tmpPath)
+            FileDelete(tmpPath)
+        FileAppend(text, tmpPath, "UTF-8")
+        FileMove(tmpPath, path, 1)        ; atomic on NTFS
+        return true
+    }
+
+    ; Lock-held read-modify-write of config.json. Holding the mutex across the
+    ; whole load->mutate->save closes the lost-update window (T1.2-009): a fresh
+    ; copy is read under the lock and written back, so a concurrent writer (e.g.
+    ; the tray persisting lastUpdateCheck) cannot be silently clobbered.
+    ; updates: Map of key->value to set. deletes: array of keys to remove.
+    static UpdateConfigKeys(updates, deletes := "") {
+        hMutex := this.AcquireConfigLock()
+        try {
+            cfg := this.LoadJSON(this.configFile)
+            if (Type(cfg) != "Map")
+                cfg := Map()
+            for k, v in updates
+                cfg[k] := v
+            if IsObject(deletes) {
+                for k in deletes
+                    if cfg.Has(k)
+                        cfg.Delete(k)
+            }
+            return this._WriteJSONAtomic(this.configFile, cfg)
+        } catch as err {
+            try FileDelete(this.configFile . ".tmp")
+            MsgBox("Failed to save settings: " err.Message)
             return false
         } finally {
             this.ReleaseConfigLock(hMutex)
