@@ -204,18 +204,22 @@ These are decided once, used by every session.
 
 Add `Development/tests/` to `.gitignore` only inside the **installer scope** (so it's not bundled in the .exe). It IS committed to git.
 
-### Version sync regime (defined in T1.6, enforced thereafter)
+### Version sync regime (defined & implemented in T1.6, enforced thereafter)
 
-Single source of truth: `Development/VERSION` file (new, contains e.g. `2.0.0`). `release.ps1 --check-sync` reads this file and verifies every version string in the codebase matches before allowing a release build. CI gate enforces.
+Single source of truth: **`Development/VERSION`** (one line, 3-part semver — currently `1.9.0`). `release.ps1 -CheckSync` reads it and verifies every version string in the codebase matches; exit `0` = clean, `1` = drift. A shared `$VersionTargets` table in `release.ps1` drives BOTH the rewrite path and the check (DRY). `-SyncOnly` propagates `VERSION` to all files without building. STEP 1b re-asserts after every rewrite and aborts the build on residual drift. Local enforcement via `Development/.githooks/pre-commit` (`git config core.hooksPath .githooks`; bypass with `QUICKSAY_SKIP_VERSION_CHECK=1`). The `-CheckSync` exit code is the **M.1 gate**.
 
-Files that must contain the version:
-- `Development/VERSION` (new — source of truth)
-- `Development/QuickSay.ahk` (ScriptVersionInfo + `localVersion`)
-- `Development/setup.iss` (`AppVersion`, `VersionInfoVersion`)
-- `Development/config.example.json` (`lastSeenVersion`)
-- `Development/data/changelog.json` (top entry)
-- `Website/src/data/*` (whatever holds the displayed version)
-- `version.json` on R2 (deployed by release.ps1)
+Normalization: 3-part ≡ 4-part (`1.9.0` ≡ `1.9.0.0`); shortVer locations (`1.9`) compared on major.minor. Forbidden `X.Y.Z-beta` version suffixes are also rejected (the product name "QuickSay Beta" is fine).
+
+Version surface (checked unless noted):
+- `Development/VERSION` — source of truth
+- `Development/QuickSay.ahk` — `@Ahk2Exe-Set{File,Product}Version` (4-part), `Set{Description,ProductName}` + comment + AppUserModelID + RelaunchDisplayName (shortVer), `localVersion` (3-part)
+- `Development/onboarding_ui.ahk`, `Development/settings_ui.ahk` — same `@Ahk2Exe-*` + AppUserModelID + comment set
+- `Development/lib/settings-ui.ahk` — RelaunchDisplayName StrLen/StrPut (rewrite-only)
+- `Development/setup.iss` — `MyAppVersion` (3-part), `MyAppVerName`/`OutputBaseFilename`/comments/WelcomeLabel2 (shortVer); `AppVersion`/`VersionInfoVersion`/`VersionInfoProductVersion` derived from `{#MyAppVersion}` (presence-checked)
+- `Development/gui/settings.html` — About-tab `about-app-version` (3-part)
+- `Website/src/components/Footer.astro`, `Website/src/pages/beta/getting-started.astro` — **warning-only** (separate repo; checked if reachable)
+- `version.json` on R2 — written by `release.ps1` at release time
+- **Excluded by design:** `config.example.json` `lastSeenVersion` (per-user runtime field, ships empty); `data/changelog.json` entries (historical record; `-beta` suffixes stripped but version not pinned to `VERSION`)
 
 ### License + crash + telemetry endpoints (designed in T2.1)
 
@@ -289,7 +293,7 @@ Update this section at the end of every session. Mark with: ⬜ pending · 🟨 
 - ⬜ T1.3 — Installer + release.ps1 audit
 - ⬜ T1.4 — Onboarding + widget + sound + dictionary audit
 - ✅ T1.5 — History retention + race condition fix (2026-05-29: root-cause memo at findings/T1.5-root-cause.md; new `lib/history-core.ahk` makes every history mutation a fresh read→JSON.Parse→trim→atomic-write under the config mutex — one invariant fixes all three. **historyRetention** real-JSON slice replaces the corrupting `\}\s*,` string-surgery, drops oldest not newest, 0=unlimited, legacy files migrate on first append (T1.1-017, T1.2-016); **keepLastRecordings** PruneAudioDirectory prunes data/audio by mtime after each save, gated by saveRecordings (T1.1-024); **clear-history race** resurrection cache removed (always re-read) + generation guard — Clear posts 0x5556 to bump HistoryGeneration synchronously, deferred write drops itself if a clear superseded it, Clear holds the mutex during delete (T1.2-011). Concurrency folded in: importConfig mutex (T1.2-008), UpdateConfigKeys lock-held RMW for lost-update (T1.2-009), getHistoryCount counts parsed entries (T1.2-012), settings InvalidateHistoryCaches wired to 0x5555 (T1.2-010), non-array history.json preserved to .corrupt. Race fix = Phase-4c option B (re-read) hardened with option A (gen guard). **19/19 regression tests green** (tests/history/run-tests.ps1, AHK-native unit driver against real history-core + source assertions); QuickSay.ahk + settings_ui.ahk load clean. Dev PR #10. Mic-based manual smoke not runnable headless — automated suite + real-data round-trip cover the logic.)
-- ⬜ T1.6 — Version sync sweep + automation
+- ✅ T1.6 — Version sync sweep + automation (2026-05-30: **`Development/VERSION` = `1.9.0` is now the single source of truth.** `release.ps1` refactored — `Get-CurrentVersion` reads VERSION (warns+falls back to `localVersion` if missing); one shared `$VersionTargets` table drives both the rewrite path and the new `-CheckSync` gate (DRY). **`-CheckSync`**: read-only, normalizes 3↔4-part + shortVer, collects all drift, exit 0/1, website warn-only-if-unreachable, also rejects `X.Y.Z-beta` suffixes. **`-SyncOnly`**: propagates VERSION to all files, no build (the drift-remediation command). **STEP 1b** asserts sync after every rewrite and aborts the build on residual drift (T1.3-030 warn→hard-fail). Reconciled all ~30 locations from the drifted `1.8.1`/`1.8` state up to `1.9.0`/`1.9` (committed source lagged the shipped 1.9.0; website already led at 1.9.0) and stripped 8 `X.Y.Z-beta` suffixes from `changelog.json`. Also fixed T1.3-029 — installer filename now uses shortVer so the patch-release GitHub upload finds the file ISCC emits. Pre-commit hook at `Development/.githooks/pre-commit` (+`QUICKSAY_SKIP_VERSION_CHECK=1` bypass). Verified: clean→exit 0, injected drift→exit 1, normalization no-false-positive, hook aborts a drifting commit, AHK files still parse, `git grep` shows no version-suffix `-beta`. **M.1 gate is live** (`-CheckSync` must return 0 before rc1). Dev PR #12. **Merge before T2.5** — both touch `release.ps1`.)
 - ✅ T1.7 — Accessibility + multi-monitor + hotkey conflict fixes (2026-05-29: --text-tertiary #72728c→#8b8b9e (AA 5.0:1 bg-surface, 5.8:1 bg-base); skip link, aria-live status regions, span→button for password eye + dict delete icons, legal-link keyboard access, @media prefers-reduced-motion; FloatingWidget.RepositionToVisible() wired to OnDisplayChange (WM_DISPLAYCHANGE/0x7E) — snaps stranded widget to primary, leaves valid alone; 13/13 clamp-logic unit tests pass; hotkey conflict: Windows-reserved list check + AHK-level failure catch → SetHotkeyConflictFlag writes hotkeyConflict/hotkeyConflictMsg to config; settings banner (role=alert) + onboarding Done step banner both read from flag. Dev PR #13.)
 
 ### Phase 1 — Track 2 (New Systems)
