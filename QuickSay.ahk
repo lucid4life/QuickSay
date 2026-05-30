@@ -2460,7 +2460,7 @@ RegisterHotkey() {
             if (dbg)
                 try FileAppend("Custom hotkey FAILED: " . err.Message . "`n", ScriptDir . "\debug_log.txt")
             CurrentHotkey := "^LWin"
-            errMsg := "Ctrl+Win didn't respond — another app may be using your chosen shortcut. Open Settings → General → Hotkey to choose a different one."
+            errMsg := "Your custom hotkey couldn't be registered — another app may be using it. We've switched you back to Ctrl+Win. Open Settings → General → Hotkey to pick a different shortcut."
             TrayTip(errMsg, "QuickSay — Hotkey Conflict", 0x2)
             SetHotkeyConflictFlag(true, errMsg)
         }
