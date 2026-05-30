@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickSay Setup</title>
+    <link rel="stylesheet" href="settings.css">
+    <style>
+        /* ONBOARDING OVERRIDES */
+        :root {
+            /* OB-19: Improve contrast for tertiary text on dark backgrounds (WCAG AA) */
+            --text-tertiary: #a0a0b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-base) 0%, var(--bg-base) 50%, var(--bg-base) 100%);
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .wizard {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background: var(--bg-base);
+            padding: 0;
+        }
+
+        .wizard-header {
+            text-align: center;
+            padding: 28px 40px 0 40px;
+        }
+
+        .wizard-header img {
+            width: 96px;
+            height: 96px;
+            margin-bottom: 12px;
+        }
+
+        .wizard-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+        }
+
+        .wizard-header .subtitle {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            margin: 0;
+        }
+
+        .wizard-body {
+            padding: 20px 40px 24px 40px;
+        }
+
+        /* Step indicators */
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-quaternary);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: var(--accent-primary);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .step-dot.done {
+            background: var(--success);
+        }
+
+        /* Step panels */
+        .step-panel {
+            display: none;
+        }
+
+        .step-panel.active {
+            display: block;
+            animation: fadeSlideIn 0.3s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* SVG icon entrance animation */
+        @keyframes iconEntrance {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .step-panel.active .icon,
+        .step-panel.active .tour-icon,
+        .step-panel.active .done-check,
+        .step-panel.active .cost-breakdown-icon {
+            animation: iconEntrance 0.35s ease forwards;
+        }
+
+        .step-panel.active li:nth-child(1) .icon,
+        .step-panel.active .tour-item:nth-child(1) .tour-icon { animation-delay: 0s; }
+        .step-panel.active li:nth-child(2) .icon,
+        .step-panel.active .tour-item:nth-child(2) .tour-icon { animation-delay: 0.06s; }
+        .step-panel.active li:nth-child(3) .icon,
+        .step-panel.active .tour-item:nth-child(3) .tour-icon { animation-delay: 0.12s; }
+        .step-panel.active .tour-item:nth-child(4) .tour-icon { animation-delay: 0.18s; }
+
+        /* Welcome step */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .feature-list li .icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .feature-list li .icon.speed {
+            background: var(--accent-primary-muted);
+        }
+
+        .feature-list li .icon.privacy {
+            background: rgba(52, 211, 153, 0.1);
+        }
+
+        .feature-list li .icon.free {
+            background: rgba(96, 165, 250, 0.1);
+        }
+
+        .feature-list li strong {
+            color: var(--text-primary);
+        }
+
+        /* API step */
+        .info-card {
+            background: linear-gradient(135deg, var(--accent-primary-ghost) 0%, rgba(34, 211, 197, 0.03) 100%);
+            border: 1px solid var(--accent-primary-muted);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+        }
+
+        .info-card h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .info-card a {
+            color: var(--accent-primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .info-card a:hover {
+            text-decoration: underline;
+        }
+
+        .api-steps {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+            counter-reset: step-counter;
+        }
+
+        .api-steps li {
+            counter-increment: step-counter;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 5px 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .api-steps li::before {
+            content: counter(step-counter);
+            background: var(--accent-primary);
+            color: var(--bg-base);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .api-steps li a {
+            color: var(--accent-primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .api-steps li a:hover {
+            text-decoration: underline;
+        }
+
+        .api-input-group {
+            margin-top: 20px;
+        }
+
+        .api-input-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .api-input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .api-input-row input {
+            flex: 1;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px 14px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+        }
+
+        input:hover {
+            border-color: var(--border-strong);
+            background-color: #2a2a38;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background-color: var(--bg-elevated);
+            box-shadow: 0 0 0 3px rgba(34, 211, 197, 0.30);
+        }
+
+        input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .api-status {
+            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            min-height: 20px;
+        }
+
+        .api-status.success {
+            color: var(--success);
+        }
+
+        .api-status.error {
+            color: var(--error);
+        }
+
+        .api-status.testing {
+            color: var(--text-tertiary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 150ms ease, box-shadow 150ms ease, transform 100ms ease;
+            display: inline-block;
+            font-family: inherit;
+            letter-spacing: 0.01em;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: var(--bg-base);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-primary-hover);
+            box-shadow: 0 0 20px var(--accent-primary-glow);
+        }
+
+        .btn-primary:active {
+            background-color: #18b0a3;
+        }
+
+        .btn-primary:disabled {
+            background-color: var(--text-quaternary);
+            color: var(--text-tertiary);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-default);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--glass-fill-active);
+            border-color: var(--border-strong);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        /* Cost info */
+        .cost-breakdown {
+            background: var(--glass-fill);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-top: 12px;
+        }
+
+        .cost-breakdown h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cost-breakdown-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
+        }
+
+        .cost-row .label {
+            color: var(--text-tertiary);
+        }
+
+        .cost-row .value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .cost-row .value.free-badge {
+            color: var(--success);
+            background: rgba(52, 211, 153, 0.1);
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .cost-divider {
+            border: none;
+            border-top: 1px solid var(--border-subtle);
+            margin: 8px 0;
+        }
+
+        /* Done step */
+        .done-check {
+            width: 64px;
+            height: 64px;
+            background: rgba(52, 211, 153, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+        }
+
+        .done-text {
+            text-align: center;
+        }
+
+        .done-text h2 {
+            font-size: 22px;
+            color: var(--text-primary);
+            margin: 0 0 8px 0;
+        }
+
+        .done-text p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0 0 4px 0;
+            line-height: 1.6;
+        }
+
+        .hotkey-display-box {
+            display: inline-block;
+            background: var(--bg-elevated);
+            border: 1.5px solid rgba(34, 211, 197, 0.3);
+            border-radius: 8px;
+            padding: 6px 16px;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-top: 12px;
+        }
+
+        .tip-box {
+            background: var(--accent-primary-ghost);
+            border: 1px solid rgba(34, 211, 197, 0.1);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .tip-box strong {
+            color: var(--accent-primary);
+        }
+
+        /* Done step buttons */
+        .done-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .done-buttons .btn-primary {
+            min-width: 200px;
+        }
+
+        .done-secondary-link {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .done-secondary-link:hover {
+            color: var(--accent-primary);
+        }
+
+        /* Navigation */
+        .wizard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px 28px 40px;
+        }
+
+        .wizard-nav .btn {
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .skip-link {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .skip-link:hover {
+            color: var(--accent-primary);
+        }
+
+        /* Mic test step */
+        .mic-device-info {
+            background: var(--glass-fill);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mic-device-info span {
+            color: var(--text-secondary) !important;
+        }
+
+        #micDeviceName {
+            color: var(--text-primary) !important;
+        }
+
+        .mic-level-bar-bg {
+            width: 100%;
+            height: 12px;
+            background: var(--bg-elevated);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .mic-level-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--accent-primary));
+            border-radius: 6px;
+            transition: width 100ms ease;
+            min-width: 0;
+        }
+
+        /* Tour step */
+        .tour-features {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .tour-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: var(--glass-fill);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .tour-item:hover {
+            border-color: rgba(34, 211, 197, 0.2);
+        }
+
+        .tour-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tour-icon.accent {
+            background: var(--accent-primary-muted);
+        }
+
+        .tour-icon.success {
+            background: rgba(52, 211, 153, 0.1);
+        }
+
+        .tour-icon.info {
+            background: rgba(96, 165, 250, 0.1);
+        }
+
+        .tour-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .tour-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Step section headings */
+        .step-heading {
+            font-size: 20px;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+            font-weight: 700;
+        }
+
+        .step-subheading {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin: 0 0 16px 0;
+        }
+
+        .step-intro {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 0 0 14px 0;
+            line-height: 1.5;
+        }
+
+        .step-footer-note {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            line-height: 1.6;
+            margin-top: 16px;
+        }
+
+        .inline-code {
+            background: var(--bg-elevated);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .mic-level-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cost-footer-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* Calibration state colors */
+        .calibration-warning { color: var(--warning); }
+        .calibration-error { color: var(--error); }
+        .calibration-success { color: var(--accent-primary); }
+        .calibration-advice-warning {
+            background: rgba(251, 191, 36, 0.08);
+            border-color: rgba(251, 191, 36, 0.2);
+            color: var(--warning);
+        }
+        .calibration-advice-error {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        /* Inline SVG sizing inside icon containers */
+        .feature-list li .icon svg,
+        .cost-breakdown-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .done-check svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Play button icon in btn */
+        .btn svg.inline-icon {
+            width: 14px;
+            height: 14px;
+            vertical-align: -2px;
+            margin-right: 4px;
+        }
+
+        /* Transcription test step */
+        .try-dictation-area {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .try-dictation-area .btn {
+            min-width: 180px;
+        }
+
+        .transcription-result {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin: 16px 0;
+            min-height: 48px;
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.6;
+            text-align: left;
+            transition: border-color 0.2s;
+        }
+
+        .transcription-result.has-text {
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+
+        .transcription-result .placeholder-text {
+            color: var(--text-tertiary);
+            font-style: italic;
+        }
+
+        .transcription-status {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            min-height: 20px;
+            margin-top: 8px;
+        }
+
+        /* Tour item extra content (for tips) */
+        .tour-icon.warning {
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .step-panel.active .tour-item:nth-child(5) .tour-icon { animation-delay: 0.24s; }
+        .step-panel.active .tour-item:nth-child(6) .tour-icon { animation-delay: 0.30s; }
+
+        /* Visual guide (API key step) */
+        .guide-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin: 16px 0 0 0;
+            padding: 8px 0;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+
+        .guide-toggle:hover { opacity: 0.8; }
+
+        .guide-toggle .guide-arrow {
+            transition: transform 0.25s ease;
+            font-size: 10px;
+        }
+
+        .guide-toggle.open .guide-arrow {
+            transform: rotate(90deg);
+        }
+
+        .guide-gallery {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .guide-gallery.open {
+            display: block;
+            animation: fadeSlideIn 0.3s ease;
+        }
+
+        .guide-step {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 14px 16px;
+            background: var(--glass-fill);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .guide-step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            color: var(--bg-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .guide-step-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .guide-step-caption {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        /* CSS Mockup Illustrations */
+        .mockup {
+            background: #0c0c18;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-size: 12px;
+        }
+
+        .mockup-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #e0e0e8;
+            margin-bottom: 4px;
+        }
+
+        .mockup-subtitle {
+            font-size: 11px;
+            color: #6b6b80;
+            margin-bottom: 12px;
+        }
+
+        .mockup-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #c0c0cc;
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: all 0.2s;
+        }
+
+        .mockup-btn:last-child { margin-bottom: 0; }
+
+        .mockup-btn.highlight {
+            border-color: var(--accent-primary);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(34, 211, 197, 0.15);
+            position: relative;
+        }
+
+        .mockup-btn.highlight::after {
+            content: '\2190';
+            position: absolute;
+            right: -28px;
+            font-size: 16px;
+            color: var(--accent-primary);
+            animation: pulseArrow 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulseArrow {
+            0%, 100% { opacity: 0.4; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(-3px); }
+        }
+
+        .mockup-btn-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .mockup-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .mockup-teal-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #0c0c18;
+            background: var(--accent-primary);
+            border: none;
+            box-shadow: 0 0 14px rgba(34, 211, 197, 0.25);
+            position: relative;
+        }
+
+        .mockup-teal-btn::after {
+            content: '\2190';
+            position: absolute;
+            right: -28px;
+            font-size: 16px;
+            color: var(--accent-primary);
+            animation: pulseArrow 1.5s ease-in-out infinite;
+        }
+
+        .mockup-table-header {
+            display: flex;
+            gap: 24px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 6px;
+        }
+
+        .mockup-table-header span {
+            font-size: 10px;
+            font-weight: 600;
+            color: #4a4a60;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mockup-table-empty {
+            font-size: 11px;
+            color: #3a3a50;
+            font-style: italic;
+            padding: 4px 0;
+        }
+
+        .mockup-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #a0a0b0;
+            margin-bottom: 6px;
+        }
+
+        .mockup-input {
+            background: #12121e;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #e0e0e8;
+            font-family: inherit;
+            margin-bottom: 12px;
+        }
+
+        .mockup-key-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #12121e;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 11px;
+            color: #a0a0b0;
+        }
+
+        .mockup-check {
+            color: var(--success);
+            font-size: 13px;
+            margin-right: 2px;
+        }
+
+        .mockup-separator {
+            height: 1px;
+            background: rgba(255,255,255,0.04);
+            margin: 8px 0;
+        }
+
+        .mockup-footer-note {
+            font-size: 10px;
+            color: #5a5a70;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wizard" role="main" aria-label="QuickSay setup wizard">
+        <!-- Header -->
+        <div class="wizard-header">
+            <img src="assets/logo_128.png" alt="QuickSay logo">
+            <h1>Welcome to QuickSay</h1>
+            <p class="subtitle">Voice to text. Instantly.</p>
+        </div>
+
+        <!-- Step Dots -->
+        <div class="steps" role="tablist" aria-label="Setup progress" style="padding-top: 20px;">
+            <div class="step-dot active" id="dot-0" role="tab" aria-selected="true" aria-current="step" aria-label="Step 1: Welcome"></div>
+            <div class="step-dot" id="dot-1" role="tab" aria-selected="false" aria-label="Step 2: API Key"></div>
+            <div class="step-dot" id="dot-2" role="tab" aria-selected="false" aria-label="Step 3: Mic Test"></div>
+            <div class="step-dot" id="dot-3" role="tab" aria-selected="false" aria-label="Step 4: Try Dictation"></div>
+            <div class="step-dot" id="dot-4" role="tab" aria-selected="false" aria-label="Step 5: Quick Tour"></div>
+            <div class="step-dot" id="dot-5" role="tab" aria-selected="false" aria-label="Step 6: Done"></div>
+        </div>
+
+        <!-- STEP 1: Welcome -->
+        <div class="step-panel active" id="step-0">
+            <div class="wizard-body">
+                <h2 class="step-heading">Welcome to QuickSay</h2>
+                <p class="step-subheading">Voice to text, instantly. Here's what you get:</p>
+                <ul class="feature-list">
+                    <li>
+                        <div class="icon speed">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        </div>
+                        <div><strong>Near-instant transcription</strong> &mdash; speak, and it's typed</div>
+                    </li>
+                    <li>
+                        <div class="icon privacy">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                        </div>
+                        <div><strong>Your key, your data</strong> &mdash; nothing leaves your machine</div>
+                    </li>
+                    <li>
+                        <div class="icon free">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div><strong>Completely free</strong> &mdash; Groq's free tier covers up to 8 hours/day</div>
+                    </li>
+                </ul>
+                <p class="step-footer-note">
+                    QuickSay connects to Groq's speech-to-text API.
+                    You'll grab a free API key next &mdash; takes just a few minutes.
+                </p>
+            </div>
+        </div>
+
+        <!-- STEP 2: API Key -->
+        <div class="step-panel" id="step-1">
+            <div class="wizard-body">
+                <p class="step-intro">
+                    An API key connects QuickSay to Groq's speech engine.
+                    Free, takes just a few minutes, and your audio is never stored.
+                </p>
+
+                <ol class="api-steps">
+                    <li>Go to <a href="#" onclick="openURL('https://console.groq.com/keys'); return false;">console.groq.com/keys</a> and sign up (Google, GitHub, or email)</li>
+                    <li>Hit <strong style="color:var(--text-primary);">Create API Key</strong> &mdash; name it anything</li>
+                    <li>Copy the key (starts with <code class="inline-code">gsk_...</code>) and paste below</li>
+                </ol>
+
+                <div class="guide-toggle" onclick="toggleGuide()" id="guideToggle">
+                    <span class="guide-arrow">&#9654;</span>
+                    Need help? See the visual guide
+                </div>
+
+                <div class="guide-gallery" id="guideGallery">
+                    <!-- Step 1: Sign up -->
+                    <div class="guide-step">
+                        <div class="guide-step-number">1</div>
+                        <div class="guide-step-content">
+                            <div class="guide-step-caption">Sign up or log in</div>
+                            <div class="mockup">
+                                <div class="mockup-title">GroqCloud</div>
+                                <div class="mockup-subtitle">Create Account or Login</div>
+                                <div class="mockup-btn highlight">
+                                    <span class="mockup-btn-icon" style="background:#fff; color:#333;">G</span>
+                                    Continue with Google
+                                </div>
+                                <div class="mockup-btn">
+                                    <svg class="mockup-btn-icon" viewBox="0 0 24 24" width="14" height="14" fill="#aaa"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                    Continue with GitHub
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Create API Key -->
+                    <div class="guide-step">
+                        <div class="guide-step-number">2</div>
+                        <div class="guide-step-content">
+                            <div class="guide-step-caption">Click "Create API Key"</div>
+                            <div class="mockup">
+                                <div class="mockup-row">
+                                    <div class="mockup-title">API Keys</div>
+                                    <span class="mockup-teal-btn">+ Create API Key</span>
+                                </div>
+                                <div class="mockup-table-header">
+                                    <span>Name</span>
+                                    <span>Key</span>
+                                    <span>Created</span>
+                                </div>
+                                <div class="mockup-table-empty">(No keys yet)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Name it -->
+                    <div class="guide-step">
+                        <div class="guide-step-number">3</div>
+                        <div class="guide-step-content">
+                            <div class="guide-step-caption">Name it anything &amp; click Submit</div>
+                            <div class="mockup">
+                                <div class="mockup-title" style="margin-bottom:10px;">Create API Key</div>
+                                <div class="mockup-label">Display Name</div>
+                                <div class="mockup-input">QuickSay</div>
+                                <div style="text-align:right;">
+                                    <span class="mockup-teal-btn">Submit</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Copy the key -->
+                    <div class="guide-step">
+                        <div class="guide-step-number">4</div>
+                        <div class="guide-step-content">
+                            <div class="guide-step-caption">Copy the key &amp; paste it below</div>
+                            <div class="mockup">
+                                <div class="mockup-title" style="margin-bottom:2px;">
+                                    <span class="mockup-check">&#10003;</span> API Key Created
+                                </div>
+                                <div class="mockup-subtitle">Copy it now &mdash; you won't see it again.</div>
+                                <div class="mockup-key-display">
+                                    <span>gsk_xxxx...xxxxxxxxxx</span>
+                                </div>
+                                <div style="text-align:right;">
+                                    <span class="mockup-teal-btn">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                        Copy
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-input-group" style="margin-top: 14px;">
+                    <div class="api-input-row">
+                        <input type="password" id="apiKeyInput" placeholder="Paste your API key here..." autocomplete="off" aria-label="Voice recognition API key">
+                        <button class="btn btn-primary btn-sm" id="testBtn" onclick="testAPIKey()">Test Key</button>
+                    </div>
+                    <div class="api-status" id="apiStatus"></div>
+                </div>
+
+                <div class="cost-breakdown">
+                    <h4>
+                        <svg class="cost-breakdown-icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        Free tier &mdash; no credit card needed
+                    </h4>
+                    <div class="cost-row">
+                        <span class="label">Monthly cost</span>
+                        <span class="value free-badge">$0 / month</span>
+                    </div>
+                    <div class="cost-row">
+                        <span class="label">Transcription</span>
+                        <span class="value">~8 hours / day</span>
+                    </div>
+                    <div class="cost-row">
+                        <span class="label">Text cleanup</span>
+                        <span class="value">~1,000 requests / day</span>
+                    </div>
+                    <hr class="cost-divider">
+                    <div class="cost-row">
+                        <span class="cost-footer-label">Typical user: 30-60 min/day &mdash; well within free limits</span>
+                        <span class="value"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 3: Mic Test -->
+        <div class="step-panel" id="step-2">
+            <div class="wizard-body">
+                <h2 class="step-heading">Test Your Microphone</h2>
+                <p class="step-subheading">Make sure QuickSay can hear you.</p>
+
+                <div class="mic-device-info" id="micDeviceInfo">
+                    <span style="font-size:13px;">Device:</span>
+                    <span id="micDeviceName" style="font-size:13px; font-weight:600;">Detecting...</span>
+                </div>
+
+                <div style="margin:20px 0;">
+                    <div class="mic-level-label">Audio Level</div>
+                    <div class="mic-level-bar-bg">
+                        <div class="mic-level-bar" id="micLevelBar" style="width:0%;"></div>
+                    </div>
+                    <div id="micLevelHint" style="font-size:12px; color:var(--text-tertiary); margin-top:6px; display:none;">
+                        Tip: Try speaking louder or moving closer to your microphone.
+                    </div>
+                </div>
+
+                <div id="micVolumeInfo" style="display:flex; align-items:center; gap:12px; margin:12px 0; padding:10px 16px; background:var(--bg-elevated); border-radius:8px; border:1px solid var(--border-default);">
+                    <div style="flex:1;">
+                        <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:4px;">System Mic Volume</div>
+                        <div style="font-size:18px; font-weight:700; color:var(--text-primary);" id="micVolumeDisplay">--</div>
+                    </div>
+                    <div id="micVolumeStatus" style="font-size:12px; font-weight:600; color:var(--text-tertiary); max-width:200px; text-align:right;"></div>
+                </div>
+                <div id="micCalibrationAdvice" class="calibration-advice-warning" style="display:none; margin:0 0 8px 0; padding:10px 16px; border:1px solid; border-radius:8px; font-size:12px; line-height:1.5;"></div>
+
+                <div style="text-align:center; margin:20px 0;">
+                    <button class="btn btn-primary" id="btnTestRecord" onclick="startTestRecording()">
+                        Test Microphone (5s)
+                    </button>
+                </div>
+
+                <div id="micTestStatus" style="text-align:center; font-size:13px; font-weight:600; min-height:20px;"></div>
+
+                <div id="micPlaybackArea" style="display:none; text-align:center; margin-top:12px;">
+                    <button class="btn btn-secondary" onclick="playTestRecording()" style="font-size:13px;">
+                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Play Back
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 4: Try Dictation (optional) -->
+        <div class="step-panel" id="step-3">
+            <div class="wizard-body">
+                <h2 class="step-heading">Try It Now!</h2>
+                <p class="step-subheading">Give dictation a quick spin — totally optional.</p>
+
+                <p class="step-intro">
+                    Press the button below and say something. QuickSay will transcribe your speech in real time.
+                    This is just a test &mdash; the text won't be typed anywhere.
+                </p>
+
+                <div class="try-dictation-area">
+                    <button class="btn btn-primary" id="btnTryDictation" onclick="startTestTranscription()">
+                        <svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        Try Dictation
+                    </button>
+                </div>
+
+                <div class="transcription-result" id="transcriptionResult">
+                    <span class="placeholder-text">Your transcribed text will appear here...</span>
+                </div>
+
+                <div class="transcription-status" id="transcriptionStatus"></div>
+
+                <p class="step-footer-note" style="text-align:center;">
+                    Don't want to test right now? No problem &mdash; just click Continue or Skip.
+                </p>
+            </div>
+        </div>
+
+        <!-- STEP 5: Quick Tour -->
+        <div class="step-panel" id="step-4">
+            <div class="wizard-body">
+                <h2 class="step-heading">What QuickSay Does</h2>
+                <p class="step-subheading" style="margin-bottom:20px;">A quick look before we walk you through the settings.</p>
+
+                <div class="tour-features">
+                    <div class="tour-item">
+                        <div class="tour-icon accent">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        </div>
+                        <div>
+                            <div class="tour-title">Voice to Text</div>
+                            <div class="tour-desc">Hold <strong style="color:var(--accent-primary);">Ctrl + Win</strong>, speak, release. Text appears wherever your cursor is. You can also click the floating widget to start recording &mdash; no keyboard needed.</div>
+                        </div>
+                    </div>
+
+                    <div class="tour-item">
+                        <div class="tour-icon accent">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+                        </div>
+                        <div>
+                            <div class="tour-title">Smart Modes</div>
+                            <div class="tour-desc">Standard, Email, Code, Casual. Each mode cleans up your text differently.</div>
+                        </div>
+                    </div>
+
+                    <div class="tour-item">
+                        <div class="tour-icon success">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        </div>
+                        <div>
+                            <div class="tour-title">Stats and History</div>
+                            <div class="tour-desc">Word counts, streaks, full transcription history. All tracked automatically.</div>
+                        </div>
+                    </div>
+
+                    <div class="tour-item">
+                        <div class="tour-icon info">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        </div>
+                        <div>
+                            <div class="tour-title">Fully Customizable</div>
+                            <div class="tour-desc">Hotkeys, dictionary, sound themes, import/export. Make it yours.</div>
+                        </div>
+                    </div>
+
+                    <div class="tour-item">
+                        <div class="tour-icon warning">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--warning, #f59e0b)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <div>
+                            <div class="tour-title">Sticky Mode</div>
+                            <div class="tour-desc">Prefer tap-to-talk? Enable Sticky Mode in Settings for hands-free dictation &mdash; tap to start, tap again to stop.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="step-footer-note">
+                    You'll explore all of these in the settings tour next.
+                </p>
+            </div>
+        </div>
+
+        <!-- STEP 6: Done -->
+        <div class="step-panel" id="step-5">
+            <div class="wizard-body">
+                <div class="done-check">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+                </div>
+                <div class="done-text">
+                    <h2>You're all set!</h2>
+                    <p>QuickSay is ready. Hold your hotkey and start speaking.</p>
+                    <div style="font-size:12px; color:var(--text-tertiary); margin-top:14px; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Your hotkey</div>
+                    <div class="hotkey-display-box" id="hotkeyShow">Ctrl + Win</div>
+                </div>
+
+                <!-- Hotkey conflict warning — shown if registration failed or known system combo detected -->
+                <div id="hotkeyConflictBannerOB" style="display:none; margin-top:16px; padding:12px 16px; background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.4); border-radius:10px; align-items:flex-start; gap:10px; font-size:13px; color:var(--text-secondary); line-height:1.5;" role="alert">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning,#fbbf24)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div>
+                        <strong style="color:var(--warning,#fbbf24);">Hotkey may not be working</strong> — your shortcut didn't respond. You can change it in Settings → General → Hotkey.
+                        <span id="hotkeyConflictDetailOB" style="display:block;margin-top:4px;font-size:12px;color:var(--text-tertiary,#8b8b9e);"></span>
+                    </div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>Next up:</strong> We'll give you a quick tour of the settings panel so you know where everything is &mdash; hotkeys, modes, dictionary, and more.
+                </div>
+
+                <div class="done-buttons">
+                    <button class="btn btn-primary" onclick="finishAndStartTour()">Open Settings &rarr;</button>
+                    <span class="done-secondary-link" onclick="finishOnboarding()" tabindex="0" role="button">Start Using QuickSay</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="wizard-nav">
+            <div>
+                <span class="skip-link" id="skipBtn" onclick="skipSetup()" tabindex="0" role="button">Skip for now</span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" id="backBtn" onclick="prevStep()" style="display:none;">Back</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Get Started</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var currentStep = 0;
+        var totalSteps = 6;
+        var apiKeyValid = false;
+        var micTestPassed = false;
+        var transcriptionTestActive = false;
+        var transcriptionMaxTimer = null;
+
+        // SVG icon strings for JS-injected status messages
+        var svgCheck = '<svg style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>';
+        var svgX = '<svg style="width:14px;height:14px;vertical-align:-2px;margin-right:4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+
+        function showStep(idx) {
+            // Hide all panels
+            var panels = document.querySelectorAll('.step-panel');
+            for (var i = 0; i < panels.length; i++) {
+                panels[i].classList.remove('active');
+            }
+
+            // Show target panel
+            document.getElementById('step-' + idx).classList.add('active');
+
+            // Update dots
+            for (var i = 0; i < totalSteps; i++) {
+                var dot = document.getElementById('dot-' + i);
+                dot.classList.remove('active', 'done');
+                dot.setAttribute('aria-selected', 'false');
+                dot.removeAttribute('aria-current');
+                if (i < idx) dot.classList.add('done');
+                else if (i === idx) {
+                    dot.classList.add('active');
+                    dot.setAttribute('aria-selected', 'true');
+                    dot.setAttribute('aria-current', 'step');
+                }
+            }
+
+            // Update buttons
+            document.getElementById('backBtn').style.display = (idx > 0) ? 'inline-block' : 'none';
+            document.getElementById('skipBtn').style.display = (idx < totalSteps - 1) ? 'inline-block' : 'none';
+
+            if (idx === 0) {
+                document.getElementById('nextBtn').textContent = 'Get Started';
+            } else if (idx === 1) {
+                document.getElementById('nextBtn').textContent = 'Continue';
+            } else if (idx === 2) {
+                micSkipWarningShown = false;
+                document.getElementById('nextBtn').textContent = micTestPassed ? 'Continue' : 'Skip mic test';
+            } else if (idx === 3) {
+                document.getElementById('nextBtn').textContent = 'Continue';
+            } else if (idx === 4) {
+                document.getElementById('nextBtn').textContent = 'Continue';
+            } else if (idx === totalSteps - 1) {
+                // Hide nav buttons on done step — it has its own buttons
+                document.getElementById('nextBtn').style.display = 'none';
+                // Check if the hotkey registered successfully
+                postToAHK('getHotkeyConflict', '');
+            }
+
+            // Show nav button if not on final step
+            if (idx < totalSteps - 1) {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            }
+
+            // Mic level monitoring
+            if (idx === 2) {
+                startMicLevel();
+                postToAHK('getMicDevice', '');
+                postToAHK('getMicVolume', '');
+            } else {
+                stopMicLevel();
+            }
+
+            // Stop transcription test if navigating away from that step
+            if (idx !== 3 && transcriptionTestActive) {
+                transcriptionTestActive = false;
+                postToAHK('stopTestTranscription', '');
+            }
+
+            currentStep = idx;
+        }
+
+        var micSkipWarningShown = false;
+
+        function nextStep() {
+            if (currentStep === 1 && !apiKeyValid) {
+                var key = document.getElementById('apiKeyInput').value.trim();
+                if (key === '') {
+                    document.getElementById('apiStatus').className = 'api-status error';
+                    document.getElementById('apiStatus').textContent = 'Please enter an API key, or click "Skip for now"';
+                    return;
+                }
+                // Key entered but not tested — require validation first
+                document.getElementById('apiStatus').className = 'api-status error';
+                document.getElementById('apiStatus').textContent = 'Please test your key first';
+                return;
+            }
+
+            // Fix #44: Warn when skipping mic test without testing
+            if (currentStep === 2 && !micTestPassed) {
+                if (!micSkipWarningShown) {
+                    // First click without testing: show warning tip, stay on step
+                    micSkipWarningShown = true;
+                    var status = document.getElementById('micTestStatus');
+                    status.innerHTML = '<span style="color:var(--warning, #f59e0b);">Tip: Testing your mic helps ensure accurate transcriptions.</span>';
+                    // Notify AHK to save micTestSkipped flag
+                    postToAHK('micTestSkipped', '');
+                    return;
+                }
+                // Second click: allow proceeding (warning was shown)
+            }
+
+            if (currentStep < totalSteps - 1) {
+                showStep(currentStep + 1);
+            } else {
+                // Final step — launch app
+                finishOnboarding();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        function skipSetup() {
+            if (!confirm("Skip setup? QuickSay needs an API key to work. You'll be prompted again next launch.")) return;
+            // Close without marking onboarding complete (no API key saved)
+            // AHK OnClose handler already checks for key before marking done
+            try { window.close(); } catch(e) {}
+        }
+
+        function testAPIKey() {
+            var key = document.getElementById('apiKeyInput').value.trim();
+            if (!key) {
+                document.getElementById('apiStatus').className = 'api-status error';
+                document.getElementById('apiStatus').textContent = 'Please paste your API key first';
+                return;
+            }
+            if (key.substring(0, 4) !== 'gsk_') {
+                document.getElementById('apiStatus').className = 'api-status error';
+                document.getElementById('apiStatus').textContent = 'API key should start with "gsk_"';
+                return;
+            }
+
+            document.getElementById('apiStatus').className = 'api-status testing';
+            document.getElementById('apiStatus').textContent = 'Testing connection...';
+            document.getElementById('testBtn').disabled = true;
+
+            // Send to AHK for testing
+            postToAHK('testAPI', key);
+        }
+
+        function saveAPIKey(key) {
+            postToAHK('saveKey', key);
+        }
+
+        function finishOnboarding() {
+            postToAHK('finish', 'done');
+            // Fallback: if AHK process is dead and window doesn't close
+            setTimeout(function() {
+                try { window.close(); } catch(e) {}
+                // If window.close didn't work, show the done step with completion text
+                setTimeout(function() {
+                    showStep(totalSteps - 1);
+                    var h2 = document.querySelector('.done-text h2');
+                    var p = document.querySelector('.done-text p');
+                    if (h2) h2.textContent = 'Setup complete!';
+                    if (p) p.textContent = 'You can close this window. QuickSay will start from your desktop shortcut or Start menu.';
+                }, 500);
+            }, 1000);
+        }
+
+        function finishAndStartTour() {
+            postToAHK('finishAndStartTour', 'done');
+            setTimeout(function() {
+                try { window.close(); } catch(e) {}
+            }, 1000);
+        }
+
+        function openURL(url) {
+            postToAHK('openURL', url);
+        }
+
+        var micLevelInterval = null;
+
+        // Mic test state — button-driven only (no auto-calibration)
+        var testSamples = [];
+        var testRecording = false;
+        var micCurrentVolume = 0;
+        var micInitialVolume = 0;
+        var adjustmentCount = 0;
+        var maxAdjustments = 3;
+
+        function startMicLevel() {
+            if (micLevelInterval) return;
+            postToAHK('startMicLevel', '');
+            postToAHK('getMicVolume', '');
+            micLevelInterval = setInterval(function() {
+                postToAHK('getMicLevel', '');
+            }, 100);
+        }
+
+        function stopMicLevel() {
+            if (micLevelInterval) {
+                clearInterval(micLevelInterval);
+                micLevelInterval = null;
+            }
+            postToAHK('stopMicLevel', '');
+            var bar = document.getElementById('micLevelBar');
+            if (bar) bar.style.width = '0%';
+        }
+
+        function startTestRecording() {
+            var btn = document.getElementById('btnTestRecord');
+            btn.disabled = true;
+            btn.textContent = 'Recording...';
+            testSamples = [];
+            testRecording = true;
+            adjustmentCount = 0;
+            // Clear previous results
+            var status = document.getElementById('micTestStatus');
+            status.textContent = '';
+            status.innerHTML = '';
+            status.className = '';
+            status.style.color = '';
+            var hint = document.getElementById('micLevelHint');
+            if (hint) hint.style.display = 'none';
+            var advice = document.getElementById('micCalibrationAdvice');
+            if (advice) advice.style.display = 'none';
+            var volStatus = document.getElementById('micVolumeStatus');
+            if (volStatus) { volStatus.textContent = ''; volStatus.style.display = 'none'; volStatus.className = ''; }
+            document.getElementById('micPlaybackArea').style.display = 'none';
+            // Get current volume before recording starts
+            micInitialVolume = micCurrentVolume;
+            postToAHK('testRecording5s', '');
+        }
+
+        function analyzeTestResults(recordingSuccess) {
+            testRecording = false;
+            var btn = document.getElementById('btnTestRecord');
+            var status = document.getElementById('micTestStatus');
+            var volStatus = document.getElementById('micVolumeStatus');
+            var advice = document.getElementById('micCalibrationAdvice');
+            var hint = document.getElementById('micLevelHint');
+
+            // Find max peak from samples collected during recording
+            var maxPeak = 0;
+            for (var i = 0; i < testSamples.length; i++) {
+                if (testSamples[i] > maxPeak) maxPeak = testSamples[i];
+            }
+
+            // Case 1: Good signal — recording successful and strong audio detected
+            if (recordingSuccess && maxPeak >= 0.25) {
+                micTestPassed = true;
+                status.innerHTML = svgCheck + ' Recording successful! Mic is working great.';
+                status.style.color = 'var(--success)';
+                document.getElementById('micPlaybackArea').style.display = 'block';
+                document.getElementById('nextBtn').textContent = 'Continue';
+                if (volStatus) {
+                    volStatus.style.display = 'block';
+                    volStatus.style.color = 'var(--success)';
+                    if (micCurrentVolume > micInitialVolume) {
+                        volStatus.innerHTML = svgCheck + ' Volume adjusted: ' + Math.round(micInitialVolume * 100) + '% \u2192 ' + Math.round(micCurrentVolume * 100) + '%';
+                    } else {
+                        volStatus.innerHTML = svgCheck + ' Mic level looks good!';
+                    }
+                }
+                btn.disabled = false;
+                btn.textContent = 'Test Microphone (5s)';
+                if (hint) hint.style.display = 'none';
+                if (advice) advice.style.display = 'none';
+                return;
+            }
+
+            // Case 2: No signal at all
+            if (maxPeak < 0.03) {
+                status.innerHTML = svgX + ' No audio detected';
+                status.style.color = 'var(--error)';
+                if (advice) {
+                    advice.style.display = 'block';
+                    advice.className = 'calibration-advice-error';
+                    advice.innerHTML = 'No audio signal was detected during the test. Please check:<br>\u2022 Your microphone is plugged in and not muted<br>\u2022 The correct device is selected in Windows Sound Settings<br>\u2022 Other apps can hear your microphone<br>\u2022 Try a different microphone if available';
+                }
+                btn.disabled = false;
+                btn.textContent = 'Test Microphone (5s)';
+                if (hint) hint.style.display = 'none';
+                return;
+            }
+
+            // Case 3: Low signal — try increasing volume (up to 3 times)
+            if (adjustmentCount < maxAdjustments && micCurrentVolume < 0.98) {
+                adjustmentCount++;
+                status.textContent = 'Signal low \u2014 adjusting volume (attempt ' + adjustmentCount + '/' + maxAdjustments + ')...';
+                status.style.color = 'var(--accent-primary)';
+                if (hint) {
+                    hint.textContent = 'Increasing mic volume and re-testing...';
+                    hint.style.display = 'block';
+                    hint.style.color = 'var(--accent-primary)';
+                }
+                postToAHK('increaseMicVolume', '');
+                // After volume increase, AHK sends micVolumeIncreased — handler will re-trigger test
+                return;
+            }
+
+            // Case 4: Exhausted adjustments or volume maxed — show partial result
+            if (recordingSuccess) {
+                micTestPassed = true;
+                status.innerHTML = svgCheck + ' Recording captured (signal is low but usable)';
+                status.style.color = 'var(--warning, #f59e0b)';
+                document.getElementById('micPlaybackArea').style.display = 'block';
+                document.getElementById('nextBtn').textContent = 'Continue';
+            } else {
+                status.innerHTML = svgX + ' Recording failed. Check your microphone.';
+                status.style.color = 'var(--error)';
+            }
+            if (volStatus && micCurrentVolume > micInitialVolume) {
+                volStatus.style.display = 'block';
+                volStatus.className = 'calibration-warning';
+                volStatus.textContent = 'Volume adjusted: ' + Math.round(micInitialVolume * 100) + '% \u2192 ' + Math.round(micCurrentVolume * 100) + '%';
+            }
+            if (advice) {
+                advice.style.display = 'block';
+                advice.innerHTML = 'Mic signal is still low. QuickSay will still work, but for best results:<br>\u2022 Move closer to your microphone<br>\u2022 Speak clearly and at a normal volume<br>\u2022 Check your mic boost settings in Windows Sound Settings';
+            }
+            btn.disabled = false;
+            btn.textContent = 'Test Microphone (5s)';
+            if (hint) hint.style.display = 'none';
+        }
+
+        function playTestRecording() {
+            postToAHK('playTestRecording', '');
+        }
+
+        // Transcription test (Fix #34) — optional "try it now" step
+        function stopTranscriptionRecording(autoStopped) {
+            if (transcriptionMaxTimer) {
+                clearTimeout(transcriptionMaxTimer);
+                transcriptionMaxTimer = null;
+            }
+            transcriptionTestActive = false;
+            var btn = document.getElementById('btnTryDictation');
+            var status = document.getElementById('transcriptionStatus');
+            btn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Try Dictation';
+            status.textContent = autoStopped ? 'Recording stopped (30 second limit). Processing...' : 'Processing...';
+            status.style.color = 'var(--text-tertiary)';
+            postToAHK('stopTestTranscription', '');
+        }
+
+        function startTestTranscription() {
+            var btn = document.getElementById('btnTryDictation');
+            var result = document.getElementById('transcriptionResult');
+            var status = document.getElementById('transcriptionStatus');
+
+            if (transcriptionTestActive) {
+                // Stop recording (manual)
+                stopTranscriptionRecording(false);
+                return;
+            }
+
+            // Start recording
+            transcriptionTestActive = true;
+            result.innerHTML = '<span class="placeholder-text">Listening...</span>';
+            result.classList.remove('has-text');
+            status.textContent = '';
+            status.innerHTML = '';
+            btn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stop Recording';
+            postToAHK('startTestTranscription', '');
+
+            // Auto-stop after 30 seconds to prevent indefinite recording
+            transcriptionMaxTimer = setTimeout(function() {
+                if (transcriptionTestActive) {
+                    stopTranscriptionRecording(true);
+                }
+            }, 30000);
+        }
+
+        // Communication with AHK
+        function postToAHK(action, data) {
+            try {
+                window.chrome.webview.postMessage(JSON.stringify({ action: action, data: data }));
+            } catch (e) {
+                console.log('WebView2 not available: ' + e.message);
+            }
+        }
+
+        // Receive messages from AHK via PostWebMessageAsJson
+        // (ExecuteScript deadlocks when called from inside OnWebMessage COM callback,
+        //  so AHK uses PostWebMessageAsJson instead — we listen here)
+        window.chrome.webview.addEventListener('message', function(event) {
+            var msg = event.data;
+            if (!msg || !msg.action) return;
+
+            if (msg.action === 'apiTestResult') {
+                var data = msg.data;
+                var success = (typeof data === 'object') ? data.success : data;
+                var status = (typeof data === 'object') ? data.status : 0;
+                document.getElementById('testBtn').disabled = false;
+                if (success) {
+                    apiKeyValid = true;
+                    document.getElementById('apiStatus').className = 'api-status success';
+                    document.getElementById('apiStatus').innerHTML = svgCheck + ' Connected successfully! Your key is working.';
+                } else {
+                    apiKeyValid = false;
+                    document.getElementById('apiStatus').className = 'api-status error';
+                    var errorMsg;
+                    if (status === 401) {
+                        errorMsg = 'Invalid API key. Please check your key and try again.';
+                    } else if (status === 0) {
+                        errorMsg = 'Could not connect. Please check your internet connection.';
+                    } else if (status === 429) {
+                        errorMsg = 'Too many requests. Please wait a moment and try again.';
+                    } else if (status >= 500) {
+                        errorMsg = 'Groq service is temporarily unavailable. Please try again later.';
+                    } else {
+                        errorMsg = 'Connection failed (HTTP ' + status + '). Please check your key and try again.';
+                    }
+                    document.getElementById('apiStatus').innerHTML = svgX + ' ' + errorMsg;
+                }
+            }
+            if (msg.action === 'micLevel') {
+                var level = msg.data;
+                var bar = document.getElementById('micLevelBar');
+                if (bar) bar.style.width = (level * 100) + '%';
+                // Collect samples during active test recording
+                if (testRecording) {
+                    testSamples.push(level);
+                }
+            }
+            if (msg.action === 'micDeviceName') {
+                var el = document.getElementById('micDeviceName');
+                if (el) el.textContent = msg.data || 'Default';
+            }
+            if (msg.action === 'testRecordingProgress') {
+                var remaining = msg.data;
+                var btn = document.getElementById('btnTestRecord');
+                if (btn) btn.textContent = 'Recording... ' + remaining + 's';
+            }
+            if (msg.action === 'testRecordingDone') {
+                // Don't reset button here — analyzeTestResults handles it
+                analyzeTestResults(msg.data);
+            }
+            if (msg.action === 'micVolume') {
+                var vol = msg.data;
+                micCurrentVolume = vol;
+                var display = document.getElementById('micVolumeDisplay');
+                if (display) display.textContent = Math.round(vol * 100) + '%';
+                // No auto-calibration — just display the volume passively
+            }
+            if (msg.action === 'micVolumeIncreased') {
+                var data = msg.data;
+                var newVol = (typeof data === 'object') ? data.to : data;
+                micCurrentVolume = newVol;
+                var display = document.getElementById('micVolumeDisplay');
+                if (display) display.textContent = Math.round(newVol * 100) + '%';
+                // Wait for volume change to stabilize, then auto-retest
+                setTimeout(function() {
+                    startTestRecording();
+                }, 800);
+            }
+            // Transcription test result handler
+            if (msg.action === 'receiveHotkeyConflict') {
+                var conflictData = msg.data;
+                var banner = document.getElementById('hotkeyConflictBannerOB');
+                if (banner) {
+                    if (conflictData && conflictData.conflict) {
+                        banner.style.display = 'flex';
+                        var detail = document.getElementById('hotkeyConflictDetailOB');
+                        if (detail && conflictData.msg) detail.textContent = conflictData.msg;
+                    } else {
+                        banner.style.display = 'none';
+                    }
+                }
+            }
+            if (msg.action === 'testTranscriptionResult') {
+                transcriptionTestActive = false;
+                var btn = document.getElementById('btnTryDictation');
+                var result = document.getElementById('transcriptionResult');
+                var status = document.getElementById('transcriptionStatus');
+                btn.innerHTML = '<svg class="inline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg> Try Again';
+                // Handle error responses
+                if (msg.error && msg.error !== '') {
+                    result.innerHTML = '<span class="placeholder-text">Transcription failed. Try again?</span>';
+                    result.classList.remove('has-text');
+                    status.innerHTML = svgX + ' Error: ' + msg.error;
+                    status.style.color = 'var(--error)';
+                    return;
+                }
+                var text = msg.data;
+                if (text && text.trim() !== '') {
+                    result.textContent = text;
+                    result.classList.add('has-text');
+                    status.innerHTML = svgCheck + ' Transcription successful!';
+                    status.style.color = 'var(--success)';
+                } else {
+                    result.innerHTML = '<span class="placeholder-text">No speech detected. Try again?</span>';
+                    result.classList.remove('has-text');
+                    status.innerHTML = svgX + ' No transcription received. Make sure you spoke clearly.';
+                    status.style.color = 'var(--error)';
+                }
+            }
+        });
+
+        // Visual guide toggle
+        function toggleGuide() {
+            var toggle = document.getElementById('guideToggle');
+            var gallery = document.getElementById('guideGallery');
+            toggle.classList.toggle('open');
+            gallery.classList.toggle('open');
+        }
+
+        // Keyboard navigation (OB-17)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                // Find and click the visible "Continue"/"Next" button
+                var nextBtn = document.querySelector('.step-panel.active .btn-primary:not([disabled])');
+                if (!nextBtn) nextBtn = document.getElementById('nextBtn');
+                if (nextBtn && nextBtn.style.display !== 'none' && !nextBtn.disabled) nextBtn.click();
+            }
+            if (e.key === 'Escape') {
+                // Go back if possible
+                if (currentStep > 0) prevStep();
+            }
+        });
+
+        // Initialize
+        showStep(0);
+    </script>
+</body>
+
+</html>
