@@ -1290,6 +1290,7 @@ GetDefaultConfig() {
     cfg["language"] := "en"
     cfg["dictionary_enabled"] := true
     cfg["currentMode"] := "standard"
+    cfg["context_aware_modes"] := false
     cfg["show_widget"] := false
     cfg["auto_paste"] := true
     cfg["audioDevice"] := "Default"
@@ -1631,7 +1632,7 @@ ParseConfig(jsonText) {
     boolKeys := Map(
         "llm_cleanup",         ["enableLLMCleanup", "llm_cleanup", true],
         "sounds_enabled",      ["playSounds", "sounds_enabled", true],
-        "save_recordings",     ["saveAudioRecordings", "save_recordings", true],
+        "save_recordings",     ["saveAudioRecordings", "save_recordings", false],
         "history_enabled",     ["historyEnabled", "history_enabled", true],
         "dictionary_enabled",  ["dictionaryEnabled", "dictionary_enabled", true],
         "sticky_mode",         ["stickyMode", "sticky_mode", false],
@@ -1644,7 +1645,7 @@ ParseConfig(jsonText) {
         "show_overlay",        ["showOverlay", "show_overlay", true],
         "auto_remove_fillers", ["autoRemoveFillers", "auto_remove_fillers", true],
         "check_for_updates",   ["checkForUpdates", "check_for_updates", true],
-        "context_aware_modes", ["contextAwareModes", "context_aware_modes", true],
+        "context_aware_modes", ["contextAwareModes", "context_aware_modes", false],
         "tour_completed",      ["tourCompleted", "tour_completed", false]
     )
     for outKey, spec in boolKeys {
