@@ -2405,13 +2405,15 @@ IsDeviceAvailable(deviceName) {
 ;  DYNAMIC HOTKEY REGISTRATION
 ; ==============================================================================
 
-; Windows system shortcuts known to conflict with custom hotkeys.
-; These combos are either reserved by Windows or very commonly claimed by system software.
-; The default ^LWin (Ctrl+Win) is NOT in this list — it's generally free and is QuickSay's default.
-RegisterHotkey_WindowsReserved := ["#l", "#d", "#e", "#r", "#s", "#Tab", "#^Left", "#^Right", "#^Up", "#^Down", "^Esc", "!F4"]
-
 RegisterHotkey() {
-    global Config, CurrentHotkey, ScriptDir, RegisterHotkey_WindowsReserved
+    global Config, CurrentHotkey, ScriptDir
+
+    ; Windows system shortcuts known to conflict with custom hotkeys.
+    ; These combos are either reserved by Windows or very commonly claimed by system software.
+    ; The default ^LWin (Ctrl+Win) is NOT in this list — it's generally free and is QuickSay's default.
+    ; Defined as a local (not a top-level global) so it's always available regardless of
+    ; auto-execute ordering — RegisterHotkey() is called early at startup.
+    windowsReserved := ["#l", "#d", "#e", "#r", "#s", "#Tab", "#^Left", "#^Right", "#^Up", "#^Down", "^Esc", "!F4"]
 
     newHotkey := Config.Has("hotkey") ? Config["hotkey"] : "^LWin"
     if (newHotkey == "" || newHotkey == "none")
@@ -2429,7 +2431,7 @@ RegisterHotkey() {
     ; Check for known Windows-reserved combos before attempting registration
     conflictWarning := ""
     lowerHotkey := StrLower(newHotkey)
-    for reserved in RegisterHotkey_WindowsReserved {
+    for reserved in windowsReserved {
         if (StrLower(reserved) == lowerHotkey) {
             conflictWarning := newHotkey . " is a Windows system shortcut and may not respond reliably. Open Settings → General → Hotkey to choose a different shortcut."
             break
@@ -2485,8 +2487,11 @@ SetHotkeyConflictFlag(hasConflict, msg := "") {
                 cfg["hotkeyConflict"] := true
                 cfg["hotkeyConflictMsg"] := msg
             } else {
-                cfg.Delete("hotkeyConflict")
-                cfg.Delete("hotkeyConflictMsg")
+                ; Map.Delete throws in AHK v2 if the key is absent — guard each.
+                if cfg.Has("hotkeyConflict")
+                    cfg.Delete("hotkeyConflict")
+                if cfg.Has("hotkeyConflictMsg")
+                    cfg.Delete("hotkeyConflictMsg")
             }
             AtomicWriteFile(configPath, JSON.Stringify(cfg, "  "))
         } finally {

@@ -117,7 +117,8 @@ input, select, textarea, .dict-container, .legal-modal-content {
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    color: var(--text-quaternary);
+    /* WCAG AA: these are readable section headers, not decorative — use tertiary (5.55:1 on #131316) */
+    color: var(--text-tertiary);
     font-weight: 600;
     padding: 12px 8px 6px 8px;
     margin-top: 4px;

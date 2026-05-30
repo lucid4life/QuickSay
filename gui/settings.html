@@ -74,7 +74,8 @@
             align-items: center;
             gap: 12px;
             margin: 28px 0 8px;
-            color: var(--text-quaternary);
+            /* WCAG AA: readable section headers — tertiary (5.73:1 on bg-base), not decorative quaternary */
+            color: var(--text-tertiary);
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
@@ -311,8 +312,8 @@
             <div class="section-divider">Language</div>
             <div class="section">
                 <h3>Dictation Language</h3>
-                <label>Language</label>
-                <select id="language" style="width: 280px;">
+                <label for="language">Language</label>
+                <select id="language" aria-label="Dictation language" style="width: 280px;">
                     <option value="en">English</option>
                     <option value="es">Spanish (Espa&#241;ol)</option>
                     <option value="fr">French (Fran&#231;ais)</option>

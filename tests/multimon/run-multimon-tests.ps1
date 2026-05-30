@@ -23,20 +23,24 @@ if (!(Test-Path $Ahk)) {
 } elseif (!(Test-Path $unitScript)) {
     Fail "clamp-logic.ahk not found"
 } else {
-    $out = & $Ahk /ErrorStdOut $unitScript 2>&1
-    Write-Host ($out | Out-String).Trim()
-    # Count pass/fail lines from the AHK output
-    $out -split "`n" | ForEach-Object {
-        if ($_ -match "^\s+PASS") { $script:pass++ }
-        elseif ($_ -match "^\s+FAIL") { $script:fail++ }
-    }
+    # AHK FileAppend("*") stdout isn't reliably captured via & without an attached console,
+    # so trust the script's exit code (0 = all asserts passed, 1 = a failure) as the source of truth.
+    & $Ahk /ErrorStdOut $unitScript 2>&1 | Write-Host
+    if ($LASTEXITCODE -eq 0) { Ok "clamp-logic.ahk unit tests passed (exit 0)" }
+    else { Fail "clamp-logic.ahk unit tests reported failures (exit $LASTEXITCODE)" }
 }
 
 # ── Live test: WM_DISPLAYCHANGE harness ──────────────────────────────────────
 if (-not $SkipLive) {
     Announce "Live test — WM_DISPLAYCHANGE (requires running QuickSay tray)"
 
-    # Find tray window
+    # NOTE on scope: this live step verifies the OnDisplayChange→RepositionToVisible
+    # *wiring* survives a WM_DISPLAYCHANGE without crashing the tray. It does NOT try to
+    # strand the widget via a config shim — that can't work against a running tray:
+    #   • FloatingWidget.Show() already self-corrects off-screen config positions on load, and
+    #   • RepositionToVisible() acts on the in-memory this.posX/this.posY, not the config file.
+    # The off-screen→snap math is covered exhaustively by the headless unit tests above.
+
     Add-Type @"
 using System;
 using System.Runtime.InteropServices;
@@ -45,53 +49,28 @@ public class Win32 {
     [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 }
 "@ -ErrorAction SilentlyContinue
-    $trayHwnd = [Win32]::FindWindow("AutoHotkey", "QuickSay_TrayMode ahk_class AutoHotkey")
-    if (!$trayHwnd -or $trayHwnd -eq [IntPtr]::Zero) {
-        $trayHwnd = [Win32]::FindWindow("AutoHotkey", $null)  # fallback: find any AHK window
-    }
+    # The tray's hidden window title is literally "QuickSay_TrayMode" (set via WinSetTitle);
+    # "ahk_class AutoHotkey" is AHK WinTitle syntax, NOT part of the Win32 title string.
+    $trayHwnd = [Win32]::FindWindow("AutoHotkey", "QuickSay_TrayMode")
 
     if (!$trayHwnd -or $trayHwnd -eq [IntPtr]::Zero) {
-        Write-Host "  SKIP  QuickSay tray not running — skipping live test" -ForegroundColor Yellow
+        Write-Host "  SKIP  QuickSay tray not running (no QuickSay_TrayMode window) — skipping live test" -ForegroundColor Yellow
     } else {
-        # Read current widget position from config
-        if (!(Test-Path $ConfigFile)) {
-            Write-Host "  SKIP  config.json not found" -ForegroundColor Yellow
+        # Snapshot the tray process so we can confirm it survives the message
+        $trayProc = Get-CimInstance Win32_Process -Filter "Name='AutoHotkey64.exe'" |
+            Where-Object { $_.CommandLine -like '*QuickSay.ahk*' } | Select-Object -First 1
+        $WM_DISPLAYCHANGE = 0x7E
+        [void][Win32]::PostMessage($trayHwnd, $WM_DISPLAYCHANGE, [IntPtr]::Zero, [IntPtr]::Zero)
+        Start-Sleep -Milliseconds 700
+        [void][Win32]::PostMessage($trayHwnd, $WM_DISPLAYCHANGE, [IntPtr]::Zero, [IntPtr]::Zero)
+        Start-Sleep -Milliseconds 700
+        Write-Host "  Posted WM_DISPLAYCHANGE (0x7E) x2 to tray window"
+
+        $stillThere = [Win32]::FindWindow("AutoHotkey", "QuickSay_TrayMode")
+        if ($stillThere -ne [IntPtr]::Zero) {
+            Ok "Live T1: tray survived WM_DISPLAYCHANGE (no crash from RepositionToVisible wiring)"
         } else {
-            $cfg = Get-Content $ConfigFile | ConvertFrom-Json
-
-            # Shim widget to an off-screen position (way beyond any monitor)
-            $cfg | Add-Member -NotePropertyName widgetX -NotePropertyValue 9999 -Force
-            $cfg | Add-Member -NotePropertyName widgetY -NotePropertyValue 9999 -Force
-            $cfg | ConvertTo-Json -Depth 10 | Set-Content $ConfigFile -Encoding UTF8
-            Write-Host "  Shimmed widgetX/widgetY to (9999, 9999)"
-
-            # Post WM_DISPLAYCHANGE (0x7E) to the tray window
-            $WM_DISPLAYCHANGE = 0x7E
-            [void][Win32]::PostMessage($trayHwnd, $WM_DISPLAYCHANGE, [IntPtr]::Zero, [IntPtr]::Zero)
-            Write-Host "  Posted WM_DISPLAYCHANGE to tray window"
-
-            # Wait for the handler to run and write back
-            Start-Sleep -Milliseconds 600
-
-            # Read back config
-            $cfg2 = Get-Content $ConfigFile | ConvertFrom-Json
-            $newX = $cfg2.widgetX
-            $newY = $cfg2.widgetY
-            Write-Host "  New widgetX=$newX  widgetY=$newY"
-
-            # Assert the position moved off of (9999, 9999) and onto a real monitor
-            if ($newX -ne 9999 -or $newY -ne 9999) {
-                Ok "Live T1: widget repositioned from off-screen coords"
-            } else {
-                Fail "Live T1: widget NOT repositioned — still at (9999, 9999)"
-            }
-
-            # Sanity: both coords should be positive and reasonable
-            if ($newX -ge 0 -and $newX -lt 7680 -and $newY -ge 0 -and $newY -lt 4320) {
-                Ok "Live T2: repositioned coords within plausible screen bounds"
-            } else {
-                Fail "Live T2: repositioned coords out of range: ($newX, $newY)"
-            }
+            Fail "Live T1: tray window gone after WM_DISPLAYCHANGE — handler may have crashed"
         }
     }
 }
