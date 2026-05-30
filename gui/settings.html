@@ -581,8 +581,7 @@
             <h2>Transcription History</h2>
             <div class="search-wrapper">
                 <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                <input type="text" class="search-input" placeholder="Search history..." id="historySearch"
-                    onkeyup="searchHistory()">
+                <input type="text" class="search-input" placeholder="Search history..." id="historySearch">
             </div>
             <div class="filter-bar" id="historyFilterBar">
                 <select id="filterDate" onchange="applyHistoryFilters()">
@@ -713,7 +712,7 @@
                     <img src="assets/logo_128.png" alt="QuickSay">
                     <div>
                         <div class="about-app-name">QuickSay</div>
-                        <div class="about-app-version">Beta v1.8.1</div>
+                        <div class="about-app-version">Beta v1.9.0</div>
                         <div class="about-app-desc">Voice-to-text for Windows</div>
                         <div class="about-app-desc" style="color:var(--text-quaternary);font-style:italic;margin-top:2px;">Speak. QuickSay types.</div>
                     </div>
@@ -965,6 +964,7 @@
         // Settings UI Script (ES6+ — WebView2/Chromium)
 
         // Globals (using var)
+        var DEBUG = false;
         var config = {};
         var dictionary = [];
         var tempHotkey = "";
@@ -1047,8 +1047,8 @@
 
             var searchInput = document.getElementById('sidebarSearch');
             if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    var query = this.value.toLowerCase().trim();
+                searchInput.addEventListener('input', debounce(function() {
+                    var query = searchInput.value.toLowerCase().trim();
                     var tabs = document.querySelectorAll('.tab-btn');
 
                     if (!query) {
@@ -1092,7 +1092,7 @@
                             highlightElement(query, matchedTabId);
                         }, 100);
                     }
-                });
+                }, 200));
             }
         })();
 
@@ -1101,23 +1101,23 @@
         // ==================================================================
         if (window.chrome && window.chrome.webview) {
             window.chrome.webview.addEventListener('message', function (event) {
-                console.log('=== MESSAGE RECEIVED FROM AHK ===');
-                console.log('Raw event.data:', event.data);
+                if (DEBUG) console.log('=== MESSAGE RECEIVED FROM AHK ===');
+                if (DEBUG) console.log('Raw event.data:', event.data);
 
                 try {
                     // Parse the message if it's a string
                     const msg = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
 
-                    console.log('Parsed message:', msg);
-                    console.log('Function to call:', msg.function);
-                    console.log('Data to pass:', msg.data);
+                    if (DEBUG) console.log('Parsed message:', msg);
+                    if (DEBUG) console.log('Function to call:', msg.function);
+                    if (DEBUG) console.log('Data to pass:', msg.data);
 
                     const functionName = msg.function;
                     const data = msg.data;
 
                     // Call the appropriate JavaScript function
                     if (window[functionName] && typeof window[functionName] === 'function') {
-                        console.log('Calling function:', functionName);
+                        if (DEBUG) console.log('Calling function:', functionName);
                         window[functionName](data);
                     } else {
                         console.error('Function not found or not callable:', functionName);
@@ -1128,7 +1128,7 @@
                 }
             });
 
-            console.log('WebView2 message listener registered successfully');
+            if (DEBUG) console.log('WebView2 message listener registered successfully');
         }
 
         // --- INIT ---
@@ -1211,14 +1211,14 @@
             };
 
             document.getElementById('btnRefreshHistory').onclick = function () {
-                console.log('Refresh History button clicked');
+                if (DEBUG) console.log('Refresh History button clicked');
                 loadHistory();
             };
 
             document.getElementById('btnClearFullHistory').onclick = function () {
                 showConfirm('This will permanently delete all transcription history. Clear all history?').then(function (confirmed) {
                     if (confirmed) {
-                        console.log('User confirmed - clearing full history');
+                        if (DEBUG) console.log('User confirmed - clearing full history');
                         postToAHK('deleteHistoryFile');
 
                         // Reload history after clearing
@@ -1229,8 +1229,8 @@
                 });
             };
 
-            // History search
-            document.getElementById('historySearch').onkeyup = searchHistory;
+            // History search (debounced to avoid lag on large datasets)
+            document.getElementById('historySearch').onkeyup = debounce(searchHistory, 300);
 
             // Start Load
             postToAHK('loadConfig');
@@ -1239,12 +1239,12 @@
             switchTab(document.querySelector('.tab-btn[data-tab="general"]'));
 
             // Initial data load after everything is ready
-            console.log("=== INITIALIZATION COMPLETE ===");
-            console.log("WebView2 available?", !!window.chrome && !!window.chrome.webview);
+            if (DEBUG) console.log("=== INITIALIZATION COMPLETE ===");
+            if (DEBUG) console.log("WebView2 available?", !!window.chrome && !!window.chrome.webview);
 
             // Give WebView2 time to fully initialize
             setTimeout(function () {
-                console.log("=== ATTEMPTING INITIAL DATA LOAD ===");
+                if (DEBUG) console.log("=== ATTEMPTING INITIAL DATA LOAD ===");
                 loadHistory();
                 loadStatistics();
             }, 1000);
@@ -1293,12 +1293,12 @@
 
             // Load History & Statistics data when switching to those tabs
             if (tabId === 'view-history') {
-                console.log('Switching to History tab - loading data...');
+                if (DEBUG) console.log('Switching to History tab - loading data...');
                 loadHistory();
             }
 
             if (tabId === 'view-statistics') {
-                console.log('Switching to Statistics tab - loading data...');
+                if (DEBUG) console.log('Switching to Statistics tab - loading data...');
                 loadStatistics();
                 loadHistory(); // Also load history for chart/apps data
             }
@@ -1332,8 +1332,8 @@
         var tourAlreadyTriggered = false;
 
         window.receiveConfig = function (data) {
-            console.log('=== RECEIVE CONFIG CALLED ===');
-            console.log('Data received from AHK:', data);
+            if (DEBUG) console.log('=== RECEIVE CONFIG CALLED ===');
+            if (DEBUG) console.log('Data received from AHK:', data);
             config = data || {};
             populateForm(config);
             loadChangelog();
@@ -1525,8 +1525,8 @@
             // Processing - Debug
             document.getElementById('debugLogging').checked = toBool(cfg.debugLogging);
 
-            console.log('=== POPULATE FORM CALLED ===');
-            console.log('Config received:', cfg);
+            if (DEBUG) console.log('=== POPULATE FORM CALLED ===');
+            if (DEBUG) console.log('Config received:', cfg);
         }
 
         function saveConfig(shouldClose) {
@@ -1567,7 +1567,7 @@
 
             config.audioDevice = getVal('audioDevice');
             config.saveAudioRecordings = getCheck('saveAudioRecordings');
-            config.keepLastRecordings = parseInt(getVal('keepLastRecordings'));
+            config.keepLastRecordings = Math.max(0, parseInt(getVal('keepLastRecordings')) || 10);
 
             var qualityRadios = document.querySelectorAll('.quality-radio');
             for (var i = 0; i < qualityRadios.length; i++) {
@@ -1582,7 +1582,8 @@
             config.autoRemoveFillers = getCheck('autoRemoveFillers');
             config.smartPunctuation = getCheck('smartPunctuation');
             config.contextAwareModes = getCheck('contextAwareModes');
-            config.historyRetention = parseInt(getVal('historyRetention'));
+            var retentionVal = parseInt(getVal('historyRetention')) || 0;
+            config.historyRetention = [0, 100, 500].indexOf(retentionVal) !== -1 ? retentionVal : 0;
             config.debugLogging = getCheck('debugLogging');
 
             // Ensure hotkey is always present (safety net)
@@ -1924,7 +1925,7 @@
             );
 
             if (confirmed) {
-                console.log('User confirmed - clearing history');
+                if (DEBUG) console.log('User confirmed - clearing history');
                 postToAHK('clearHistory');
 
                 var countDisplay = document.getElementById('historyCountDisplay');
@@ -1932,7 +1933,7 @@
                     countDisplay.innerText = 'Clearing...';
                 }
             } else {
-                console.log('User cancelled history clear');
+                if (DEBUG) console.log('User cancelled history clear');
             }
         }
 
@@ -1972,7 +1973,7 @@
             if (!data) return;
             var keyName = data.keyName || "";
             var ahkKey = data.ahkKey || "";
-            console.log('Hotkey captured from AHK:', keyName, ahkKey);
+            if (DEBUG) console.log('Hotkey captured from AHK:', keyName, ahkKey);
 
             if (hotkeyTestPending) {
                 // We're in test phase — check if the captured combo matches
@@ -2204,35 +2205,58 @@
         })();
 
         // ==================================================================
+        // UTILITIES
+        // ==================================================================
+        function debounce(fn, delay) {
+            var timer = null;
+            return function() {
+                var args = arguments;
+                var ctx = this;
+                clearTimeout(timer);
+                timer = setTimeout(function() { fn.apply(ctx, args); }, delay);
+            };
+        }
+
+        // ==================================================================
         // HISTORY & STATISTICS FUNCTIONS
         // ==================================================================
 
         var historyData = [];
+        var historyTotal = 0;
+        var historyHasMore = false;
+        var historyOffset = 0;
         var statsData = {};
 
         function loadHistory() {
-            console.log("=== loadHistory() CALLED ===");
+            if (DEBUG) console.log("=== loadHistory() CALLED ===");
             postToAHK('loadHistoryData');
         }
 
         // Called from AHK
         window.receiveHistoryData = function (data) {
-            console.log("=== receiveHistoryData() CALLED ===");
+            if (DEBUG) console.log("=== receiveHistoryData() CALLED ===");
 
             try {
                 const historyArray = data && data.history ? data.history : [];
-                historyData = historyArray;
+                const offset = data && data.offset ? data.offset : 0;
+                historyTotal = data && data.total ? data.total : historyArray.length;
+                historyHasMore = data && data.hasMore ? data.hasMore : false;
 
-                const count = historyData.length;
+                if (offset === 0) {
+                    historyData = historyArray;
+                } else {
+                    historyData = historyData.concat(historyArray);
+                }
+                historyOffset = historyData.length;
+
                 const historyTabCount = document.getElementById('historyTabCount');
                 if (historyTabCount) {
-                    historyTabCount.innerText = count + " entries";
+                    historyTabCount.innerText = historyTotal + " entries";
                 }
 
-                populateAppFilter(historyData);
-                renderHistory(historyData);
-                var countEl = document.getElementById('filterCount');
-                if (countEl) countEl.textContent = 'Showing ' + count + ' of ' + count + ' entries';
+                // On fresh load, rebuild app filter; on "load more", merge only new entries
+                populateAppFilter(offset === 0 ? historyData : historyArray, offset > 0);
+                applyHistoryFilters();
             } catch (e) {
                 console.error("Error in receiveHistoryData:", e);
             }
@@ -2282,9 +2306,8 @@
             }
 
             var html = '';
-            var slice = data.slice(0, 50);
 
-            slice.forEach(function (item, idx) {
+            data.forEach(function (item, idx) {
                 var txt = item.cleanedText || item.rawText || "(No text)";
                 var app = item.appContext || "Unknown App";
 
@@ -2316,7 +2339,16 @@
                 html += '</div>';
             });
 
+            // Show "Load More" button when more data is available from AHK
+            if (historyHasMore) {
+                html += '<div style="text-align:center;padding:16px;"><button class="btn btn-secondary" onclick="loadMoreHistory()">Load More (' + historyData.length + ' of ' + historyTotal + ')</button></div>';
+            }
+
             list.innerHTML = html;
+        }
+
+        function loadMoreHistory() {
+            postToAHK('loadMoreHistory', { offset: historyOffset });
         }
 
         function searchHistory() {
@@ -2332,9 +2364,28 @@
         // --- HISTORY FILTERS ---
         var currentWordCountFilter = 'all';
 
-        function populateAppFilter(data) {
+        function populateAppFilter(data, mergeOnly) {
             var sel = document.getElementById('filterApp');
             if (!sel || !data) return;
+
+            if (mergeOnly) {
+                // Only add new apps not already in the dropdown
+                var existing = {};
+                for (var i = 0; i < sel.options.length; i++) {
+                    existing[sel.options[i].value] = true;
+                }
+                data.forEach(function(item) {
+                    if (item.appContext && !existing[item.appContext]) {
+                        existing[item.appContext] = true;
+                        var opt = document.createElement('option');
+                        opt.value = item.appContext;
+                        opt.textContent = item.appContext.length > 30 ? item.appContext.substring(0, 30) + '...' : item.appContext;
+                        sel.appendChild(opt);
+                    }
+                });
+                return;
+            }
+
             var apps = {};
             data.forEach(function(item) {
                 if (item.appContext) apps[item.appContext] = true;
@@ -2402,13 +2453,13 @@
         };
 
         function loadStatistics() {
-            console.log("=== loadStatistics() CALLED ===");
+            if (DEBUG) console.log("=== loadStatistics() CALLED ===");
             postToAHK('loadStatisticsData');
         }
 
         // Called from AHK
         window.receiveStatisticsData = function (data) {
-            console.log("=== receiveStatisticsData() CALLED ===");
+            if (DEBUG) console.log("=== receiveStatisticsData() CALLED ===");
             statsData = data || {};
             renderStats(statsData);
         };
