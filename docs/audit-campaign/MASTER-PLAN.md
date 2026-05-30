@@ -71,28 +71,29 @@ PHASE 2 — Integration & Ship Readiness           (3 sessions, serial)
 |---|---|---|---|---|---|---|
 | 1 | P0.1 | Activate plugins + write `quicksay-go-to-paid` skill | Sonnet 4.6 | `medium` | — | P0.2 |
 | 2 | P0.2 | Test harnesses + baseline inventory | Sonnet 4.6 | `high` | — | All of Phase 1 |
-| 3 | T1.1 | Core engine audit (read-only) | Opus 4.7 [1m] | `xhigh` | T1.2, T1.3, T1.4 | T1.5 |
-| 4 | T1.2 | UI/settings + WebView2 bridge audit (read-only) | Opus 4.7 [1m] | `xhigh` | T1.1, T1.3, T1.4 | T1.5, T1.6, T1.7 |
-| 5 | T1.3 | Installer + release.ps1 audit (read-only) | Opus 4.7 | `xhigh` | T1.1, T1.2, T1.4 | T1.6 |
-| 6 | T1.4 | Onboarding + widget + sound + dictionary audit | Sonnet 4.6 | `high` | T1.1, T1.2, T1.3 | — |
-| 7 | T1.5 | Fix history retention + race condition (use `ultrathink`) | Opus 4.7 | `xhigh` | T1.6, T1.7, all of Track 2 | — |
+| 3 | T1.1 | Core engine audit (read-only) | Opus 4.8 | `xhigh` | T1.2, T1.3, T1.4 | T1.5 |
+| 4 | T1.2 | UI/settings + WebView2 bridge audit (read-only) | Opus 4.8 | `xhigh` | T1.1, T1.3, T1.4 | T1.5, T1.6, T1.7 |
+| 5 | T1.3 | Installer + release.ps1 audit (read-only) | Opus 4.8 | `xhigh` | T1.1, T1.2, T1.4 | T1.6 |
+| 6 | T1.4 | Onboarding + widget + sound + dictionary audit | Opus 4.8 | `xhigh` | T1.1, T1.2, T1.3 | — |
+| 7 | T1.5 | Fix history retention + race condition (use `ultrathink`) | Opus 4.8 | `xhigh` | T1.6, T1.7, all of Track 2 | — |
 | 8 | T1.6 | Version sync sweep + `release.ps1 --check-sync` gate | Sonnet 4.6 | `medium` | T1.5, T1.7, all of Track 2 | M.1 (gate) |
 | 9 | T1.7 | Accessibility + multi-monitor + hotkey conflicts | Sonnet 4.6 | `high` | T1.5, T1.6, all of Track 2 | — |
-| 10 | T2.1 | **Backend infra design** — single spec, all systems | Opus 4.7 [1m] | **`max`** | All of Track 1 Wave 1 | T2.2, T2.3, T2.4, T2.5 |
-| 11 | T2.2 | Build CF Worker license issuer | Sonnet 4.6 | `high` | T2.3, T2.4, T2.5, T2.6, all of Track 1 | M.1 |
-| 12 | T2.3 | Build trial + paywall | Opus 4.7 | `xhigh` | T2.2, T2.4, T2.5, T2.6, all of Track 1 | M.1 |
-| 13 | T2.4 | Build crash reporting + opt-in flow | Sonnet 4.6 | `high` | T2.2, T2.3, T2.5, T2.6, all of Track 1 | M.1 |
-| 14 | T2.5 | Build signed updates (Ed25519) | Opus 4.7 | `xhigh` | T2.2, T2.3, T2.4, T2.6, Track 1 **except T1.6** (shared `release.ps1`) | M.1 |
+| 10 | T2.1 | **Backend infra design** — single spec, all systems | Opus 4.8 | **`max`** | All of Track 1 Wave 1 | T2.2, T2.3, T2.4, T2.5 |
+| 11 | T2.2 | Build CF Worker license issuer | Opus 4.8 | `high` | T2.3, T2.4, T2.5, T2.6, all of Track 1 | M.1 |
+| 12 | T2.3 | Build trial + paywall | Opus 4.8 | `xhigh` | T2.2, T2.4, T2.5, T2.6, all of Track 1 | M.1 |
+| 13 | T2.4 | Build crash reporting + opt-in flow | Opus 4.8 | `high` | T2.2, T2.3, T2.5, T2.6, all of Track 1 | M.1 |
+| 14 | T2.5 | Build signed updates (Ed25519) | Opus 4.8 | `xhigh` | T2.2, T2.3, T2.4, T2.6, Track 1 **except T1.6** (shared `release.ps1`) | M.1 |
 | 15 | T2.6 | Transcription regression corpus | Sonnet 4.6 | `medium` | All other Track 2 | — |
-| 16 | M.1 | Wire new systems into audited app → rc1 | Opus 4.7 [1m] | `xhigh` | — | M.2 |
+| 16 | M.1 | Wire new systems into audited app → rc1 | Opus 4.8 | `xhigh` | — | M.2 |
 | 17 | M.2 | UAT script + clean-VM manual testing | Sonnet 4.6 | `medium` | — | M.3 |
-| 18 | M.3 | Launch — flip CTAs, ship v2.0.0 | Sonnet 4.6 | `medium` | — | — |
+| 18 | M.3 | Launch — flip CTAs, ship v2.0.0 | Sonnet 4.6 | `high` | — | — |
 | 19 | T2.7 | (OPTIONAL) Opt-in PostHog telemetry | Sonnet 4.6 | `high` | All other Track 2 | — |
 
 ### Distribution
-- **Sonnet 4.6: 10 sessions** — mechanical, scoped, spec-driven work
-- **Opus 4.7: 8 sessions** — audit, design, security, integration
-- **`[1m]` context flag: 4 sessions** — when many files coexist in head (T1.1, T1.2, T2.1, M.1)
+- **Sonnet 4.6: 7 sessions** — mechanical, scoped, spec-driven work (P0.1, P0.2, T1.6, T1.7, T2.6, M.2, M.3)
+- **Opus 4.8: 11 sessions** — all audits (T1.1–T1.4), design (T2.1), security-critical builds (T2.2, T2.3, T2.4, T2.5), the history-race fix (T1.5), and integration (M.1)
+- _Model-split note (2026-05-28):_ With Opus 4.8 a strict upgrade at the same price 4.7 was, T1.4 (the one remaining audit on Sonnet) plus the two security-critical builds T2.2 (license) and T2.4 (crash/PII) were promoted to Opus 4.8. The clearly-mechanical sessions stay on Sonnet — no reasoning bottleneck there.
+- **Large-context (1M) sessions: 4** — T1.1, T1.2, T2.1, M.1 hold many files in head at once. On **Opus 4.8 the 1M window is standard** (no `[1m]` flag needed — `/model claude-opus-4-8` gives 1M), so these need no special handling beyond using Opus 4.8.
 - **`max` effort: 1 session only** (T2.1)
 - **`ultrathink` inline keyword:** flagged where useful (T1.5 root-cause moment)
 
@@ -104,24 +105,24 @@ PHASE 2 — Integration & Ship Readiness           (3 sessions, serial)
                             ┌─ P0.1 ──► P0.2 ──┐
                             └──────────────────┤
                                                │
-                  ┌─ T1.1 (Opus[1m] xhigh) ─┐  │
-                  ├─ T1.2 (Opus[1m] xhigh) ─┤  │
+                  ┌─ T1.1 (Opus4.8 xhigh) ─┐  │
+                  ├─ T1.2 (Opus4.8 xhigh) ─┤  │
             ┌─────┼─ T1.3 (Opus      xhigh) ┤◄─┘
-            │     └─ T1.4 (Sonnet    high)  ┘
+            │     └─ T1.4 (Opus 4.8  xhigh) ┘
    Track 1 ─┤
             │     ┌─ T1.5 (Opus xhigh, needs T1.1+T1.2 findings)
             └─────┼─ T1.6 (Sonnet medium, needs T1.3 findings, BLOCKS M.1)
                   └─ T1.7 (Sonnet high)
 
-            ┌─ T2.1 (Opus[1m] MAX, design gate — needs Track 1 W1 first) ┐
+            ┌─ T2.1 (Opus4.8 MAX, design gate — needs Track 1 W1 first) ┐
    Track 2 ─┤                                                            │
-            │     ┌─ T2.2 (Sonnet high)  ◄─┐                             │
+            │     ┌─ T2.2 (Opus 4.8 high) ◄─┐                            │
             │     ├─ T2.3 (Opus xhigh)    ─┤◄────────────────────────────┘
-            └─────┼─ T2.4 (Sonnet high)   ─┤
+            └─────┼─ T2.4 (Opus 4.8 high) ─┤
                   ├─ T2.5 (Opus xhigh)    ─┤
                   └─ T2.6 (Sonnet medium) ─┘
 
-   Phase 2 ──► M.1 (Opus[1m] xhigh) ──► M.2 (Sonnet medium) ──► M.3 (Sonnet medium)
+   Phase 2 ──► M.1 (Opus4.8 xhigh) ──► M.2 (Sonnet medium) ──► M.3 (Sonnet medium)
 ```
 
 **Reading the graph:**
@@ -164,7 +165,7 @@ The session table's dependency columns encode the main graph. These are the fine
 ## 5. How to run a session
 
 1. **Open a new Claude Code window** in the right project directory (`C:\QuickSay\Development` for app sessions; `C:\QuickSay\Website` only for M.3 launch; `C:\QuickSay\Backend\license-worker` for T2.2 — it doesn't exist yet, T2.1's spec will create it).
-2. **Switch model:** `/model opus[1m]` or `/model sonnet[1m]` per session header.
+2. **Switch model:** `/model claude-opus-4-8` (1M context is standard on 4.8 — no flag) or `/model sonnet` per session header.
 3. **Set effort:** `/effort xhigh` (or `max` / `high` / `medium`) per session header.
 4. **Open the matching session prompt file** in `docs/audit-campaign/sessions/session-NN-<slug>.md` and **paste the entire body into Claude Code**. Don't paraphrase — the prompts are tuned.
 5. **Let it run.** Read its plan before approving destructive actions.
@@ -262,8 +263,8 @@ T2.1 will finalize this — treat the above as starting topology.
 | **Track 1** | Audit & harden the existing app. 7 sessions. |
 | **Track 2** | Build new production systems. 6 sessions + 1 optional. |
 | **Phase Merge** | Phase 2: integrate the two tracks → ship v2.0.0. 3 sessions. |
-| **Effort level** | `low / medium / high / xhigh / max` — Opus 4.7 supports all 5; Sonnet 4.6 supports 4 (no `xhigh`). |
-| **`[1m]`** | 1M-token context flag. Switched via `/model opus[1m]` or `/model sonnet[1m]`. |
+| **Effort level** | `low / medium / high / xhigh / max` — Opus 4.8 supports all 5; Sonnet 4.6 supports 4 (no `xhigh`). **Opus 4.8 defaults to `high`** (4.7 defaulted to `xhigh`), so always set `xhigh`/`max` explicitly. |
+| **1M context** | Million-token window. **Standard on Opus 4.8** (`/model claude-opus-4-8`) — no flag needed. (The old `[1m]` suffix was a 4.7-era thing; obsolete now.) |
 | **`ultrathink`** | Keyword in a prompt that triggers max-reasoning for one turn without changing session effort. |
 | **Done When** | The exit gate at the bottom of each session prompt. All items ✓ before the session is considered complete. |
 | **`0x5555`** | Windows message ID used as `QuickSay_ConfigReloadMsg`. Settings → tray IPC. |
@@ -287,7 +288,7 @@ Update this section at the end of every session. Mark with: ⬜ pending · 🟨 
 - ✅ T1.2 — UI/settings + WebView2 bridge audit (2026-05-28: findings/T1.2-ui-settings.md — **19 findings: 0 P0, 2 P1, 13 P2, 4 P3** + 6 verified-clean entries. 33-action bridge matrix: 0 dead actions, 0 dead handlers, 0 dead responses; all 5 `0x5555` sends target the correct `QuickSay_TrayMode` window. The 2 P1s: clear-history race confirmed **NOT fully fixed** — tray's persistent `HistoryTextCache` + deferred `SaveToHistory` races the 100ms-deferred `ReloadConfig`, resurrecting cleared entries → airtight trace + repro for T1.5 (011); retention=0 + trim-removes-newest data loss, cross-ref T1.5 (016). Live-verified via Playwright/CDP harness (saveConfig/setMode/clearHistory persist + fire 0x5555; contrast measured — text-tertiary fails AA 4.5:1; getHistoryCount over-counts >2×) with byte-for-byte data restore. Cross-deps: T1.5 (history bugs), T1.6 (importConfig no-mutex, lost-update, hardcoded About version, GetDefaultModes dual-sync), T1.7 (no dark/light toggle, contrast, no responsive breakpoints, keyboard nav), T1.4 (sound dropdown missing `mechanical`). Zero source changes.)
 - ⬜ T1.3 — Installer + release.ps1 audit
 - ⬜ T1.4 — Onboarding + widget + sound + dictionary audit
-- ⬜ T1.5 — History retention + race condition fix
+- ✅ T1.5 — History retention + race condition fix (2026-05-29: root-cause memo at findings/T1.5-root-cause.md; new `lib/history-core.ahk` makes every history mutation a fresh read→JSON.Parse→trim→atomic-write under the config mutex — one invariant fixes all three. **historyRetention** real-JSON slice replaces the corrupting `\}\s*,` string-surgery, drops oldest not newest, 0=unlimited, legacy files migrate on first append (T1.1-017, T1.2-016); **keepLastRecordings** PruneAudioDirectory prunes data/audio by mtime after each save, gated by saveRecordings (T1.1-024); **clear-history race** resurrection cache removed (always re-read) + generation guard — Clear posts 0x5556 to bump HistoryGeneration synchronously, deferred write drops itself if a clear superseded it, Clear holds the mutex during delete (T1.2-011). Concurrency folded in: importConfig mutex (T1.2-008), UpdateConfigKeys lock-held RMW for lost-update (T1.2-009), getHistoryCount counts parsed entries (T1.2-012), settings InvalidateHistoryCaches wired to 0x5555 (T1.2-010), non-array history.json preserved to .corrupt. Race fix = Phase-4c option B (re-read) hardened with option A (gen guard). **19/19 regression tests green** (tests/history/run-tests.ps1, AHK-native unit driver against real history-core + source assertions); QuickSay.ahk + settings_ui.ahk load clean. Dev PR #10. Mic-based manual smoke not runnable headless — automated suite + real-data round-trip cover the logic.)
 - ⬜ T1.6 — Version sync sweep + automation
 - ⬜ T1.7 — Accessibility + multi-monitor + hotkey conflict fixes
 
