@@ -204,10 +204,14 @@ OnDisplayChange(wParam, lParam, msg, hwnd) {
         if (SettingsUI.wvc)
             SettingsUI.wvc.Fill()
     }
-    ; If overlay is visible during display change, reposition it
+    ; Reposition overlay to active monitor (always recomputes against current screen layout)
     try {
         if (RecordingOverlay.isVisible)
             RecordingOverlay.Show(RecordingOverlay.currentState)
+    }
+    ; Clamp floating widget to a visible monitor — only moves it if it's actually stranded
+    try {
+        FloatingWidget.RepositionToVisible()
     }
 }
 
@@ -2432,6 +2436,13 @@ TryStartMCICapture(dbg, logContext := "") {
 RegisterHotkey() {
     global Config, CurrentHotkey, ScriptDir
 
+    ; Windows system shortcuts known to conflict with custom hotkeys.
+    ; These combos are either reserved by Windows or very commonly claimed by system software.
+    ; The default ^LWin (Ctrl+Win) is NOT in this list — it's generally free and is QuickSay's default.
+    ; Defined as a local (not a top-level global) so it's always available regardless of
+    ; auto-execute ordering — RegisterHotkey() is called early at startup.
+    windowsReserved := ["#l", "#d", "#e", "#r", "#s", "#Tab", "#^Left", "#^Right", "#^Up", "#^Down", "^Esc", "!F4"]
+
     newHotkey := Config.Has("hotkey") ? Config["hotkey"] : "^LWin"
     if (newHotkey == "" || newHotkey == "none")
         newHotkey := "^LWin"
@@ -2444,8 +2455,20 @@ RegisterHotkey() {
     }
 
     dbg := Config.Has("debug_logging") && Config["debug_logging"]
+
+    ; Check for known Windows-reserved combos before attempting registration
+    conflictWarning := ""
+    lowerHotkey := StrLower(newHotkey)
+    for reserved in windowsReserved {
+        if (StrLower(reserved) == lowerHotkey) {
+            conflictWarning := newHotkey . " is a Windows system shortcut and may not respond reliably. Open Settings → General → Hotkey to choose a different shortcut."
+            break
+        }
+    }
+
     if (newHotkey == "^LWin") {
         CurrentHotkey := "^LWin"
+        SetHotkeyConflictFlag(false)
         if (dbg)
             FileAppend("Default hotkey active: ^LWin`n", ScriptDir . "\debug_log.txt")
     } else {
@@ -2454,11 +2477,53 @@ RegisterHotkey() {
             CurrentHotkey := newHotkey
             if (dbg)
                 FileAppend("Custom hotkey registered: " . newHotkey . "`n", ScriptDir . "\debug_log.txt")
+            ; Only persist the conflict warning for known-reserved combos (registration succeeded but may still conflict)
+            if (conflictWarning != "") {
+                TrayTip(conflictWarning, "QuickSay — Hotkey Warning", 0x2)
+                SetHotkeyConflictFlag(true, conflictWarning)
+            } else {
+                SetHotkeyConflictFlag(false)
+            }
         } catch as err {
             if (dbg)
                 try FileAppend("Custom hotkey FAILED: " . err.Message . "`n", ScriptDir . "\debug_log.txt")
             CurrentHotkey := "^LWin"
-            TrayTip("Your custom hotkey could not be registered (it may conflict with another app).`nUsing default: Ctrl+Win. You can change this in Settings.", "QuickSay - Hotkey", 0x2)
+            errMsg := "Your custom hotkey couldn't be registered — another app may be using it. We've switched you back to Ctrl+Win. Open Settings → General → Hotkey to pick a different shortcut."
+            TrayTip(errMsg, "QuickSay — Hotkey Conflict", 0x2)
+            SetHotkeyConflictFlag(true, errMsg)
+        }
+    }
+}
+
+; Persist or clear the hotkeyConflict flag in config.json so the settings UI can show a banner.
+SetHotkeyConflictFlag(hasConflict, msg := "") {
+    global Config, ScriptDir
+    try {
+        Config["hotkeyConflict"] := hasConflict
+        Config["hotkeyConflictMsg"] := msg
+
+        configPath := ScriptDir . "\config.json"
+        if !FileExist(configPath)
+            return
+        hMutex := AcquireConfigLock()
+        try {
+            content := FileRead(configPath, "UTF-8")
+            cfg := JSON.Parse(content)
+            if (Type(cfg) != "Map")
+                return
+            if (hasConflict) {
+                cfg["hotkeyConflict"] := true
+                cfg["hotkeyConflictMsg"] := msg
+            } else {
+                ; Map.Delete throws in AHK v2 if the key is absent — guard each.
+                if cfg.Has("hotkeyConflict")
+                    cfg.Delete("hotkeyConflict")
+                if cfg.Has("hotkeyConflictMsg")
+                    cfg.Delete("hotkeyConflictMsg")
+            }
+            AtomicWriteFile(configPath, JSON.Stringify(cfg, "  "))
+        } finally {
+            ReleaseConfigLock(hMutex)
         }
     }
 }

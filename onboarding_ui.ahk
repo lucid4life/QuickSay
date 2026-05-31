@@ -258,9 +258,23 @@ class OnboardingUI {
                 this.HandleFinishAndStartTour()
             } else if (action == "openURL") {
                 try Run(data)
+            } else if (action == "getHotkeyConflict") {
+                this.HandleGetHotkeyConflict()
             }
         } catch as err {
             try FileAppend("[" A_Now "] OnWebMessage ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+        }
+    }
+
+    static HandleGetHotkeyConflict() {
+        try {
+            cfg := this.LoadConfig()
+            hasConflict := cfg.Has("hotkeyConflict") && cfg["hotkeyConflict"]
+            msg := cfg.Has("hotkeyConflictMsg") ? cfg["hotkeyConflictMsg"] : ""
+            result := Map("conflict", hasConflict, "msg", msg)
+            this.SendToJS("receiveHotkeyConflict", result)
+        } catch {
+            ; Non-fatal — just don't show the banner
         }
     }
 

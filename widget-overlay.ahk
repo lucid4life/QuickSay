@@ -512,6 +512,39 @@ class FloatingWidget {
         this.gui.Move(this.posX, this.posY)
     }
 
+    ; Called from OnDisplayChange (WM_DISPLAYCHANGE / 0x7E) whenever monitors change.
+    ; Moves the widget onto a visible work area if its current position is now off-screen.
+    ; Valid positions are left unchanged — only stranded positions are corrected.
+    static RepositionToVisible() {
+        if (!this.isVisible || !this.gui)
+            return
+
+        w := this.width
+        h := this.height
+        monCount := MonitorGetCount()
+        onScreen := false
+        Loop monCount {
+            MonitorGetWorkArea(A_Index, &mL, &mT, &mR, &mB)
+            ; Require the full rect to fit (not just the origin point)
+            if (this.posX >= mL && this.posX + w <= mR && this.posY >= mT && this.posY + h <= mB) {
+                onScreen := true
+                break
+            }
+        }
+
+        if (onScreen)
+            return  ; Position still valid — leave it alone
+
+        ; Widget is stranded off all screens — snap to primary monitor, bottom-right corner
+        try {
+            MonitorGetWorkArea(MonitorGetPrimary(), &mL, &mT, &mR, &mB)
+            this.posX := mR - w - 12
+            this.posY := mB - h - 12
+            this.gui.Move(this.posX, this.posY)
+            this.SavePosition()
+        }
+    }
+
     static SavePosition() {
         ; Clamp widget position to nearest monitor work area
         centerX := this.posX + this.width // 2

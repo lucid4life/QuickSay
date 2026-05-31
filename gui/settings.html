@@ -17,6 +17,9 @@
             0%, 30% { box-shadow: 0 0 0 2px var(--accent-primary), 0 0 12px rgba(34, 211, 197, 0.3); }
             100% { box-shadow: none; }
         }
+        @media (prefers-reduced-motion: reduce) {
+            .search-highlight { animation: none !important; }
+        }
 
         /* F74/F75/F80: Dark theme for native controls */
         select, select option {
@@ -71,7 +74,8 @@
             align-items: center;
             gap: 12px;
             margin: 28px 0 8px;
-            color: var(--text-quaternary);
+            /* WCAG AA: readable section headers — tertiary (5.73:1 on bg-base), not decorative quaternary */
+            color: var(--text-tertiary);
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
@@ -87,6 +91,8 @@
 </head>
 
 <body>
+
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
 
     <!-- SIDEBAR -->
     <nav class="sidebar" role="navigation" aria-label="Settings navigation">
@@ -144,11 +150,20 @@
     </nav>
 
     <!-- MAIN CONTENT -->
-    <main class="main-content" role="main" aria-label="Settings content">
+    <main id="main-content" class="main-content" role="main" aria-label="Settings content">
 
         <!-- GENERAL TAB -->
         <div id="general" class="tab-content active">
             <h2>General Settings</h2>
+
+            <!-- HOTKEY CONFLICT BANNER (shown when hotkeyConflict is set in config) -->
+            <div id="hotkeyConflictBanner" class="hotkey-conflict-banner" style="display:none;" role="alert">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div>
+                    <strong>Hotkey may be in conflict</strong> — your shortcut didn't respond. Open <em>Settings → General → Hotkey</em> below to choose a different one.
+                    <span id="hotkeyConflictDetail" style="display:block; margin-top:4px; font-size:12px; color:var(--text-tertiary);"></span>
+                </div>
+            </div>
 
             <!-- API KEY -->
             <div class="section">
@@ -157,11 +172,11 @@
                 <div class="flex-row gap-sm">
                     <div class="password-wrapper flex-1">
                         <input type="password" id="groqApiKey" placeholder="gsk_...">
-                        <span class="toggle-password" id="btnTogglePass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                        <button type="button" class="toggle-password" id="btnTogglePass" aria-label="Show password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                     </div>
                     <button class="btn btn-primary btn-sm nowrap flex-shrink-0" id="btnTestApi">Test</button>
                 </div>
-                <div class="status-text" id="apiStatusMessage"></div>
+                <div class="status-text" id="apiStatusMessage" role="status" aria-live="polite"></div>
             </div>
 
             <!-- HOTKEY -->
@@ -204,7 +219,7 @@
                             <button class="btn btn-secondary-orange nowrap" id="btnChangeHotkey">Change</button>
                             <button class="btn btn-secondary btn-sm nowrap" id="btnTestCurrentHotkey" style="margin-left: 6px;">Test</button>
                         </div>
-                        <div class="status-text" id="hotkeyTestMessage"></div>
+                        <div class="status-text" id="hotkeyTestMessage" role="status" aria-live="polite"></div>
                     </div>
                 </div>
 
@@ -297,8 +312,8 @@
             <div class="section-divider">Language</div>
             <div class="section">
                 <h3>Dictation Language</h3>
-                <label>Language</label>
-                <select id="language" style="width: 280px;">
+                <label for="language">Language</label>
+                <select id="language" aria-label="Dictation language" style="width: 280px;">
                     <option value="en">English</option>
                     <option value="es">Spanish (Espa&#241;ol)</option>
                     <option value="fr">French (Fran&#231;ais)</option>
@@ -756,29 +771,29 @@
             <div class="section">
                 <h3>Legal</h3>
                 <div class="flex-col gap-md">
-                    <div class="legal-link-row" onclick="showLegalDoc('privacy')">
-                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                    <div class="legal-link-row" role="button" tabindex="0" onclick="showLegalDoc('privacy')" onkeydown="if(event.key==='Enter'||event.key===' '){showLegalDoc('privacy');event.preventDefault()}" aria-label="Privacy Policy">
+                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
                         <div class="flex-1">
                             <div class="legal-title">Privacy Policy</div>
                             <span class="sub-text">How QuickSay handles your data</span>
                         </div>
-                        <span class="legal-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                        <span class="legal-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
-                    <div class="legal-link-row" onclick="showLegalDoc('terms')">
-                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                    <div class="legal-link-row" role="button" tabindex="0" onclick="showLegalDoc('terms')" onkeydown="if(event.key==='Enter'||event.key===' '){showLegalDoc('terms');event.preventDefault()}" aria-label="Terms of Service">
+                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
                         <div class="flex-1">
                             <div class="legal-title">Terms of Service</div>
                             <span class="sub-text">Usage terms and conditions</span>
                         </div>
-                        <span class="legal-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                        <span class="legal-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
-                    <div class="legal-link-row" onclick="showLegalDoc('licenses')">
-                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                    <div class="legal-link-row" role="button" tabindex="0" onclick="showLegalDoc('licenses')" onkeydown="if(event.key==='Enter'||event.key===' '){showLegalDoc('licenses');event.preventDefault()}" aria-label="Open Source Licenses">
+                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
                         <div class="flex-1">
                             <div class="legal-title">Open Source Licenses</div>
                             <span class="sub-text">Third-party component licenses</span>
                         </div>
-                        <span class="legal-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                        <span class="legal-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
                 </div>
             </div>
@@ -1525,6 +1540,21 @@
             // Processing - Debug
             document.getElementById('debugLogging').checked = toBool(cfg.debugLogging);
 
+            // Hotkey conflict banner
+            var conflictBanner = document.getElementById('hotkeyConflictBanner');
+            var conflictDetail = document.getElementById('hotkeyConflictDetail');
+            if (conflictBanner) {
+                if (cfg.hotkeyConflict) {
+                    conflictBanner.style.display = 'flex';
+                    if (conflictDetail && cfg.hotkeyConflictMsg) {
+                        conflictDetail.textContent = cfg.hotkeyConflictMsg;
+                        conflictDetail.style.display = 'block';
+                    }
+                } else {
+                    conflictBanner.style.display = 'none';
+                }
+            }
+
             if (DEBUG) console.log('=== POPULATE FORM CALLED ===');
             if (DEBUG) console.log('Config received:', cfg);
         }
@@ -1703,7 +1733,7 @@
                 html += '<div class="dict-col-spoken" onclick="startInlineEdit(' + i + ',\'spoken\',this)">' + escapeHtml(item.spoken) + '</div>';
                 html += '<div class="dict-col-arrow">\u2192</div>';
                 html += '<div class="dict-col-written" onclick="startInlineEdit(' + i + ',\'written\',this)">' + escapeHtml(item.written) + '</div>';
-                html += '<div class="dict-col-action"><span class="delete-icon" onclick="deleteDictItem(' + i + ')">\u2715</span></div>';
+                html += '<div class="dict-col-action"><button type="button" class="delete-icon" onclick="deleteDictItem(' + i + ')" aria-label="Delete entry for ' + escapeHtml(item.spoken) + '">\u2715</button></div>';
 
                 row.innerHTML = html;
                 list.appendChild(row);
@@ -2127,9 +2157,11 @@
             var btn = document.getElementById('btnTogglePass');
             if (el.type == "password") {
                 el.type = "text";
+                btn.setAttribute('aria-label', 'Hide password');
                 btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
             } else {
                 el.type = "password";
+                btn.setAttribute('aria-label', 'Show password');
                 btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
             }
         }
