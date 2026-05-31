@@ -1,0 +1,118 @@
+---
+/* SpeedProof — Verified stats in a visual comparison strip */
+---
+
+<section id="speed-proof" class="py-24 md:py-32 px-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Headline -->
+    <h2 class="font-headline font-semibold text-3xl md:text-4xl text-text-primary text-balance text-center mb-16">
+      By the numbers.
+    </h2>
+
+    <!-- Stat cards grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <!-- Card 1: Free Open Beta -->
+      <div class="fade-in-up bg-surface border border-border rounded-xl p-8 card-hover text-center" style="transition-delay: 0ms;">
+        <!-- Beta badge -->
+        <div class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-accent-orange/15 text-accent-orange mb-2">
+          Beta
+        </div>
+        <div class="text-accent-orange font-headline font-bold text-6xl mb-2">
+          Free
+        </div>
+        <p class="font-headline font-semibold text-text-primary text-lg mb-1">
+          Open beta. No credit card.
+        </p>
+        <p class="text-text-tertiary text-sm">vs $144/year for Wispr Flow</p>
+      </div>
+
+      <!-- Card 2: 105 MB -->
+      <div class="fade-in-up bg-surface border border-border rounded-xl p-8 card-hover text-center" style="transition-delay: 200ms;">
+        <div class="stat-number text-accent-orange font-headline font-bold text-5xl mb-3" data-target="105" data-suffix=" MB">
+          0 MB
+        </div>
+        <p class="font-headline font-semibold text-text-primary text-lg mb-2">lightweight install</p>
+        <p class="text-text-tertiary text-sm">no bloat, no background services</p>
+      </div>
+
+      <!-- Card 3: 8 hours -->
+      <div class="fade-in-up bg-surface border border-border rounded-xl p-8 card-hover text-center" style="transition-delay: 400ms;">
+        <div class="stat-number text-accent-orange font-headline font-bold text-5xl mb-3" data-target="8" data-suffix=" hrs">
+          0 hrs
+        </div>
+        <p class="font-headline font-semibold text-text-primary text-lg mb-2">free daily*</p>
+        <p class="text-text-tertiary text-sm">with free AI tier</p>
+      </div>
+
+      <!-- Card 4: 25 languages -->
+      <div class="fade-in-up bg-surface border border-border rounded-xl p-8 card-hover text-center" style="transition-delay: 600ms;">
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <span class="stat-number text-accent-teal font-headline font-bold text-5xl" data-target="25">
+            0
+          </span>
+          <!-- Globe icon -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-accent-teal flex-shrink-0">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M2 12h20" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z" />
+          </svg>
+        </div>
+        <p class="font-headline font-semibold text-text-primary text-lg mb-2">languages</p>
+        <p class="text-text-tertiary text-sm">multilingual support</p>
+      </div>
+
+    </div>
+
+    <!-- WPM comparison callout -->
+    <div class="fade-in-up mt-12 text-center" style="transition-delay: 800ms;">
+      <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-border bg-surface">
+        <span class="text-text-tertiary text-sm">Average typing:</span>
+        <span class="font-headline font-bold text-text-secondary">40 WPM</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-accent-teal" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+        <span class="text-text-tertiary text-sm">Your voice:</span>
+        <span class="font-headline font-bold text-accent-teal">150 WPM</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Count-up animation script (<500 bytes) -->
+<script>
+  {
+    const els = document.querySelectorAll('.stat-number');
+    let animated = false;
+    const io = new IntersectionObserver((entries) => {
+      if (animated) return;
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          animated = true;
+          io.disconnect();
+          els.forEach((el, i) => {
+            const target = parseInt(el.getAttribute('data-target') || '0');
+            const prefix = el.getAttribute('data-prefix') || '';
+            const suffix = el.getAttribute('data-suffix') || '';
+            setTimeout(() => {
+              const start = performance.now();
+              const dur = 800;
+              const step = (now: number) => {
+                const t = Math.min((now - start) / dur, 1);
+                const ease = 1 - Math.pow(1 - t, 3);
+                const val = Math.round(ease * target);
+                el.textContent = prefix + val + suffix;
+                if (t < 1) requestAnimationFrame(step);
+              };
+              requestAnimationFrame(step);
+            }, i * 200);
+          });
+          break;
+        }
+      }
+    }, { threshold: 0.2 });
+    const section = document.getElementById('speed-proof');
+    if (section) io.observe(section);
+  }
+</script>

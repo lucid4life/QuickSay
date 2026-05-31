@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import PricingComparison from '../components/PricingComparison.astro';
+import DownloadCTA from '../components/DownloadCTA.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Voice to Text for Windows | QuickSay — Free Beta"
+  description="The best voice-to-text app for Windows. AI transcription + AI text cleanup. Zero screen capture, zero telemetry. Free open beta, no subscription."
+  canonicalUrl="https://quicksay.app/voice-to-text-windows"
+>
+  <Navbar slot="header" />
+
+  <section class="pt-32 pb-16 md:pt-40 md:pb-20 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance mb-6">
+        Voice to Text for Windows
+      </h1>
+
+      <div class="fade-in-up space-y-6 text-text-secondary leading-relaxed">
+        <p class="text-lg">
+          Windows has had built-in speech recognition since Vista, but anyone who has used it for real work knows the frustration: poor accuracy, no text cleanup, and results that need as much editing as typing from scratch would have taken. QuickSay replaces that experience with modern AI — fast cloud transcription and intelligent text cleanup — and it is free during the open beta.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">How QuickSay Works</h2>
+        <p>
+          QuickSay runs quietly in your system tray. When you need to dictate, hold your configured keyboard shortcut (default: Left Ctrl + Windows key) and speak. When you release the key, your audio is sent to the cloud for AI transcription. The raw transcript then passes through an AI cleanup step, which fixes punctuation, capitalization, filler words, and sentence structure. The polished text is pasted into whatever application has focus.
+        </p>
+        <p>
+          The entire process takes seconds. You speak naturally — including pauses, restarts, and casual phrasing — and receive text that reads like you carefully typed it.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">QuickSay vs. Windows Built-In Dictation</h2>
+        <p>
+          Windows 10 and 11 include a dictation feature activated by Win+H. It works in a limited set of applications, produces raw unformatted text, and relies on Microsoft's older speech recognition models. There is no text cleanup, no smart punctuation beyond basic periods, and the accuracy for technical or domain-specific vocabulary is unreliable.
+        </p>
+        <p>
+          QuickSay uses one of the most accurate AI speech recognition models available and adds an AI cleanup pass that Windows dictation completely lacks. The result is text that needs minimal editing, with proper capitalization, punctuation, and natural sentence flow. QuickSay also works in every Windows application without exception, including apps where Win+H dictation fails.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Fast, Accurate AI Transcription</h2>
+        <p>
+          QuickSay uses cloud-based AI transcription optimized for speed and accuracy, with support for 25 languages and automatic language detection. Whether you are dictating in English, Spanish, German, or Japanese, QuickSay handles it with the same keyboard shortcut — no manual language switching required.
+        </p>
+        <p>
+          The free AI tier provides an estimated 8 hours of daily transcription at no cost (limits subject to change). For the vast majority of users, this means QuickSay's voice-to-text is generous enough for everyday use — all included free during the open beta.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Privacy Without Compromise</h2>
+        <p>
+          Some voice-to-text tools offer optional screen capture for "context-aware" dictation. Others collect telemetry about your usage patterns. QuickSay does neither. It sends your audio to the cloud for transcription — that is the only data that leaves your machine. Zero screen capture, zero telemetry. Audio processing is handled by Groq per their <a href="https://groq.com/privacy-policy/" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Works Everywhere You Type</h2>
+        <p>
+          QuickSay is not limited to specific applications. It types into any text field on Windows via the clipboard: email clients, web browsers, chat applications, document editors, code editors, CRM software, ERP systems, and terminal emulators. If you can type there with a keyboard, QuickSay can dictate there with your voice.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Free During the Open Beta</h2>
+        <p>
+          Voice-to-text should not be a recurring expense. QuickSay is free during the open beta — no monthly subscription, no annual renewal, no per-word billing. Competitors charge $96-$144 per year for similar functionality, which adds up to $288-$432 over three years. QuickSay costs nothing right now, and when pricing is introduced it will be a one-time purchase, not a subscription.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Pages -->
+  <section class="pb-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Related pages</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="/speech-to-text-windows-11" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Speech-to-Text for Windows 11 &rarr;</a>
+        <a href="/windows-dictation-alternative" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Windows Dictation Alternative &rarr;</a>
+        <a href="/voice-to-text-rsi" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice-to-Text for RSI &rarr;</a>
+        <a href="/voice-to-text-adhd" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice-to-Text for ADHD &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <PricingComparison />
+  <DownloadCTA />
+  <Footer slot="footer" />
+</BaseLayout>

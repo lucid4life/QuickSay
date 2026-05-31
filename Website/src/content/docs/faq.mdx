@@ -1,0 +1,57 @@
+---
+title: "FAQ"
+description: "Frequently asked questions about QuickSay: privacy, offline use, pricing, platform support, and more."
+order: 6
+---
+
+## Is my audio stored anywhere?
+
+Your audio is sent to Groq's servers for transcription and is subject to [Groq's privacy policy](https://groq.com/privacy-policy). QuickSay itself does **not** store, upload, or retain your audio recordings after transcription completes. Audio files are deleted from your local machine after each session.
+
+## Does QuickSay work offline?
+
+No. QuickSay requires an internet connection to communicate with Groq's APIs. There is no offline mode. This is a deliberate trade-off: cloud-based processing delivers significantly better accuracy and speed than on-device alternatives.
+
+## What's the difference between QuickSay and Windows Speech Recognition?
+
+| | QuickSay | Windows Speech Recognition |
+|---|---|---|
+| **Speed** | Under 500ms round-trip | Variable, often slower |
+| **Accuracy** | Groq Whisper + AI cleanup | On-device recognition |
+| **Languages** | 25 languages | Limited set |
+| **Training** | None required | Requires voice training |
+| **Punctuation** | Automatic via AI | Manual or limited |
+| **Custom dictionary** | Yes | Limited |
+| **Voice commands** | Natural language | Rigid command syntax |
+
+## Can I use my own connection key?
+
+Yes. You can bring your own connection key if you already have a Groq account. Go to **Settings > AI Connection** and paste your Groq connection key. This is useful if you need higher rate limits or want to use a paid Groq plan.
+
+## Is there a Mac or Linux version?
+
+QuickSay is Windows-only. There is no confirmed timeline for Mac or Linux support.
+
+## How much does QuickSay cost?
+
+QuickSay is free during the open beta. No credit card required. After the beta, it will be a one-time purchase — no subscription, no recurring fees.
+
+## What if the free tier changes?
+
+You're not locked into any specific pricing tier. QuickSay lets you bring your own connection key, so if the free offering changes, you can switch to a paid plan or any compatible service endpoint.
+
+## What data does QuickSay collect?
+
+QuickSay collects **zero telemetry**. No usage data, no analytics, no crash reports are sent anywhere. The only network requests QuickSay makes are to Groq's API for transcription and cleanup.
+
+## Can I change the keyboard shortcut?
+
+Yes. Open QuickSay settings from the system tray and assign any key combination you prefer. The default is `Ctrl+Shift+Space`.
+
+## Does QuickSay work with every application?
+
+QuickSay inserts text via the clipboard, which works with the vast majority of Windows applications. A few apps with custom text inputs may require manual paste (`Ctrl+V`). See [Troubleshooting](/docs/troubleshooting) for details.
+
+## How do I update QuickSay?
+
+QuickSay checks for updates automatically. When an update is available, you'll see a notification in the system tray. Updates are free for life with your one-time purchase.

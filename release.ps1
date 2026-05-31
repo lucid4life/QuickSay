@@ -13,6 +13,9 @@
 #   .\release.ps1 -Bump minor -SkipCompile           # Only update version numbers
 #   .\release.ps1 -Bump minor -SkipGitHub            # Skip GitHub release creation
 #   .\release.ps1 -DryRun                            # Preview changes only
+#   .\release.ps1 -CheckSync                         # Verify all files match VERSION (read-only, exit 0/1)
+#   .\release.ps1 -SyncOnly                          # Propagate VERSION to all files (no build/sign/publish)
+#   .\release.ps1 -Version "1.9.0" -SyncOnly         # Set VERSION + propagate, no build
 # =============================================================================
 
 param(
@@ -26,23 +29,32 @@ param(
     [switch]$SkipSign,
     [switch]$SkipCompile,
     [switch]$SkipGitHub,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$CheckSync,
+    [switch]$SyncOnly
 )
 
 # ── Strict mode ──────────────────────────────────────────────────────────────
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-# ── Auto-detect current version from QuickSay.ahk ───────────────────────────
+# ── Auto-detect current version (VERSION file is SSOT) ───────────────────────
 $devDir = $PSScriptRoot
 
 function Get-CurrentVersion {
+    $versionFile = Join-Path $devDir "VERSION"
+    if (Test-Path $versionFile) {
+        $ver = (Get-Content $versionFile -Raw -Encoding UTF8).Trim()
+        if ($ver -match '^\d+\.\d+\.\d+$') { return $ver }
+    }
+    # Fallback: read from QuickSay.ahk (pre-VERSION repos / old checkouts)
+    Write-Host "WARN: Development/VERSION missing or malformed — falling back to QuickSay.ahk localVersion. Create a VERSION file (single source of truth)." -ForegroundColor Yellow
     $qsPath = Join-Path $devDir "QuickSay.ahk"
     $content = Get-Content $qsPath -Raw -Encoding UTF8
     if ($content -match 'localVersion := "(\d+\.\d+\.\d+)"') {
         return $matches[1]
     }
-    Write-Host "ERROR: Could not detect current version from QuickSay.ahk" -ForegroundColor Red
+    Write-Host "ERROR: Could not detect current version (VERSION file or QuickSay.ahk)" -ForegroundColor Red
     exit 1
 }
 
@@ -51,6 +63,9 @@ $currentVersion = Get-CurrentVersion
 if ($Version -ne "") {
     # Explicit version provided — use it directly
     $newVersion = $Version
+} elseif ($SyncOnly) {
+    # -SyncOnly with no -Version: propagate the CURRENT version, do NOT bump.
+    $newVersion = $currentVersion
 } else {
     # Auto-increment based on -Bump
     $cv = $currentVersion.Split('.')
@@ -88,13 +103,162 @@ $dlib      = "C:\Users\abeek\TrustedSigning\bin\x64\Azure.CodeSigning.Dlib.dll"
 $metadata  = Join-Path $devDir "signing\metadata.json"
 $timestamp = "http://timestamp.acs.microsoft.com"
 
-$installerFilename = "QuickSay_Beta_${displayVer}_Setup.exe"
+$installerFilename = "QuickSay_Beta_v${shortVer}_Setup.exe"   # matches ISCC OutputBaseFilename
 
 # ── Helper: colored output ───────────────────────────────────────────────────
 function Write-Step($msg)  { Write-Host "`n>> $msg" -ForegroundColor Cyan }
 function Write-OK($msg)    { Write-Host "   OK: $msg" -ForegroundColor Green }
 function Write-Warn($msg)  { Write-Host "   WARN: $msg" -ForegroundColor Yellow }
 function Write-Fail($msg)  { Write-Host "   FAIL: $msg" -ForegroundColor Red }
+
+# =============================================================================
+# VERSION SURFACE — single source of truth shared by the rewrite path (STEP 1)
+# and the verification gate (Test-VersionSync / -CheckSync). Add a new version
+# location in ONE place here and it is both rewritten AND checked. (T1.6)
+#
+# Each target:
+#   File     relative path (under $devDir, or $websiteDir when Repo='website')
+#   Find     lookbehind regex — its .Value is the bare version string, so the
+#            SAME regex serves both `-replace` (rewrite) and value extraction (check)
+#   Fmt      '4' = a.b.c.0  |  '3' = a.b.c  |  '2' = a.b  — how this location spells the version
+#   Rewrite  $true if STEP 1 rewrites it
+#   Check    $true if the equality gate verifies it
+#   Repo     'dev' (default) or 'website' (separate repo — warn-only, never rewritten here)
+#   Exists   (optional) literal string that must be present; presence-only check, no version compare
+#   Label    human-readable id
+# =============================================================================
+$VersionTargets = @(
+    # ── QuickSay.ahk ──────────────────────────────────────────────────────────
+    @{ File='QuickSay.ahk'; Find='(?<=;@Ahk2Exe-SetDescription QuickSay Beta v)\d+\.\d+';          Fmt='2'; Rewrite=$true; Check=$true;  Label='QuickSay.ahk/SetDescription' }
+    @{ File='QuickSay.ahk'; Find='(?<=;@Ahk2Exe-SetFileVersion )\d+\.\d+\.\d+\.\d+';                Fmt='4'; Rewrite=$true; Check=$true;  Label='QuickSay.ahk/SetFileVersion' }
+    @{ File='QuickSay.ahk'; Find='(?<=;@Ahk2Exe-SetProductName QuickSay Beta v)\d+\.\d+';           Fmt='2'; Rewrite=$true; Check=$true;  Label='QuickSay.ahk/SetProductName' }
+    @{ File='QuickSay.ahk'; Find='(?<=;@Ahk2Exe-SetProductVersion )\d+\.\d+\.\d+\.\d+';             Fmt='4'; Rewrite=$true; Check=$true;  Label='QuickSay.ahk/SetProductVersion' }
+    @{ File='QuickSay.ahk'; Find='(?<=;  QuickSay Beta v)\d+\.\d+';                                 Fmt='2'; Rewrite=$true; Check=$false; Label='QuickSay.ahk/comment-header' }
+    @{ File='QuickSay.ahk'; Find='(?<=QuickSay\.VoiceToText\.)\d+\.\d+';                            Fmt='2'; Rewrite=$true; Check=$false; Label='QuickSay.ahk/AppUserModelID' }
+    @{ File='QuickSay.ahk'; Find='(?<=StrLen\("QuickSay Beta v)\d+\.\d+';                           Fmt='2'; Rewrite=$true; Check=$false; Label='QuickSay.ahk/RelaunchDisplayName-StrLen' }
+    @{ File='QuickSay.ahk'; Find='(?<=StrPut\("QuickSay Beta v)\d+\.\d+';                           Fmt='2'; Rewrite=$true; Check=$false; Label='QuickSay.ahk/RelaunchDisplayName-StrPut' }
+    @{ File='QuickSay.ahk'; Find='(?<=localVersion := ")\d+\.\d+\.\d+';                             Fmt='3'; Rewrite=$true; Check=$true;  Label='QuickSay.ahk/localVersion' }
+    # ── onboarding_ui.ahk ─────────────────────────────────────────────────────
+    @{ File='onboarding_ui.ahk'; Find='(?<=;@Ahk2Exe-SetDescription QuickSay Beta v)\d+\.\d+';     Fmt='2'; Rewrite=$true; Check=$true;  Label='onboarding_ui.ahk/SetDescription' }
+    @{ File='onboarding_ui.ahk'; Find='(?<=;@Ahk2Exe-SetFileVersion )\d+\.\d+\.\d+\.\d+';           Fmt='4'; Rewrite=$true; Check=$true;  Label='onboarding_ui.ahk/SetFileVersion' }
+    @{ File='onboarding_ui.ahk'; Find='(?<=;@Ahk2Exe-SetProductName QuickSay Beta v)\d+\.\d+';      Fmt='2'; Rewrite=$true; Check=$true;  Label='onboarding_ui.ahk/SetProductName' }
+    @{ File='onboarding_ui.ahk'; Find='(?<=;@Ahk2Exe-SetProductVersion )\d+\.\d+\.\d+\.\d+';        Fmt='4'; Rewrite=$true; Check=$true;  Label='onboarding_ui.ahk/SetProductVersion' }
+    @{ File='onboarding_ui.ahk'; Find='(?<=QuickSay\.VoiceToText\.)\d+\.\d+';                       Fmt='2'; Rewrite=$true; Check=$false; Label='onboarding_ui.ahk/AppUserModelID' }
+    @{ File='onboarding_ui.ahk'; Find='(?<=; QuickSay Beta v)\d+\.\d+(?= Onboarding)';              Fmt='2'; Rewrite=$true; Check=$false; Label='onboarding_ui.ahk/comment-header' }
+    # ── settings_ui.ahk ───────────────────────────────────────────────────────
+    @{ File='settings_ui.ahk'; Find='(?<=;@Ahk2Exe-SetDescription QuickSay Beta v)\d+\.\d+';       Fmt='2'; Rewrite=$true; Check=$true;  Label='settings_ui.ahk/SetDescription' }
+    @{ File='settings_ui.ahk'; Find='(?<=;@Ahk2Exe-SetFileVersion )\d+\.\d+\.\d+\.\d+';             Fmt='4'; Rewrite=$true; Check=$true;  Label='settings_ui.ahk/SetFileVersion' }
+    @{ File='settings_ui.ahk'; Find='(?<=;@Ahk2Exe-SetProductName QuickSay Beta v)\d+\.\d+';        Fmt='2'; Rewrite=$true; Check=$true;  Label='settings_ui.ahk/SetProductName' }
+    @{ File='settings_ui.ahk'; Find='(?<=;@Ahk2Exe-SetProductVersion )\d+\.\d+\.\d+\.\d+';          Fmt='4'; Rewrite=$true; Check=$true;  Label='settings_ui.ahk/SetProductVersion' }
+    @{ File='settings_ui.ahk'; Find='(?<=QuickSay\.VoiceToText\.)\d+\.\d+';                         Fmt='2'; Rewrite=$true; Check=$false; Label='settings_ui.ahk/AppUserModelID' }
+    @{ File='settings_ui.ahk'; Find='(?<=; QuickSay Beta v)\d+\.\d+(?= Settings)';                  Fmt='2'; Rewrite=$true; Check=$false; Label='settings_ui.ahk/comment-header' }
+    # ── lib/settings-ui.ahk ───────────────────────────────────────────────────
+    @{ File='lib\settings-ui.ahk'; Find='(?<=StrLen\("QuickSay Beta v)\d+\.\d+';                   Fmt='2'; Rewrite=$true; Check=$false; Label='lib/settings-ui.ahk/RelaunchDisplayName-StrLen' }
+    @{ File='lib\settings-ui.ahk'; Find='(?<=StrPut\("QuickSay Beta v)\d+\.\d+';                   Fmt='2'; Rewrite=$true; Check=$false; Label='lib/settings-ui.ahk/RelaunchDisplayName-StrPut' }
+    # ── setup.iss ─────────────────────────────────────────────────────────────
+    @{ File='setup.iss'; Find='(?<=#define MyAppVersion ")\d+\.\d+\.\d+';                           Fmt='3'; Rewrite=$true; Check=$true;  Label='setup.iss/MyAppVersion' }
+    @{ File='setup.iss'; Find='(?<=#define MyAppVerName "QuickSay Beta v)\d+\.\d+';                 Fmt='2'; Rewrite=$true; Check=$true;  Label='setup.iss/MyAppVerName' }
+    @{ File='setup.iss'; Find='(?<=OutputBaseFilename=QuickSay_Beta_v)\d+\.\d+(?=_Setup)';          Fmt='2'; Rewrite=$true; Check=$true;  Label='setup.iss/OutputBaseFilename' }
+    @{ File='setup.iss'; Find='(?<=; QuickSay Beta v)\d+\.\d+(?= Installer)';                       Fmt='2'; Rewrite=$true; Check=$false; Label='setup.iss/comment-1' }
+    @{ File='setup.iss'; Find='(?<=; Beta v)\d+\.\d+(?= Release)';                                  Fmt='2'; Rewrite=$true; Check=$false; Label='setup.iss/comment-2' }
+    @{ File='setup.iss'; Find='(?<=QuickSay Beta v)\d+\.\d+(?= on your computer)';                  Fmt='2'; Rewrite=$true; Check=$false; Label='setup.iss/WelcomeLabel2' }
+    # setup.iss derived references — presence-only (a refactor must not break the {#MyAppVersion} derivation)
+    @{ File='setup.iss'; Exists='AppVersion={#MyAppVersion}';                Check=$true; Rewrite=$false; Label='setup.iss/AppVersion-derived' }
+    @{ File='setup.iss'; Exists='VersionInfoVersion={#MyAppVersion}';        Check=$true; Rewrite=$false; Label='setup.iss/VersionInfoVersion-derived' }
+    @{ File='setup.iss'; Exists='VersionInfoProductVersion={#MyAppVersion}'; Check=$true; Rewrite=$false; Label='setup.iss/VersionInfoProductVersion-derived' }
+    # ── gui/settings.html ─────────────────────────────────────────────────────
+    @{ File='gui\settings.html'; Find='(?<=<div class="about-app-version">Beta v)\d+\.\d+\.\d+';   Fmt='3'; Rewrite=$true; Check=$true;  Label='gui/settings.html/about-app-version' }
+    # ── Website (SEPARATE repo — warn-only, never rewritten by this script) ─────
+    @{ File='src\components\Footer.astro';        Find='(?<=class="version-link">QuickSay v)\d+\.\d+\.\d+'; Fmt='3'; Rewrite=$false; Check=$true; Repo='website'; Label='Website/Footer.astro' }
+    @{ File='src\pages\beta\getting-started.astro'; Find='(?<=Beta v)\d+\.\d+\.\d+';                        Fmt='3'; Rewrite=$false; Check=$true; Repo='website'; Label='Website/getting-started.astro' }
+)
+
+# Render the version in a target's format. '4'=a.b.c.0  '3'=a.b.c  '2'=a.b
+function Format-Version {
+    param([string]$Fmt, [string]$Major, [string]$Minor, [string]$Patch)
+    switch ($Fmt) {
+        '4' { return "$Major.$Minor.$Patch.0" }
+        '3' { return "$Major.$Minor.$Patch" }
+        '2' { return "$Major.$Minor" }
+        default { throw "Unknown version format '$Fmt'" }
+    }
+}
+
+# Pad a version string to 4 parts ("1.9" -> "1.9.0.0") for normalized comparison.
+function ConvertTo-Version4 {
+    param([string]$V)
+    $p = $V.Split('.')
+    while ($p.Count -lt 4) { $p += '0' }
+    return ($p[0..3] -join '.')
+}
+
+# Read-only verification gate. Returns @() when every checked location agrees
+# with $SemVer (the VERSION value), else an array of human-readable drift lines.
+# - 3/4-part locations compared by normalizing both sides to 4-part (2.0.0 == 2.0.0.0).
+# - 2-part (shortVer) locations compared to "major.minor" (patch intentionally dropped).
+# - Website targets are WARNING-only: unreachable or drifted -> a "WARN" line that does
+#   NOT count toward failure (separate repo; Development clones standalone).
+# - Also scans tracked app files for forbidden X.Y.Z-beta version suffixes (gate 6).
+function Test-VersionSync {
+    param([string]$SemVer)
+    $parts = $SemVer.Split('.')
+    $major = $parts[0]; $minor = $parts[1]; $patch = if ($parts.Count -ge 3) { $parts[2] } else { '0' }
+    $expected2 = "$major.$minor"
+    $expected4 = "$major.$minor.$patch.0"
+
+    $failures = @()
+    $warnings = @()
+
+    foreach ($t in $script:VersionTargets) {
+        $isWebsite = ($t.ContainsKey('Repo') -and $t.Repo -eq 'website')
+        $baseDir = if ($isWebsite) { $script:websiteDir } else { $script:devDir }
+        $path = Join-Path $baseDir $t.File
+
+        if (-not (Test-Path $path)) {
+            if ($isWebsite) { $warnings += "WARN     $($t.Label) — website not reachable (skipped)" }
+            else            { $failures += "MISSING  $($t.Label) — $($t.File) not found" }
+            continue
+        }
+        $content = Get-Content $path -Raw -Encoding UTF8
+
+        # Presence-only (derived references)
+        if ($t.ContainsKey('Exists')) {
+            if (-not $content.Contains($t.Exists)) {
+                $failures += "MISSING-REF $($t.Label) — expected literal '$($t.Exists)' not found"
+            }
+            continue
+        }
+
+        $m = [regex]::Match($content, $t.Find)
+        if (-not $m.Success) {
+            $line = "NO-MATCH $($t.Label) — version pattern not found in $($t.File)"
+            if ($isWebsite) { $warnings += $line } else { $failures += $line }
+            continue
+        }
+        $found = $m.Value
+        $ok = if ($t.Fmt -eq '2') { $found -eq $expected2 } else { (ConvertTo-Version4 $found) -eq $expected4 }
+        if (-not $ok) {
+            $want = if ($t.Fmt -eq '2') { $expected2 } else { (Format-Version $t.Fmt $major $minor $patch) }
+            $line = "DRIFT    $($t.Label) — found '$found', expected '$want'"
+            if ($isWebsite) { $warnings += $line } else { $failures += $line }
+        }
+    }
+
+    # Gate 6: no forbidden X.Y.Z-beta version suffix in tracked app files.
+    foreach ($f in @('QuickSay.ahk','onboarding_ui.ahk','settings_ui.ahk','lib\settings-ui.ahk','setup.iss','config.example.json','data\changelog.json')) {
+        $path = Join-Path $script:devDir $f
+        if (-not (Test-Path $path)) { continue }
+        $c = Get-Content $path -Raw -Encoding UTF8
+        if ($c -match '\d+\.\d+\.\d+-beta') {
+            $failures += "BETA-SUFFIX $f — contains a forbidden 'X.Y.Z-beta' version suffix"
+        }
+    }
+
+    if ($warnings.Count -gt 0) {
+        foreach ($w in $warnings) { Write-Host "   $w" -ForegroundColor Yellow }
+    }
+    return @($failures)
+}
 
 # ── Helper: regex replace in file ────────────────────────────────────────────
 function Update-FileVersion {
@@ -120,6 +284,23 @@ function Update-FileVersion {
     }
 }
 
+# ── --CheckSync: standalone read-only gate (modifies nothing; exits 0/1) ─────
+# This is the M.1 gate: the integration session refuses to build rc1 unless this
+# returns 0. Also wired as the Development/.githooks/pre-commit hook.
+if ($CheckSync) {
+    $checkedCount = @($VersionTargets | Where-Object { $_.Check }).Count
+    Write-Host "`n>> CHECK-SYNC: Verifying $checkedCount version locations match VERSION ($currentVersion)" -ForegroundColor Cyan
+    $syncFailures = @(Test-VersionSync -SemVer $currentVersion)
+    if ($syncFailures.Count -eq 0) {
+        Write-Host "   OK: All $checkedCount checked version locations in sync with v$currentVersion" -ForegroundColor Green
+        Write-Host "   (website targets are warning-only; see any WARN lines above)" -ForegroundColor DarkGray
+        exit 0
+    }
+    foreach ($f in $syncFailures) { Write-Host "   $f" -ForegroundColor Red }
+    Write-Host "`n   FAIL: $($syncFailures.Count) location(s) out of sync — run '.\release.ps1 -SyncOnly' to propagate VERSION to all files, or fix by hand." -ForegroundColor Red
+    exit 1
+}
+
 # ── Banner ───────────────────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Magenta
@@ -141,7 +322,7 @@ if ($currentVersion -eq $semVer) {
     Write-Host ""
 }
 
-if (-not $DryRun) {
+if (-not $DryRun -and -not $SyncOnly) {
     # Support piped input (e.g., echo y | release.ps1) and interactive prompts
     if ([Console]::IsInputRedirected) {
         $confirm = [Console]::In.ReadLine()
@@ -159,188 +340,36 @@ if (-not $DryRun) {
 # =============================================================================
 Write-Step "STEP 1: Updating version numbers across all files"
 
-# The old version pattern matches any Beta vX.Y or X.Y.Z pattern
-# We use flexible regexes so this works regardless of current version
-
-# ── QuickSay.ahk ────────────────────────────────────────────────────────────
-$qsFile = Join-Path $devDir "QuickSay.ahk"
-
-Update-FileVersion $qsFile `
-    '(?<=;@Ahk2Exe-SetDescription QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "QuickSay.ahk — @Ahk2Exe-SetDescription"
-
-Update-FileVersion $qsFile `
-    '(?<=;@Ahk2Exe-SetFileVersion )\d+\.\d+\.\d+\.\d+' `
-    $fileVer `
-    "QuickSay.ahk — @Ahk2Exe-SetFileVersion"
-
-Update-FileVersion $qsFile `
-    '(?<=;@Ahk2Exe-SetProductName QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "QuickSay.ahk — @Ahk2Exe-SetProductName"
-
-Update-FileVersion $qsFile `
-    '(?<=;@Ahk2Exe-SetProductVersion )\d+\.\d+\.\d+\.\d+' `
-    $fileVer `
-    "QuickSay.ahk — @Ahk2Exe-SetProductVersion"
-
-Update-FileVersion $qsFile `
-    '(?<=;  QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "QuickSay.ahk — comment header"
-
-Update-FileVersion $qsFile `
-    '(?<=QuickSay\.VoiceToText\.)\d+\.\d+' `
-    $shortVer `
-    "QuickSay.ahk — AppUserModelID"
-
-Update-FileVersion $qsFile `
-    '(?<=StrLen\("QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "QuickSay.ahk — RelaunchDisplayName StrLen"
-
-Update-FileVersion $qsFile `
-    '(?<=StrPut\("QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "QuickSay.ahk — RelaunchDisplayName StrPut"
-
-Update-FileVersion $qsFile `
-    '(?<=; Set RelaunchDisplayNameResource .+ "QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "QuickSay.ahk — RelaunchDisplayName comment"
-
-Update-FileVersion $qsFile `
-    '(?<=localVersion := ")\d+\.\d+\.\d+' `
-    $semVer `
-    "QuickSay.ahk — localVersion"
-
-# ── onboarding_ui.ahk ───────────────────────────────────────────────────────
-$obFile = Join-Path $devDir "onboarding_ui.ahk"
-
-Update-FileVersion $obFile `
-    '(?<=;@Ahk2Exe-SetDescription QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "onboarding_ui.ahk — @Ahk2Exe-SetDescription"
-
-Update-FileVersion $obFile `
-    '(?<=;@Ahk2Exe-SetFileVersion )\d+\.\d+\.\d+\.\d+' `
-    $fileVer `
-    "onboarding_ui.ahk — @Ahk2Exe-SetFileVersion"
-
-Update-FileVersion $obFile `
-    '(?<=;@Ahk2Exe-SetProductName QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "onboarding_ui.ahk — @Ahk2Exe-SetProductName"
-
-Update-FileVersion $obFile `
-    '(?<=;@Ahk2Exe-SetProductVersion )\d+\.\d+\.\d+\.\d+' `
-    $fileVer `
-    "onboarding_ui.ahk — @Ahk2Exe-SetProductVersion"
-
-Update-FileVersion $obFile `
-    '(?<=QuickSay\.VoiceToText\.)\d+\.\d+' `
-    $shortVer `
-    "onboarding_ui.ahk — AppUserModelID"
-
-Update-FileVersion $obFile `
-    '(?<=; QuickSay Beta v)\d+\.\d+(?= Onboarding)' `
-    $shortVer `
-    "onboarding_ui.ahk — comment header"
-
-# ── settings_ui.ahk ─────────────────────────────────────────────────────────
-$suFile = Join-Path $devDir "settings_ui.ahk"
-
-Update-FileVersion $suFile `
-    '(?<=;@Ahk2Exe-SetDescription QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "settings_ui.ahk — @Ahk2Exe-SetDescription"
-
-Update-FileVersion $suFile `
-    '(?<=;@Ahk2Exe-SetFileVersion )\d+\.\d+\.\d+\.\d+' `
-    $fileVer `
-    "settings_ui.ahk — @Ahk2Exe-SetFileVersion"
-
-Update-FileVersion $suFile `
-    '(?<=;@Ahk2Exe-SetProductName QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "settings_ui.ahk — @Ahk2Exe-SetProductName"
-
-Update-FileVersion $suFile `
-    '(?<=;@Ahk2Exe-SetProductVersion )\d+\.\d+\.\d+\.\d+' `
-    $fileVer `
-    "settings_ui.ahk — @Ahk2Exe-SetProductVersion"
-
-Update-FileVersion $suFile `
-    '(?<=QuickSay\.VoiceToText\.)\d+\.\d+' `
-    $shortVer `
-    "settings_ui.ahk — AppUserModelID"
-
-Update-FileVersion $suFile `
-    '(?<=; QuickSay Beta v)\d+\.\d+(?= Settings)' `
-    $shortVer `
-    "settings_ui.ahk — comment header"
-
-# ── lib/settings-ui.ahk ─────────────────────────────────────────────────────
-$libSuFile = Join-Path $devDir "lib\settings-ui.ahk"
-
-Update-FileVersion $libSuFile `
-    '(?<=StrLen\("QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "lib/settings-ui.ahk — RelaunchDisplayName StrLen"
-
-Update-FileVersion $libSuFile `
-    '(?<=StrPut\("QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "lib/settings-ui.ahk — RelaunchDisplayName StrPut"
-
-Update-FileVersion $libSuFile `
-    '(?<=; Set RelaunchDisplayNameResource .+ "QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "lib/settings-ui.ahk — RelaunchDisplayName comment"
-
-# ── gui/settings.html ────────────────────────────────────────────────────────
+# ── Rewrite every version location from the shared $VersionTargets table ─────
+# DRY: the SAME table drives -CheckSync. Add a location once and both the
+# rewrite path here and the verification gate pick it up. Derived references
+# (setup.iss {#MyAppVersion}) and website targets are NOT rewritten here.
+$qsFile       = Join-Path $devDir "QuickSay.ahk"
+$obFile       = Join-Path $devDir "onboarding_ui.ahk"
+$suFile       = Join-Path $devDir "settings_ui.ahk"
+$libSuFile    = Join-Path $devDir "lib\settings-ui.ahk"
 $settingsHtml = Join-Path $devDir "gui\settings.html"
+$issFile      = Join-Path $devDir "setup.iss"
 
-Update-FileVersion $settingsHtml `
-    '(?<=<div class="about-app-version">Beta v)\d+\.\d+(\.\d+)?' `
-    $semVer `
-    "settings.html — About tab version"
+foreach ($t in $VersionTargets) {
+    if (-not $t.Rewrite) { continue }
+    if ($t.ContainsKey('Repo') -and $t.Repo -eq 'website') { continue }
+    $path = Join-Path $devDir $t.File
+    if (-not (Test-Path $path)) { Write-Warn "$($t.Label) — $($t.File) not found, skipping"; continue }
+    $rendered = Format-Version $t.Fmt $major $minor $patch
+    $content  = Get-Content $path -Raw -Encoding UTF8
+    if ($content -match $t.Find) {
+        if (-not $DryRun) {
+            $updated = $content -replace $t.Find, $rendered
+            [System.IO.File]::WriteAllText($path, $updated, [System.Text.UTF8Encoding]::new($false))
+        }
+        Write-OK "$($t.Label) -> $rendered"
+    } else {
+        Write-Warn "Pattern not matched: $($t.Label)"
+    }
+}
 
-# ── setup.iss ────────────────────────────────────────────────────────────────
-$issFile = Join-Path $devDir "setup.iss"
-
-Update-FileVersion $issFile `
-    '(?<=; QuickSay Beta v)\d+\.\d+(?= Installer)' `
-    $shortVer `
-    "setup.iss — comment line 1"
-
-Update-FileVersion $issFile `
-    '(?<=; Beta v)\d+\.\d+(?= Release)' `
-    $shortVer `
-    "setup.iss — comment line 2"
-
-Update-FileVersion $issFile `
-    '(?<=#define MyAppVersion ")\d+\.\d+\.\d+' `
-    $semVer `
-    "setup.iss — MyAppVersion"
-
-Update-FileVersion $issFile `
-    '(?<=#define MyAppVerName "QuickSay Beta v)\d+\.\d+' `
-    $shortVer `
-    "setup.iss — MyAppVerName"
-
-Update-FileVersion $issFile `
-    '(?<=OutputBaseFilename=QuickSay_Beta_v)\d+\.\d+(?=_Setup)' `
-    $shortVer `
-    "setup.iss — OutputBaseFilename"
-
-Update-FileVersion $issFile `
-    '(?<=QuickSay Beta v)\d+\.\d+(?= on your computer)' `
-    $shortVer `
-    "setup.iss — WelcomeLabel2"
-
-# ── docs/LICENSE_AGREEMENT.rtf ──────────────────────────────────────────────
+# ── docs/LICENSE_AGREEMENT.rtf (bespoke: version + date, kept outside the table) ──
 $licenseRtf = Join-Path $devDir "docs\LICENSE_AGREEMENT.rtf"
 
 Update-FileVersion $licenseRtf `
@@ -362,13 +391,15 @@ if ($Changelog -ne "") {
         $changelogJson = Get-Content $changelogFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $items = $Changelog.Split(',') | ForEach-Object { $_.Trim() }
 
-        # Check if this version already exists
-        $existing = $changelogJson | Where-Object { $_.version -eq "$semVer-beta" }
+        # Check if this version already exists. Entries use plain semver (NO
+        # -beta suffix — forbidden by the version regime; the product name
+        # already carries "Beta"). T1.6.
+        $existing = $changelogJson | Where-Object { $_.version -eq $semVer }
         if ($existing) {
-            Write-Warn "Version $semVer-beta already in changelog — skipping"
+            Write-Warn "Version $semVer already in changelog — skipping"
         } else {
             $newEntry = [PSCustomObject]@{
-                version = "$semVer-beta"
+                version = $semVer
                 date    = (Get-Date -Format "yyyy-MM-dd")
                 changes = @($items)
             }
@@ -378,9 +409,21 @@ if ($Changelog -ne "") {
                 $changelogJson | ConvertTo-Json -Depth 10 |
                     Set-Content $changelogFile -Encoding UTF8 -NoNewline
             }
-            Write-OK "changelog.json — added $semVer-beta with $($items.Count) changes"
+            Write-OK "changelog.json — added $semVer with $($items.Count) changes"
         }
     }
+}
+
+# ── VERSION (single source of truth) ─────────────────────────────────────────
+if (-not $DryRun) {
+    [System.IO.File]::WriteAllText(
+        (Join-Path $devDir "VERSION"),
+        $semVer,
+        [System.Text.UTF8Encoding]::new($false)
+    )
+    Write-OK "VERSION — $semVer"
+} else {
+    Write-OK "VERSION — $semVer (dry run)"
 }
 
 Write-Host ""
@@ -388,6 +431,26 @@ Write-Host "   Version numbers updated in all files." -ForegroundColor Green
 
 if ($DryRun) {
     Write-Host "`nDry run complete. No files were modified." -ForegroundColor Yellow
+    exit 0
+}
+
+# =============================================================================
+# STEP 1b: Assert version sync (hard-fail if any location diverged)
+# =============================================================================
+Write-Step "STEP 1b: Asserting version sync"
+$syncFailures = @(Test-VersionSync -SemVer $semVer)
+if ($syncFailures.Count -eq 0) {
+    Write-OK "All checked version locations in sync with v$semVer"
+} else {
+    foreach ($f in $syncFailures) { Write-Host "   $f" -ForegroundColor Red }
+    Write-Fail "Version sync check FAILED after update — aborting build (fix the patterns above)"
+    exit 1
+}
+
+# ── -SyncOnly: propagate version strings only, no build/sign/publish ──────────
+if ($SyncOnly) {
+    Write-Step "SYNC-ONLY COMPLETE"
+    Write-OK "Version strings propagated to v$semVer (VERSION + all tracked files). No build, sign, or publish performed."
     exit 0
 }
 

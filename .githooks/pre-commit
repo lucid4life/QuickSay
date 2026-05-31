@@ -1,0 +1,51 @@
+#!/bin/sh
+# =============================================================================
+# QuickSay version-sync pre-commit gate (T1.6)
+#
+# Aborts a commit if any tracked version string has drifted from Development/VERSION
+# (the single source of truth). Runs the read-only `release.ps1 -CheckSync`.
+#
+# Activate once (from the Development repo root):
+#     git config core.hooksPath .githooks
+#
+# Emergency bypass (use sparingly — drift WILL ship if you skip it):
+#     QUICKSAY_SKIP_VERSION_CHECK=1 git commit ...
+# =============================================================================
+
+if [ "$QUICKSAY_SKIP_VERSION_CHECK" = "1" ]; then
+    echo "[version-sync] SKIPPED (QUICKSAY_SKIP_VERSION_CHECK=1)"
+    exit 0
+fi
+
+# Repo root = directory containing release.ps1 / VERSION.
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+if [ -z "$ROOT" ]; then
+    ROOT="."
+fi
+
+if [ ! -f "$ROOT/release.ps1" ]; then
+    echo "[version-sync] release.ps1 not found at repo root — skipping check"
+    exit 0
+fi
+
+# Prefer pwsh (PowerShell 7+); fall back to Windows PowerShell.
+if command -v pwsh >/dev/null 2>&1; then
+    PS=pwsh
+elif command -v powershell >/dev/null 2>&1; then
+    PS=powershell
+else
+    echo "[version-sync] PowerShell not found — cannot verify version sync. Install pwsh or set QUICKSAY_SKIP_VERSION_CHECK=1 to bypass."
+    exit 1
+fi
+
+"$PS" -NoProfile -File "$ROOT/release.ps1" -CheckSync
+STATUS=$?
+
+if [ "$STATUS" -ne 0 ]; then
+    echo ""
+    echo "[version-sync] COMMIT ABORTED — version drift detected (see the table above)."
+    echo "[version-sync] Fix: run '.\\release.ps1 -SyncOnly' to propagate VERSION, then re-commit."
+    echo "[version-sync] Bypass (not recommended): QUICKSAY_SKIP_VERSION_CHECK=1 git commit ..."
+fi
+
+exit $STATUS

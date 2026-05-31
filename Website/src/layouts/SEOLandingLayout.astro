@@ -1,0 +1,95 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import BetaCTA from '../components/BetaCTA.astro';
+import DownloadCTA from '../components/DownloadCTA.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  h1: string;
+  canonicalUrl: string;
+  ogImage?: string;
+  relatedPages?: Array<{ href: string; label: string }>;
+}
+
+const { title, description, h1, canonicalUrl, ogImage, relatedPages = [] } = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl={canonicalUrl}
+  ogImage={ogImage}
+>
+  <Navbar slot="header" />
+
+  <!-- Hero -->
+  <section class="pt-32 pb-12 md:pt-40 md:pb-16 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance mb-6">
+        {h1}
+      </h1>
+      <p class="fade-in-up text-lg text-text-secondary max-w-2xl mx-auto mb-8">
+        <slot name="hero-subtitle" />
+      </p>
+      <div class="fade-in-up">
+        <BetaCTA text="Join the Open Beta — Free" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="pb-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="fade-in-up space-y-6 text-text-secondary leading-relaxed">
+        <slot />
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Stats Strip -->
+  <section class="py-16 px-6 border-t border-b border-border">
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+      <div class="fade-in-up">
+        <p class="font-headline font-bold text-4xl text-accent-orange">
+          Free
+        </p>
+        <p class="text-text-secondary text-sm mt-2">Open beta. No credit card required.</p>
+      </div>
+      <div class="fade-in-up">
+        <p class="font-headline font-bold text-4xl text-accent-orange">8x</p>
+        <p class="text-text-secondary text-sm mt-2">Smaller than Wispr Flow (105 MB vs 800 MB)</p>
+      </div>
+      <div class="fade-in-up">
+        <p class="font-headline font-bold text-4xl text-accent-orange">8 hrs</p>
+        <p class="text-text-secondary text-sm mt-2">Free daily transcription with free AI tier</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download CTA -->
+  <DownloadCTA />
+
+  <!-- Related Pages -->
+  {relatedPages.length > 0 && (
+    <section class="pb-20 px-6">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Related pages</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {relatedPages.map((page) => (
+            <a
+              href={page.href}
+              class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150"
+            >
+              {page.label} &rarr;
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <Footer slot="footer" />
+</BaseLayout>

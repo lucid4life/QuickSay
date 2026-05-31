@@ -1,0 +1,64 @@
+---
+import SEOLandingLayout from '../layouts/SEOLandingLayout.astro';
+---
+
+<SEOLandingLayout
+  title="Voice Typing for Google Docs on Windows — QuickSay"
+  description="Dictate into Google Docs on Windows with QuickSay. System-wide voice-to-text that works in Chrome, Firefox, and Edge. AI cleanup included. Free open beta."
+  h1="Voice Typing for Google Docs on Windows"
+  canonicalUrl="https://quicksay.app/voice-typing-google-docs"
+  relatedPages={[
+    { href: '/voice-typing-word', label: 'Voice-to-Text for Microsoft Word' },
+    { href: '/voice-typing-notion', label: 'Voice-to-Text for Notion' },
+    { href: '/voice-to-text-windows', label: 'Voice to Text for Windows' },
+    { href: '/voice-typing-outlook', label: 'Dictate Emails in Outlook' },
+  ]}
+>
+  <Fragment slot="hero-subtitle">
+    Google Docs has built-in voice typing, but it only works in Chrome and struggles with punctuation.
+    QuickSay works in every browser and cleans up your dictation automatically.
+  </Fragment>
+
+  <p class="text-lg">
+    Google Docs' built-in Voice Typing feature has been around for years. It requires Chrome, it requires a Google account, and it delivers raw transcription with minimal formatting. Punctuation is hit-or-miss, capitalization is inconsistent, and you lose it entirely if you prefer Firefox, Edge, or Brave as your browser. QuickSay solves all of these problems because it operates at the system level, not inside the browser.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Works in Any Browser, Not Just Chrome</h2>
+  <p>
+    QuickSay is not a browser extension. It is a Windows application that captures your voice, transcribes it with AI transcription, cleans the output with AI, and pastes the result into whatever text field has focus. Open Google Docs in Firefox, Edge, Brave, or Arc — it does not matter. Hold your keyboard shortcut, speak, release, and polished text appears at your cursor. The same workflow applies whether you are editing a shared document, leaving a comment, or renaming a file in Google Drive.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Cleaner Output Than Built-in Voice Typing</h2>
+  <p>
+    The difference between raw transcription and AI-cleaned text is striking in a document context. Google's built-in tool gives you exactly what you said, ums and sentence fragments included. QuickSay gives you what you meant.
+  </p>
+  <div class="bg-surface border border-border rounded-xl p-5 my-4">
+    <p class="text-text-tertiary text-sm font-mono mb-2">Raw dictation:</p>
+    <p class="text-text-secondary italic">"so the quarterly report needs to include um the revenue numbers from Q3 and also we should probably mention the new partnership with Acme Corp that was finalized last week"</p>
+    <p class="text-text-tertiary text-sm font-mono mt-4 mb-2">After QuickSay cleanup:</p>
+    <p class="text-text-primary">"The quarterly report needs to include the revenue numbers from Q3. We should also mention the new partnership with Acme Corp, which was finalized last week."</p>
+  </div>
+  <p>
+    That cleanup happens in under two seconds. For anyone writing reports, meeting notes, or project briefs in Google Docs, this transforms dictation from a novelty into a genuine productivity tool.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Collaborative Documents</h2>
+  <p>
+    Google Docs is built for collaboration, which means your writing is visible to colleagues in real time. QuickSay's AI cleanup ensures that what lands in the document reads professionally from the moment it appears. No one sees your rough spoken draft — they see the polished version. This is especially useful during live editing sessions where multiple people are watching the same document.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Comments and Suggestions</h2>
+  <p>
+    Google Docs comments are one of the most underserved areas for voice typing. Built-in tools do not work in the comment sidebar. QuickSay does. Click into a comment field, dictate your feedback, and the cleaned text appears ready to post. For document reviewers who leave dozens of comments per session, this cuts review time significantly.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">25 Languages for International Teams</h2>
+  <p>
+    Google Docs' voice typing supports multiple languages, but switching between them requires navigating a dropdown menu every time. QuickSay supports 25 languages through AI transcription with automatic detection. Speak in the language you need — Spanish, German, Japanese, Portuguese — and the transcription handles the switch without manual configuration. For teams creating multilingual documents, this removes a genuine friction point.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Privacy in Shared Workspaces</h2>
+  <p>
+    QuickSay captures zero screen content and sends zero telemetry. Your audio goes to the cloud for transcription and nothing else leaves your machine. In workplaces where Google Docs contains sensitive business information, this matters. There is no browser extension reading your document content, no clipboard monitoring beyond the paste action, and no usage data collected.
+  </p>
+</SEOLandingLayout>

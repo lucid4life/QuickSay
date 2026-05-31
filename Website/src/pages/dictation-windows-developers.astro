@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import PricingComparison from '../components/PricingComparison.astro';
+import DownloadCTA from '../components/DownloadCTA.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Best Dictation App for Windows Developers 2026 — QuickSay"
+  description="QuickSay is the best dictation app for Windows developers in 2026. Zero telemetry, zero screen capture, works in any app. Free open beta."
+  canonicalUrl="https://quicksay.app/dictation-windows-developers"
+>
+  <Navbar slot="header" />
+
+  <section class="pt-32 pb-16 md:pt-40 md:pb-20 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance mb-6">
+        Best Dictation App for Windows Developers
+      </h1>
+
+      <div class="fade-in-up space-y-6 text-text-secondary leading-relaxed">
+        <p class="text-lg">
+          Developers type all day, and a growing number are paying for it with wrist pain, eye strain, and repetitive stress injuries. Dictation software solves this — but most options are built for general consumers, not the people who live in terminals and text editors. QuickSay is built differently. It is lightweight, private, and works everywhere a developer types on Windows.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Why Developers Need Voice Typing</h2>
+        <p>
+          Software development involves far more prose than code. Documentation, commit messages, code reviews, Slack discussions, Jira tickets, architecture decision records, README files, and email — developers routinely write thousands of words per day that are not code. Voice dictation handles this prose 2-3x faster than typing, and it gives your hands rest between coding sessions.
+        </p>
+        <p>
+          RSI prevention alone justifies the investment. Carpal tunnel and tendinitis end careers. Alternating between keyboard input for code and voice input for prose distributes the physical load across different muscle groups. It is not about replacing your keyboard — it is about using it less for tasks where your voice is faster anyway.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">What Makes QuickSay Different for Developers</h2>
+        <p>
+          Most dictation tools — Wispr Flow, Aqua Voice, Windows built-in dictation — are designed for general productivity. Some offer optional screen capture for "context," collect telemetry for "improvements," and run heavy background processes that compete with your dev environment for resources. QuickSay takes the opposite approach:
+        </p>
+        <ul class="list-disc pl-6 space-y-2">
+          <li><strong class="text-text-primary">Zero screen capture</strong> — Your IDE, terminal, and browser stay private. No screenshots of proprietary code sent to third-party servers.</li>
+          <li><strong class="text-text-primary">Zero telemetry</strong> — No usage tracking, no analytics, no "anonymous" data collection. The app does one thing and collects nothing.</li>
+          <li><strong class="text-text-primary">Lightweight ~105 MB install</strong> — No bundled AI models or background services. QuickSay leaves more resources for your actual work. Docker, Node, Chrome, and your IDE already consume enough RAM.</li>
+          <li><strong class="text-text-primary">Works in every app</strong> — VS Code, JetBrains IDEs, Vim in Windows Terminal, Slack, browsers, Notion. QuickSay types via clipboard into any text field on Windows.</li>
+        </ul>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Code Documentation by Voice</h2>
+        <p>
+          The highest-leverage use of voice typing for developers is documentation. Position your cursor above a function and describe what it does. QuickSay transcribes your explanation, AI cleans it into proper sentences, and you paste a full docstring in seconds. The code that never gets documented — the "I'll add comments later" code — finally gets documented because the barrier is so low.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">QuickSay vs. Competitors</h2>
+        <p>
+          Wispr Flow costs $144 per year and offers optional screen capture. Aqua Voice costs $96 per year with a limited free trial of 1,000 words. SuperWhisper is macOS-only at $249.99 lifetime. Windows built-in dictation produces raw, unformatted text with no cleanup pass.
+        </p>
+        <p>
+          QuickSay is free during the open beta. It uses AI transcription and AI text cleanup, providing an estimated 8 hours of free daily usage through the free AI tier. Compare that to $432 over three years for Wispr Flow or $288 for Aqua Voice.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Custom Dictionary for Your Stack</h2>
+        <p>
+          Every tech stack has its own vocabulary. QuickSay's custom dictionary lets you map spoken phrases to exact text — "use effect" becomes <code class="font-mono text-accent-teal text-sm bg-glass border border-border rounded px-1">useEffect</code>, "kubernetes" always gets the right capitalization, and your internal service names are spelled correctly every time. The dictionary is a JSON file you can commit to your dotfiles repo and share across machines.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Pages -->
+  <section class="pb-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Related pages</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="/voice-typing-vscode" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice Typing for VS Code &rarr;</a>
+        <a href="/voice-typing-jupyter" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice Typing for Jupyter Notebooks &rarr;</a>
+        <a href="/voice-to-text-rsi" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice-to-Text for RSI &rarr;</a>
+        <a href="/quicksay-vs-wispr-flow" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">QuickSay vs Wispr Flow &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <PricingComparison />
+  <DownloadCTA />
+  <Footer slot="footer" />
+</BaseLayout>

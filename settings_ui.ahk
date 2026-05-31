@@ -1,8 +1,8 @@
 ;@Ahk2Exe-SetCompanyName QuickSay
-;@Ahk2Exe-SetDescription QuickSay Beta v1.8 Settings
-;@Ahk2Exe-SetFileVersion 1.8.1.0
-;@Ahk2Exe-SetProductName QuickSay Beta v1.8
-;@Ahk2Exe-SetProductVersion 1.8.1.0
+;@Ahk2Exe-SetDescription QuickSay Beta v1.9 Settings
+;@Ahk2Exe-SetFileVersion 1.9.0.0
+;@Ahk2Exe-SetProductName QuickSay Beta v1.9
+;@Ahk2Exe-SetProductVersion 1.9.0.0
 ;@Ahk2Exe-SetCopyright Copyright (c) 2024-2026 QuickSay
 ;@Ahk2Exe-SetOrigFilename QuickSay-Settings.exe
 ;@Ahk2Exe-SetMainIcon gui\assets\icon.ico
@@ -13,10 +13,10 @@
 
 ; --- SET APP IDENTITY FOR WINDOWS TASKBAR ---
 ; Ensures this process groups with the main launcher (same AppUserModelID)
-DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.1.8")
+DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.1.9")
 
 ; ==============================================================================
-; QuickSay Beta v1.8 Settings UI (WebView2)
+; QuickSay Beta v1.9 Settings UI (WebView2)
 ; Uses shared SettingsUI class from lib/settings-ui.ahk
 ; ==============================================================================
 

@@ -1,0 +1,33 @@
+---
+/**
+ * DownloadCTA — final conversion push section with glowing download button.
+ * Includes system requirements summary and teal radial glow.
+ */
+import BetaCTA from './BetaCTA.astro';
+---
+
+<section id="download-cta" class="py-24 md:py-32 px-6">
+  <div class="max-w-2xl mx-auto text-center">
+    <!-- Headline -->
+    <h2 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance">
+      Start speaking. Stop typing.
+    </h2>
+
+    <!-- Button wrapper with glow -->
+    <div class="fade-in-up relative inline-block mt-10">
+      <!-- Radial glow behind button -->
+      <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-52 h-52 bg-accent-teal opacity-10 blur-3xl rounded-full pointer-events-none"
+        aria-hidden="true"
+      ></div>
+
+      <!-- Primary CTA -->
+      <BetaCTA text="Join the Open Beta — Free" size="large" class="relative" />
+    </div>
+
+    <!-- System requirements -->
+    <p class="fade-in-up text-text-secondary text-sm mt-6">
+      Windows 10+ &nbsp;|&nbsp; ~105 MB &nbsp;|&nbsp; No credit card required
+    </p>
+  </div>
+</section>

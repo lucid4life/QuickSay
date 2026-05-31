@@ -1,0 +1,60 @@
+---
+import SEOLandingLayout from '../layouts/SEOLandingLayout.astro';
+---
+
+<SEOLandingLayout
+  title="Voice-to-Text for Notion on Windows — QuickSay"
+  description="Dictate directly into Notion pages and databases on Windows. QuickSay provides voice-to-text with AI cleanup for fast note-taking. Free open beta."
+  h1="Voice-to-Text for Notion on Windows"
+  canonicalUrl="https://quicksay.app/voice-typing-notion"
+  relatedPages={[
+    { href: '/voice-typing-obsidian', label: 'Voice Notes in Obsidian' },
+    { href: '/voice-to-text-adhd', label: 'Voice-to-Text for ADHD' },
+    { href: '/voice-typing-google-docs', label: 'Voice Typing for Google Docs' },
+    { href: '/voice-typing-meetings', label: 'Dictate Meeting Notes' },
+  ]}
+>
+  <Fragment slot="hero-subtitle">
+    Notion has no built-in dictation. QuickSay adds voice-to-text to every Notion page, database, and comment — with automatic cleanup.
+  </Fragment>
+
+  <p class="text-lg">
+    Notion is where many teams centralize their knowledge: project docs, meeting notes, wikis, task databases, and personal journals. But Notion has never offered a native dictation feature. If you want to get text into Notion by voice, you need a system-level tool. QuickSay fills that gap by working outside Notion entirely, transcribing your speech and pasting cleaned text into whatever block or field has focus.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">How QuickSay Works with Notion</h2>
+  <p>
+    Open any Notion page — in the desktop app or in your browser. Click into a text block, a database cell, a comment field, or an inline mention. Hold your QuickSay keyboard shortcut, speak, and release. AI transcription transcribes your speech, AI cleans it into well-structured prose, and the result pastes at your cursor. Because QuickSay works via the clipboard at the system level, there is no Notion integration to install or account to configure.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Faster Note-Taking for Knowledge Workers</h2>
+  <p>
+    Knowledge workers use Notion as a second brain — a place to capture ideas, document processes, and organize information. The bottleneck is always input speed. Typing detailed notes interrupts the flow of thinking. Voice dictation removes that friction: think it, speak it, and the cleaned note appears in your Notion page. A paragraph that takes 40 seconds to type arrives in 12 seconds of speaking.
+  </p>
+  <div class="bg-surface border border-border rounded-xl p-5 my-4">
+    <p class="text-text-tertiary text-sm font-mono mb-2">Spoken into a project doc:</p>
+    <p class="text-text-secondary italic">"the API migration is about seventy percent done we still need to update the auth endpoints and the webhook handlers should be finished by end of week and then we can start integration testing next Monday"</p>
+    <p class="text-text-tertiary text-sm font-mono mt-4 mb-2">After QuickSay cleanup:</p>
+    <p class="text-text-primary">"The API migration is about 70% done. We still need to update the auth endpoints and the webhook handlers, which should be finished by end of week. Integration testing can start next Monday."</p>
+  </div>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Database Properties and Comments</h2>
+  <p>
+    Notion databases are where teams track tasks, bugs, clients, and content calendars. Each database entry has properties — text fields, notes sections, and comment threads. QuickSay works in all of these. Click into a database property, dictate, and the cleaned text fills the field. Leave voice-dictated comments on database entries during review sessions. Update status notes without reaching for the keyboard.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Meeting Notes Directly into Notion</h2>
+  <p>
+    Many teams run meetings with a Notion page open for notes. The challenge is capturing key points while participating in the conversation. Typing during a meeting is slow and distracting. With QuickSay, you can hold your keyboard shortcut during a pause, dictate a summary of what was just discussed, and release. The cleaned note appears in your Notion meeting template without disrupting the meeting flow.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Desktop App and Browser</h2>
+  <p>
+    QuickSay works identically whether you use the Notion desktop app for Windows or access Notion through a browser tab. There is no difference in behavior because QuickSay does not interact with Notion's software — it types into the active text field, regardless of what application contains it. Switch between the desktop app and the web version freely; your voice typing workflow stays the same.
+  </p>
+
+  <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Privacy for Your Workspace</h2>
+  <p>
+    Notion workspaces often contain sensitive company information — strategy docs, financial data, HR notes, customer details. QuickSay captures zero screen content and collects zero telemetry. Your audio is sent to the cloud for transcription, and nothing else leaves your machine. There is no browser extension reading your Notion pages and no third-party service with access to your workspace data.
+  </p>
+</SEOLandingLayout>

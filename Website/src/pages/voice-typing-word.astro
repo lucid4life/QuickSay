@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import PricingComparison from '../components/PricingComparison.astro';
+import DownloadCTA from '../components/DownloadCTA.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Voice-to-Text for Microsoft Word — QuickSay"
+  description="Dictate directly into Microsoft Word with QuickSay. Long-form drafting, smart punctuation, and AI text cleanup. Free open beta for Windows."
+  canonicalUrl="https://quicksay.app/voice-typing-word"
+>
+  <Navbar slot="header" />
+
+  <section class="pt-32 pb-16 md:pt-40 md:pb-20 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="fade-in-up font-headline font-bold text-4xl md:text-5xl text-text-primary text-balance mb-6">
+        Voice-to-Text for Microsoft Word
+      </h1>
+
+      <div class="fade-in-up space-y-6 text-text-secondary leading-relaxed">
+        <p class="text-lg">
+          Long-form writing is exhausting on a keyboard. Reports, proposals, research papers, client briefs — documents that demand thousands of words drain your hands and your focus. QuickSay turns Microsoft Word into a dictation powerhouse: speak your thoughts, and AI transforms them into clean, well-punctuated prose ready for review.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">How QuickSay Works with Word</h2>
+        <p>
+          Open Microsoft Word, place your cursor where you want text, hold your QuickSay keyboard shortcut, and start speaking. When you release the key, your speech is transcribed by AI transcription and polished by AI. The finished text is pasted directly at your cursor position. QuickSay handles paragraphs, punctuation, and capitalization so you can focus on ideas instead of formatting.
+        </p>
+        <p>
+          Because QuickSay operates at the system level and pastes via clipboard, it works with every version of Microsoft Word — Word 365, Word 2021, Word 2019, and even Word Online in your browser. There is no Word add-in to install and no compatibility matrix to check.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Long-Form Document Drafting</h2>
+        <p>
+          The average person speaks at 130-150 words per minute but types at 40-60 words per minute. For a 3,000-word report, that is the difference between 20 minutes of speaking and over an hour of typing. QuickSay makes first drafts effortless. Speak your outline, dictate section by section, and refine the text afterward. The first draft is the hardest — voice dictation removes that friction entirely.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Smart Punctuation</h2>
+        <p>
+          AI does not just transcribe your words — it understands sentence structure. Periods, commas, question marks, and paragraph breaks are inserted automatically based on your speech patterns and context. You can also use voice commands like "new paragraph" or "question mark" for explicit control. The result is text that reads like it was carefully typed, not hastily dictated.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Writer Workflow</h2>
+        <p>
+          Professional writers, content creators, and academic researchers have a common workflow: think, draft, revise. QuickSay accelerates the draft phase dramatically. Speak your rough thoughts while pacing around your office, then sit down to revise clean text instead of a blank page. Many writers find that dictation produces more natural, conversational prose — exactly the tone modern business writing demands.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Better Than Word's Built-In Dictation</h2>
+        <p>
+          Microsoft Word has a built-in dictation feature, but it requires a Microsoft 365 subscription and produces raw transcription without intelligent cleanup. QuickSay's AI pass cleans up filler words, fixes grammar, and ensures consistent formatting — producing text that needs less editing. And QuickSay is free during the open beta versus the ongoing cost of Microsoft 365, making it the more economical choice for users who primarily need voice-to-text.
+        </p>
+
+        <h2 class="font-headline font-semibold text-2xl text-text-primary pt-4">Accessibility and Ergonomics</h2>
+        <p>
+          For users with repetitive strain injuries, carpal tunnel syndrome, or other conditions that make extended typing painful, voice dictation is not a convenience — it is a necessity. QuickSay provides a reliable, high-quality dictation path into Word that does not depend on Microsoft's accessibility features or require additional assistive technology. Speak naturally, get professional text, and keep your hands rested.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Pages -->
+  <section class="pb-16 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="font-headline font-semibold text-xl text-text-primary mb-6">Related pages</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <a href="/voice-typing-google-docs" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice Typing for Google Docs &rarr;</a>
+        <a href="/voice-typing-outlook" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Dictate Emails in Outlook &rarr;</a>
+        <a href="/voice-to-text-rsi" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice-to-Text for RSI &rarr;</a>
+        <a href="/voice-to-text-windows" class="block p-4 rounded-xl border border-border bg-surface text-text-secondary hover:text-text-primary hover:border-accent-teal/30 transition-all duration-150">Voice to Text for Windows &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <PricingComparison />
+  <DownloadCTA />
+  <Footer slot="footer" />
+</BaseLayout>

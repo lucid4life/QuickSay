@@ -1,0 +1,235 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Terms of Service — QuickSay"
+  description="QuickSay terms of service. $39 launch pricing (regular $74) one-time license, 30-day money-back guarantee, perpetual updates, plain-language terms."
+  canonicalUrl="https://quicksay.app/terms"
+>
+  <Navbar slot="header" />
+
+  <section class="pt-32 pb-24 md:pt-40 md:pb-32 px-6">
+    <div class="legal-prose max-w-[720px] mx-auto">
+      <h1 class="font-headline font-bold text-4xl md:text-5xl text-text-primary mb-4">
+        Terms of Service
+      </h1>
+      <p class="text-text-tertiary text-sm mb-12">Last updated: February 2026</p>
+
+      <!-- Table of Contents -->
+      <nav class="mb-16 p-6 rounded-lg bg-surface border border-border" aria-label="Table of contents">
+        <p class="font-headline font-semibold text-text-primary text-sm uppercase tracking-wider mb-4">On this page</p>
+        <ol class="flex flex-col gap-2 list-decimal list-inside text-sm">
+          <li><a href="#license" class="text-accent-teal hover:underline">License</a></li>
+          <li><a href="#refund-policy" class="text-accent-teal hover:underline">Refund Policy</a></li>
+          <li><a href="#updates" class="text-accent-teal hover:underline">Updates</a></li>
+          <li><a href="#third-party-services" class="text-accent-teal hover:underline">Third-Party Services</a></li>
+          <li><a href="#byok-liability" class="text-accent-teal hover:underline">API Key Responsibility (BYOK)</a></li>
+          <li><a href="#intellectual-property" class="text-accent-teal hover:underline">Intellectual Property</a></li>
+          <li><a href="#disclaimer" class="text-accent-teal hover:underline">Disclaimer</a></li>
+          <li><a href="#limitation-of-liability" class="text-accent-teal hover:underline">Limitation of Liability</a></li>
+          <li><a href="#no-uptime-warranty" class="text-accent-teal hover:underline">No Warranty on Uptime</a></li>
+          <li><a href="#acceptable-use" class="text-accent-teal hover:underline">Acceptable Use</a></li>
+          <li><a href="#age-restriction" class="text-accent-teal hover:underline">Age Restriction</a></li>
+          <li><a href="#termination" class="text-accent-teal hover:underline">Termination</a></li>
+          <li><a href="#governing-law" class="text-accent-teal hover:underline">Governing Law &amp; Disputes</a></li>
+          <li><a href="#modifications" class="text-accent-teal hover:underline">Modifications to These Terms</a></li>
+          <li><a href="#contact" class="text-accent-teal hover:underline">Contact</a></li>
+        </ol>
+      </nav>
+
+      <p class="text-text-secondary text-lg leading-relaxed mb-12">
+        These terms govern your use of QuickSay. We have written them in plain language because we believe you should understand what you are agreeing to.
+      </p>
+
+      <!-- Section 1: License -->
+      <section id="license" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">1. License</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          A one-time purchase of $39 USD (launch pricing, regular price $74 USD) grants you a <strong class="text-text-primary">perpetual, non-exclusive, non-transferable license</strong> to use QuickSay for personal and commercial use on unlimited Windows machines that you own or control.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          "Perpetual" means the license does not expire. You pay once and the software is yours to use indefinitely.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          You may not redistribute, resell, sublicense, or reverse-engineer QuickSay. The license is for your individual use and cannot be transferred to another person or entity.
+        </p>
+      </section>
+
+      <!-- Section 2: Refund Policy -->
+      <section id="refund-policy" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">2. Refund Policy</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          We offer a <strong class="text-text-primary">30-day money-back guarantee</strong>. If QuickSay does not work for you, contact us within 30 days of purchase for a full refund — no questions asked.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          To request a refund, email
+          <a href="mailto:support@quicksay.app" class="text-accent-teal hover:underline">support@quicksay.app</a>
+          with your purchase email address. Refunds are processed through our payment processor (LemonSqueezy) and typically appear within 5-10 business days.
+        </p>
+      </section>
+
+      <!-- Section 3: Updates -->
+      <section id="updates" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">3. Updates</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          All updates within the current major version of QuickSay are included at no additional cost. When we release new features, improvements, or bug fixes within the same major version, you get them automatically. Future major versions (e.g., QuickSay 2.0) may require a separate purchase, but you will always be able to continue using the version you purchased.
+        </p>
+      </section>
+
+      <!-- Section 4: Third-Party Services -->
+      <section id="third-party-services" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">4. Third-Party Services</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          QuickSay relies on the following third-party services to function:
+        </p>
+        <ul class="flex flex-col gap-3 text-text-secondary text-lg leading-relaxed mb-4">
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&bull;</span>
+            <span><strong class="text-text-primary">Groq API</strong> — provides Whisper transcription and AI text cleanup. Groq's service is subject to their own <a href="https://console.groq.com/docs/legal/services-agreement" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">terms of service</a> and <a href="https://groq.com/privacy-policy/" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">privacy policy</a>.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&bull;</span>
+            <span><strong class="text-text-primary">LemonSqueezy</strong> — handles payment processing. Subject to their own <a href="https://www.lemonsqueezy.com/terms" class="text-accent-teal hover:underline" target="_blank" rel="noopener noreferrer">terms</a>.</span>
+          </li>
+        </ul>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          We do not control these third-party services and are not responsible for their availability, performance, or data handling practices. Changes to Groq's pricing, rate limits, or terms of service may affect QuickSay's functionality. By using QuickSay, you agree to comply with the terms of any third-party services it connects to.
+        </p>
+      </section>
+
+      <!-- Section 5: BYOK Liability -->
+      <section id="byok-liability" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">5. API Key Responsibility (BYOK)</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          QuickSay operates on a Bring Your Own Key (BYOK) model. You are responsible for:
+        </p>
+        <ul class="flex flex-col gap-3 text-text-secondary text-lg leading-relaxed mb-4">
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&bull;</span>
+            <span>Obtaining and maintaining your own Groq API key</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&bull;</span>
+            <span>Keeping your API key secure and confidential</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&bull;</span>
+            <span>Any costs incurred through your Groq API usage</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-accent-teal mt-1 shrink-0">&bull;</span>
+            <span>Compliance with Groq's terms of service and acceptable use policies</span>
+          </li>
+        </ul>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          QuickSay stores your API key locally on your machine, encrypted with Windows DPAPI. We never transmit, access, or store your API key on our servers. We are not liable for any charges, data processing, or service issues related to your Groq account.
+        </p>
+      </section>
+
+      <!-- Section 6: Intellectual Property -->
+      <section id="intellectual-property" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">6. Intellectual Property</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          QuickSay, including its code, design, documentation, and branding, is the intellectual property of QuickSay and its creator. Your purchase grants you a license to use the software — it does not transfer ownership of the software itself.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          <strong class="text-text-primary">Your content is yours.</strong> Any text generated through QuickSay's transcription belongs entirely to you. We claim no rights over your dictated content.
+        </p>
+      </section>
+
+      <!-- Section 7: Disclaimer -->
+      <section id="disclaimer" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">7. Disclaimer</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          QuickSay relies on Groq's API for transcription (Whisper) and text cleanup. The quality and accuracy of transcriptions depend on Groq's service, your microphone quality, background noise, and other factors. While we work to deliver the best possible experience, we cannot guarantee perfect transcription accuracy for all audio inputs, accents, or environments. You are responsible for reviewing transcribed text before relying on it.
+        </p>
+      </section>
+
+      <!-- Section 8: Limitation of Liability -->
+      <section id="limitation-of-liability" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">8. Limitation of Liability</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          QuickSay is provided "as is." To the maximum extent permitted by law, we are not liable for any indirect, incidental, or consequential damages arising from your use of the software, including but not limited to damages arising from transcription errors, service outages, or third-party service changes.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          In plain terms: if a transcription error causes you a problem, we are sorry and we want to help fix the software, but we cannot be held financially responsible for downstream effects of incorrect transcriptions. Our total liability is limited to the amount you paid for the license ($39 USD at launch pricing, $74 USD at regular price).
+        </p>
+      </section>
+
+      <!-- Section 9: No Warranty on Uptime -->
+      <section id="no-uptime-warranty" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">9. No Warranty on Uptime</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          Because QuickSay depends on Groq's servers for transcription, we cannot guarantee 100% availability. If Groq's service experiences downtime, QuickSay's transcription features will be temporarily unavailable. We do not control Groq's infrastructure and cannot promise uninterrupted service.
+        </p>
+      </section>
+
+      <!-- Section 10: Acceptable Use -->
+      <section id="acceptable-use" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">10. Acceptable Use</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          You agree not to use QuickSay for any illegal purpose or to generate content that violates applicable laws or third-party rights. You agree to comply with Groq's acceptable use policies when using their API through QuickSay. That is the entire acceptable use policy — we trust you to be a reasonable person.
+        </p>
+      </section>
+
+      <!-- Section 11: Age Restriction -->
+      <section id="age-restriction" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">11. Age Restriction</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          You must be at least 13 years of age to use QuickSay. If you are under 18, you should review these terms with a parent or guardian before using the software.
+        </p>
+      </section>
+
+      <!-- Section 12: Termination -->
+      <section id="termination" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">12. Termination</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          Your license to use QuickSay is perpetual. We will not revoke it as long as you comply with these terms.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          However, QuickSay's transcription features depend on Groq's service or your own API key. If Groq changes their pricing or availability, that is outside our control. We will always work to keep QuickSay functional, but we cannot guarantee perpetual access to third-party services.
+        </p>
+      </section>
+
+      <!-- Section 13: Governing Law -->
+      <section id="governing-law" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">13. Governing Law &amp; Disputes</h2>
+        <p class="text-text-secondary text-lg leading-relaxed mb-4">
+          These terms are governed by and construed in accordance with the laws of the <strong class="text-text-primary">Province of Alberta, Canada</strong>, without regard to conflict of law principles.
+        </p>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          Any disputes arising from these terms or your use of QuickSay will be resolved through good-faith negotiation first. If negotiation fails, disputes will be subject to the exclusive jurisdiction of the courts of the Province of Alberta, Canada.
+        </p>
+      </section>
+
+      <!-- Section 14: Modifications -->
+      <section id="modifications" class="mb-14">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">14. Modifications to These Terms</h2>
+        <p class="text-text-secondary text-lg leading-relaxed">
+          We may update these terms from time to time. If we make material changes, we will update the "Last updated" date at the top and notify users through the application or on this website. Your continued use of QuickSay after changes are posted constitutes acceptance of the updated terms. If you disagree with a change, you may stop using the software — your license to the version you purchased remains valid.
+        </p>
+      </section>
+
+      <!-- Section 15: Contact -->
+      <section id="contact">
+        <h2 class="font-headline font-semibold text-2xl text-text-primary mb-6">15. Contact</h2>
+        <!-- CONFIGURE: Replace with actual contact email -->
+        <p class="text-text-secondary text-lg leading-relaxed">
+          If you have questions about these terms, reach out at
+          <a href="mailto:say@quicksay.app" class="text-accent-teal hover:underline">say@quicksay.app</a>.
+        </p>
+      </section>
+    </div>
+  </section>
+
+  <Footer slot="footer" />
+</BaseLayout>
+
+<style>
+  .legal-prose h2 {
+    scroll-margin-top: 5rem;
+  }
+</style>
