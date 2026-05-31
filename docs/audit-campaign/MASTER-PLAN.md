@@ -225,8 +225,8 @@ Cloudflare account
  │   ├─ license.quicksay.app       (issues JWTs)
  │   └─ crash.quicksay.app         (Sentry envelope forwarder OR direct to Sentry)
  ├─ KV namespaces
- │   ├─ LICENSE_KEYS               (LemonSqueezy webhook-populated cache)
- │   └─ TRIAL_BLOCKLIST            (revoked trials)
+ │   ├─ LICENSE_CACHE              (LemonSqueezy webhook-populated cache; renamed from LICENSE_KEYS in T2.1 spec §2.1)
+ │   └─ TRIAL_BLOCKLIST            (trial-reset gate via /trial/status; fail-open, never blocks a purchase — T2.1 §5.4)
  ├─ Secrets
  │   ├─ ED25519_PRIVATE_KEY        (signs JWTs + version.json)
  │   ├─ LEMONSQUEEZY_API_KEY       (server-to-server license validation)
@@ -293,7 +293,7 @@ Update this section at the end of every session. Mark with: ⬜ pending · 🟨 
 - ✅ T1.7 — Accessibility + multi-monitor + hotkey conflict fixes (2026-05-29: --text-tertiary #72728c→#8b8b9e (AA 5.0:1 bg-surface, 5.8:1 bg-base); skip link, aria-live status regions, span→button for password eye + dict delete icons, legal-link keyboard access, @media prefers-reduced-motion; FloatingWidget.RepositionToVisible() wired to OnDisplayChange (WM_DISPLAYCHANGE/0x7E) — snaps stranded widget to primary, leaves valid alone; 13/13 clamp-logic unit tests pass; hotkey conflict: Windows-reserved list check + AHK-level failure catch → SetHotkeyConflictFlag writes hotkeyConflict/hotkeyConflictMsg to config; settings banner (role=alert) + onboarding Done step banner both read from flag. Dev PR #13.)
 
 ### Phase 1 — Track 2 (New Systems)
-- ⬜ T2.1 — Backend infra design (gate)
+- ✅ T2.1 — Backend infra design (gate) (2026-05-31: spec at `specs/T2-production-systems-design.md` (~7.4k words, 6 subsystems A–F) + `findings/T2.1-security-review.md`; **Ed25519 keypair `qs-2026` generated** (public baked into spec §8.1; private → CF secret + offline backup, NOT in git). Key decisions: crash=**Sentry-direct** (OD-5); **one shared key**, rotate-on-compromise; trial blocklist=**functional fail-open `/trial/status` gate** (never blocks a purchase); rate limits 10/hr ÷ 5/hr; `order_created` log-only; OD-1b financing=PayPal-surfaced pay-later (no LS-native BNPL, verified). KV `LICENSE_KEYS`→`LICENSE_CACHE`; webhook route `/webhook/lemonsqueezy`. Independent `security-auditor` pass: 4 P1 + 5 P2 all fixed in-spec. **Cross-deps:** (1) shared `lib/ed25519.ahk` verifier T2.3⇄T2.5; (2) installer must create+preserve `%APPDATA%\QuickSay\` and not wipe it — M.1/M.3; (3) **T2.2 uses the T2.1 keypair, not its own**; (4) additive `/trial/status`+`/trial/report` endpoints; (5) T2.5 merges after T1.6 (shared release.ps1). User-approved 2026-05-31.)
 - ⬜ T2.2 — CF Worker license issuer
 - ⬜ T2.3 — Trial + paywall
 - ⬜ T2.4 — Crash reporting
