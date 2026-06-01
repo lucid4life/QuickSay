@@ -1,0 +1,72 @@
+# QuickSay license-issuer Worker — wrangler config.
+#
+# Implements the T2.1 spec (docs/audit-campaign/specs/T2-production-systems-design.md).
+# T2.2 deploys STAGING ONLY. Production promotion happens in M.1/M.3 (do NOT `--env production` here).
+#
+# Before deploying you MUST (see README "Deploy to staging"):
+#   1. Create the three KV namespaces and paste their ids below.
+#   2. `wrangler secret put ED25519_PRIVATE_KEY     --env staging`   (the qs-2026 PKCS#8 PEM from ~/.quicksay-keys)
+#   3. `wrangler secret put LEMONSQUEEZY_API_KEY    --env staging`   (LS *test-mode* API key)
+#   4. `wrangler secret put LEMONSQUEEZY_WEBHOOK_SECRET --env staging`
+#
+# The Ed25519 PUBLIC key is committed below as a plain var (public = safe to commit, spec §3.3/§8.1).
+# The PRIVATE key is a secret and is NEVER in this file or git.
+
+name = "quicksay-license-worker"
+main = "src/index.ts"
+compatibility_date = "2024-11-06"
+# jose v5 uses Web Crypto (crypto.subtle) on Workers — no nodejs_compat needed.
+
+# Non-secret config shared by both environments. iss is the SAME constant for staging and prod
+# (spec §3.1: iss == "license.quicksay.app" always) so an rc1 binary trusts prod tokens without a rebuild (§8.3).
+[vars]
+ISSUER = "license.quicksay.app"
+JWT_KID = "qs-2026"
+# qs-2026 Ed25519 public key, raw-32 bytes base64url (spec §8.1; sha256 = 761d22df…fde09b). Used to verify our own JWTs in /validate and /refresh.
+ED25519_PUBLIC_KEY_X = "UmeruJlXQ1tyEX5fPzixUMjQD__Lm0NqIPSWReHRsw8"
+# $39 launch tier applies to the first 500 orders (spec §2.4); after that, $74 regular.
+LAUNCH_LIMIT = "500"
+# LemonSqueezy checkout URL surfaced by GET /pricing. Set the real LS test-store checkout link before staging smoke.
+CHECKOUT_URL = "https://quicksay.lemonsqueezy.com/checkout/buy/REPLACE_WITH_TEST_PRODUCT_ID"
+
+# ---------------------------------------------------------------------------
+# STAGING (the only environment this session deploys)
+# ---------------------------------------------------------------------------
+[env.staging]
+vars = { ISSUER = "license.quicksay.app", JWT_KID = "qs-2026", ED25519_PUBLIC_KEY_X = "UmeruJlXQ1tyEX5fPzixUMjQD__Lm0NqIPSWReHRsw8", LAUNCH_LIMIT = "500", CHECKOUT_URL = "https://quicksay.lemonsqueezy.com/checkout/buy/REPLACE_WITH_TEST_PRODUCT_ID" }
+routes = [
+  { pattern = "license-staging.quicksay.app", custom_domain = true }
+]
+
+[[env.staging.kv_namespaces]]
+binding = "LICENSE_CACHE"
+id = "f35093ba25e947daa7ded178396958ae"
+
+[[env.staging.kv_namespaces]]
+binding = "TRIAL_BLOCKLIST"
+id = "fb76e5ba864e44b589d34a8913a4e60e"
+
+[[env.staging.kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "1cf40ca0db5b499094eaa278d3447c5c"
+
+# ---------------------------------------------------------------------------
+# PRODUCTION (deferred to M.1/M.3 — do NOT deploy this session)
+# ---------------------------------------------------------------------------
+[env.production]
+vars = { ISSUER = "license.quicksay.app", JWT_KID = "qs-2026", ED25519_PUBLIC_KEY_X = "UmeruJlXQ1tyEX5fPzixUMjQD__Lm0NqIPSWReHRsw8", LAUNCH_LIMIT = "500", CHECKOUT_URL = "https://quicksay.lemonsqueezy.com/checkout/buy/REPLACE_WITH_LIVE_PRODUCT_ID" }
+routes = [
+  { pattern = "license.quicksay.app", custom_domain = true }
+]
+
+[[env.production.kv_namespaces]]
+binding = "LICENSE_CACHE"
+id = "REPLACE_WITH_PROD_LICENSE_CACHE_ID"
+
+[[env.production.kv_namespaces]]
+binding = "TRIAL_BLOCKLIST"
+id = "REPLACE_WITH_PROD_TRIAL_BLOCKLIST_ID"
+
+[[env.production.kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "REPLACE_WITH_PROD_RATE_LIMIT_ID"

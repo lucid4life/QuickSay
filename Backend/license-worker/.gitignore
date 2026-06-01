@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Wrangler / build
+.wrangler/
+dist/
+
+# Local dev secrets — NEVER commit (see README "Secrets")
+.dev.vars
+.dev.vars.*
+
+# Any key material that wanders in — defense in depth (keys live in ~/.quicksay-keys and the CF secret store only)
+*.pem
+*.key
+*-private*
+ed25519*
+qs-2026*
+
+# Logs / OS
+*.log
+.DS_Store
+Thumbs.db
+
+# stray CLI capture files (build artifacts)
+*.txt
+dist-dry*/
