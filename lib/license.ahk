@@ -348,11 +348,15 @@ LicenseAllowsRecording(state) =>
     (state = "TRIAL_ACTIVE" || state = "LICENSED" || state = "GRACE_PERIOD" || state = "INSTALLED")
 
 ; ── HTTP (self-contained WinHTTP — does not depend on lib/http.ahk) ────────────
-_LicHttp(method, url, bodyObj := "") {
+; timeoutMs governs all four WinHTTP phases. Use a SHORT budget for best-effort,
+; fail-open background calls (trial gate) so an offline launch never freezes the
+; main thread; a longer budget for user-initiated calls (activate) where the user
+; is actively waiting and the paywall shows "Activating…".
+_LicHttp(method, url, bodyObj := "", timeoutMs := 10000) {
     res := Map("status", 0, "body", "", "error", "")
     try {
         http := ComObject("WinHttp.WinHttpRequest.5.1")
-        http.SetTimeouts(5000, 5000, 10000, 10000)
+        http.SetTimeouts(timeoutMs, timeoutMs, timeoutMs, timeoutMs)
         http.Open(method, url, false)
         if (bodyObj != "") {
             http.SetRequestHeader("Content-Type", "application/json")
@@ -485,7 +489,9 @@ RefreshLicense() {
 ; ── Trial-reset gate (spec §5.4 — best-effort, fail-open) ──────────────────────
 CheckTrialStatusBestEffort(machineId) {
     global LICENSE_WORKER_URL
-    r := _LicHttp("GET", LICENSE_WORKER_URL "/trial/status?machineId=" machineId)
+    ; SHORT timeout: this runs on the startup timer (main thread). Fail-open, so an
+    ; offline first launch must not freeze the tray/hotkey waiting on the network.
+    r := _LicHttp("GET", LICENSE_WORKER_URL "/trial/status?machineId=" machineId, "", 3000)
     if (r["status"] != 200)
         return false                       ; fail-open: offline / error → not blocked
     obj := ""
@@ -502,7 +508,7 @@ ReportTrialConsumed() {
     dat := License_ReadDat()
     mid := (dat != "" && dat.Has("trialMachineId") && dat["trialMachineId"] is String && dat["trialMachineId"] != "")
         ? dat["trialMachineId"] : ComputeMachineId()
-    try _LicHttp("POST", LICENSE_WORKER_URL "/trial/report", Map("trialMachineId", mid))   ; fire-and-forget
+    try _LicHttp("POST", LICENSE_WORKER_URL "/trial/report", Map("trialMachineId", mid), 3000)   ; fire-and-forget, short timeout
 }
 LicenseFetchPricing() {
     global LICENSE_WORKER_URL
