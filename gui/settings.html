@@ -560,6 +560,17 @@
                 <button class="btn btn-secondary mt-md" id="btnViewLogs">View Logs Folder</button>
             </div>
 
+            <div class="section">
+                <h3>Privacy</h3>
+                <div class="toggle-item">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="crashReportingEnabled">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="crashReportingEnabled">Send anonymous crash reports <span class="sub-text" style="display:inline; margin:0;">No transcripts, audio, or personal info — just what went wrong, to help fix bugs</span></label>
+                </div>
+            </div>
+
             <div class="section" id="voiceCommandsSection">
                 <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleVoiceCommands()">
                     <h3 style="margin:0;">Voice Commands Reference</h3>
@@ -1668,6 +1679,9 @@
             // Processing - Debug
             document.getElementById('debugLogging').checked = toBool(cfg.debugLogging);
 
+            // Privacy - crash reporting (opt-in, default OFF)
+            document.getElementById('crashReportingEnabled').checked = toBool(cfg.crashReportingEnabled);
+
             // Hotkey conflict banner
             var conflictBanner = document.getElementById('hotkeyConflictBanner');
             var conflictDetail = document.getElementById('hotkeyConflictDetail');
@@ -1743,6 +1757,11 @@
             var retentionVal = parseInt(getVal('historyRetention')) || 0;
             config.historyRetention = [0, 100, 500].indexOf(retentionVal) !== -1 ? retentionVal : 0;
             config.debugLogging = getCheck('debugLogging');
+
+            // Privacy - crash reporting. Setting the toggle in Settings is itself an
+            // explicit answer to the consent question, so mark it prompted when ON.
+            config.crashReportingEnabled = getCheck('crashReportingEnabled');
+            if (config.crashReportingEnabled) config.crashReportingPrompted = true;
 
             // Ensure hotkey is always present (safety net)
             if (!config.hotkey) config.hotkey = "^LWin";

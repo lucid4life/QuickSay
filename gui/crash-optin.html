@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickSay</title>
+    <!-- Reuses the paywall/settings design tokens (single source of visual truth). -->
+    <link rel="stylesheet" href="paywall.css">
+    <style>
+        .card { max-width: 420px; padding: 32px 32px 24px; }
+        .reassure {
+            background: var(--accent-primary-muted);
+            border: 1px solid var(--accent-primary-glow);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: 4px 0 22px;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            text-align: left;
+        }
+        .reassure b { color: var(--text-primary); font-weight: 650; }
+    </style>
+</head>
+<body>
+    <main class="card" role="dialog" aria-labelledby="headline" aria-describedby="subhead">
+        <img class="logo" src="assets/logo_128.png" alt="QuickSay">
+
+        <h1 id="headline">Help us fix bugs?</h1>
+        <p class="subhead" id="subhead">
+            QuickSay can send anonymous crash reports — no transcripts, no audio,
+            no personal information.
+        </p>
+
+        <div class="reassure">
+            We only send <b>what went wrong</b> (the error and where it happened in the
+            code) so we can fix it. We never send your dictation, your recordings, your
+            connection key, or anything that identifies you. You can change this any time
+            in <b>Settings → Privacy</b>.
+        </div>
+
+        <button class="btn-primary" id="yesBtn" type="button">Yes, help out</button>
+        <button class="btn-link" id="noBtn" type="button">No thanks</button>
+    </main>
+
+    <script>
+        "use strict";
+        function post(action, data) {
+            if (window.chrome && window.chrome.webview)
+                window.chrome.webview.postMessage(JSON.stringify({ action, data }));
+        }
+        const answer = (optedIn) => post("answer", { optedIn });
+
+        document.getElementById("yesBtn").addEventListener("click", () => answer(true));
+        document.getElementById("noBtn").addEventListener("click", () => answer(false));
+
+        // Keyboard: Enter = opt in, Esc = decline (matches the button order).
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Enter")  answer(true);
+            if (e.key === "Escape") answer(false);
+        });
+        window.addEventListener("DOMContentLoaded", () => document.getElementById("yesBtn").focus());
+    </script>
+</body>
+</html>

@@ -36,8 +36,16 @@ try {
 #Include lib\http.ahk
 #Include lib\ed25519.ahk
 #Include lib\license.ahk
+#Include lib\crash-reporter.ahk
 #Include lib\settings-ui.ahk
 #Include lib\paywall-ui.ahk
+#Include lib\crash-optin-ui.ahk
+
+; --- CRASH REPORTING: install the global error handler as early as possible ---
+; Installed BEFORE any risky startup work so an early failure is still captured.
+; It is a hard no-op until the user opts in (CrashReporter_Configure runs after
+; LoadConfig), so nothing is ever sent before consent.
+CrashReporter_Install()
 
 ; ==============================================================================
 ;  QuickSay Beta v1.9 - Unified Voice-to-Text Application
@@ -240,6 +248,11 @@ if Config.Has("_key_migration") && Config["_key_migration"] {
     TrayTip("QuickSay was updated and your voice recognition key needs to be re-entered.`nOpen Settings to add it again.", "QuickSay — Update Notice", 0x2)
 }
 
+; --- CRASH REPORTING: push config into the (already-installed) reporter ---
+; The OnError handler was installed at the top of the file; now that config is
+; loaded it learns the opt-in state, DSN, release, and environment.
+ConfigureCrashReporter()
+
 ; --- REGISTER HOTKEY FROM CONFIG ---
 RegisterHotkey()
 
@@ -258,6 +271,10 @@ if Config.Has("show_widget") && Config["show_widget"]
 
 ; --- DEFERRED INIT (non-critical, runs after UI is responsive) ---
 SetTimer(DeferredStartup, -200)
+
+; --- FIRST-RUN CRASH-REPORTING OPT-IN (deferred; never blocks startup) ---
+; Shows once (when never prompted). Defaults OFF until answered — no silent sends.
+SetTimer(MaybeShowCrashOptIn, -1200)
 
 ; --- LICENSE / TRIAL CHECK (T2.3) ---
 ; Deferred so the one-time Ed25519 verify (~1–2 s) never blocks tray startup.
@@ -911,6 +928,7 @@ ReloadConfig(*) {
     LoadConfig()
     LoadDictionary()
     LoadActivePrompt()
+    ConfigureCrashReporter()      ; pick up a crash-reporting toggle change from settings
     RegisterHotkey()
     SetupTray()
 
@@ -927,6 +945,53 @@ ReloadConfig(*) {
     ; activated token is re-verified rather than reusing a stale verdict).
     LicenseClearVerifyCache()
     SetTimer(RefreshLicenseState, -50)
+}
+
+; --- CRASH REPORTING (T2.4) ---------------------------------------------------
+; Push the current config into the crash reporter. Opt-in defaults OFF; the
+; reporter is a hard no-op until the user answers the first-run modal AND opts in.
+ConfigureCrashReporter() {
+    global Config, ScriptDir, SENTRY_DSN_PUBLIC, SENTRY_ENVIRONMENT
+    enabled  := Config.Has("crash_reporting_enabled")  && Config["crash_reporting_enabled"]
+    prompted := Config.Has("crash_reporting_prompted") && Config["crash_reporting_prompted"]
+    debug    := Config.Has("debug_logging")            && Config["debug_logging"]
+    ver := "1.9.0"   ; Sentry release tag; kept in sync with localVersion by release.ps1
+    CrashReporter_Configure(Map(
+        "enabled",     enabled ? true : false,
+        "prompted",    prompted ? true : false,
+        "dsn",         SENTRY_DSN_PUBLIC,
+        "release",     ver,
+        "environment", SENTRY_ENVIRONMENT,
+        "debug",       debug ? true : false,
+        "debugFile",   ScriptDir "\debug_log.txt"))
+}
+
+; Show the one-time opt-in modal on first run (only when never prompted). The
+; user's answer sets crash_reporting_enabled and marks crash_reporting_prompted.
+MaybeShowCrashOptIn() {
+    global Config
+    if (Config.Has("crash_reporting_prompted") && Config["crash_reporting_prompted"])
+        return
+    CrashOptInUI.OnAnswer := OnCrashOptInAnswer
+    CrashOptInUI.Show()
+}
+
+OnCrashOptInAnswer(optedIn) {
+    global Config, ConfigFile
+    Config["crash_reporting_enabled"]  := optedIn ? true : false
+    Config["crash_reporting_prompted"] := true
+    ; Persist the answer so the modal never reappears and the choice survives restart.
+    try {
+        cfg := FileExist(ConfigFile) ? JSON.Parse(FileRead(ConfigFile, "UTF-8")) : Map()
+        if (Type(cfg) != "Map")
+            cfg := Map()
+        cfg["crashReportingEnabled"]  := optedIn ? true : false
+        cfg["crashReportingPrompted"] := true
+        AtomicWriteFile(ConfigFile, JSON.Stringify(cfg, "  "))
+    } catch as err {
+        OutputDebug("crash opt-in save failed: " err.Message)
+    }
+    ConfigureCrashReporter()
 }
 
 TranscribeFile(*) {
@@ -1430,6 +1495,8 @@ GetDefaultConfig() {
     cfg["history_retention"] := 100
     cfg["keep_last_recordings"] := 10
     cfg["last_update_check"] := ""
+    cfg["crash_reporting_enabled"] := false   ; T2.4 — opt-in, default OFF
+    cfg["crash_reporting_prompted"] := false  ; T2.4 — first-run modal not yet answered
     return cfg
 }
 
@@ -1768,7 +1835,10 @@ ParseConfig(jsonText) {
         "auto_remove_fillers", ["autoRemoveFillers", "auto_remove_fillers", true],
         "check_for_updates",   ["checkForUpdates", "check_for_updates", true],
         "context_aware_modes", ["contextAwareModes", "context_aware_modes", true],
-        "tour_completed",      ["tourCompleted", "tour_completed", false]
+        "tour_completed",      ["tourCompleted", "tour_completed", false],
+        ; T2.4 crash reporting — opt-in, default OFF; nothing sends before consent
+        "crash_reporting_enabled",  ["crashReportingEnabled", "crash_reporting_enabled", false],
+        "crash_reporting_prompted", ["crashReportingPrompted", "crash_reporting_prompted", false]
     )
     for outKey, spec in boolKeys {
         camel := spec[1]
