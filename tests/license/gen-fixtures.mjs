@@ -34,8 +34,17 @@ const rfcSig = Buffer.from("92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb376
 const rfcValid = edVerify(null, rfcMsg, pubFromRaw(rfcPub), rfcSig);
 if (!rfcValid) { console.error("FATAL: RFC 8032 TEST 2 vector did NOT verify under Node — wrong bytes."); process.exit(2); }
 
-// ─── 2. Interop: fresh keypair + signature ────────────────────────────────────
-const { publicKey: ipPub, privateKey: ipPriv } = generateKeyPairSync("ed25519");
+// Deterministic Ed25519 private key from a fixed 32-byte seed (PKCS#8 DER wrapper),
+// so this generator is idempotent — regenerating never produces a git diff.
+const PKCS8_ED25519_PREFIX = Buffer.from("302e020100300506032b657004220420", "hex");
+function privFromSeed(seedHex) {
+  const der = Buffer.concat([PKCS8_ED25519_PREFIX, Buffer.from(seedHex, "hex")]);
+  return createPrivateKey({ key: der, format: "der", type: "pkcs8" });
+}
+
+// ─── 2. Interop: fixed-seed keypair + signature ───────────────────────────────
+const ipPriv = privFromSeed("42".repeat(32));
+const ipPub = createPublicKey(ipPriv);
 const ipRaw = spkiRawFromPub(ipPub);
 const ipMsg = Buffer.from("QuickSay ed25519 interop é✅/test", "utf8"); // includes non-ASCII + slash
 const ipSig = edSign(null, ipMsg, ipPriv);
@@ -69,7 +78,7 @@ function mintJWT({ machine = TEST_MACHINE, iat, exp, iss = ISS, kid = KID, alg =
 
 const NOW = 1748736000; // fixed reference "now" = 2025-06-01T00:00:00Z (tests pass this as nowOverride)
 const DAY = 86400, YEAR14 = 1209600;
-const { privateKey: wrongPriv } = generateKeyPairSync("ed25519");
+const wrongPriv = privFromSeed("37".repeat(32)); // fixed-seed "wrong key" for determinism
 
 const jwts = {
   // valid, exp 10 days in the future → LICENSED
@@ -89,7 +98,6 @@ const jwts = {
 };
 
 const fixtures = {
-  generatedAt: new Date().toISOString(),
   now: NOW,
   testMachineId: TEST_MACHINE,
   iss: ISS, kid: KID,
