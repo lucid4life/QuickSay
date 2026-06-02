@@ -135,6 +135,10 @@
         </button>
 
         <div class="sidebar-section-label">App</div>
+        <button class="tab-btn" data-tab="license">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            License
+        </button>
         <button class="tab-btn" data-tab="about">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             About
@@ -852,6 +856,54 @@
                 </div>
             </div>
         </div>
+
+        <!-- LICENSE TAB (T2.3) -->
+        <div id="license" class="tab-content">
+            <h2>License</h2>
+
+            <!-- Status (populated at runtime by AHK → setLicenseState) -->
+            <div class="section">
+                <h3>Status</h3>
+                <div id="licenseStatusBox" aria-live="polite">
+                    <p class="support-text" id="licenseStatusText">Checking your license…</p>
+                </div>
+            </div>
+
+            <!-- Purchase / unlock. Price is fetched from the license worker at runtime
+                 (GET /pricing) and is NEVER hardcoded — it flips $39 → $74 server-side. -->
+            <div class="section" id="licensePurchaseSection">
+                <h3>Unlock QuickSay</h3>
+                <p class="support-text">One-time payment. No subscription. Lifetime updates.</p>
+                <p class="support-text" id="licensePriceLine" style="color:var(--accent-primary); font-weight:600; margin-top:4px;"></p>
+                <div class="flex-row gap-md" style="margin-top:12px;">
+                    <button class="btn btn-primary" id="btnGetLicense" onclick="postToAHK('licenseGetCheckout')">Get my license</button>
+                </div>
+            </div>
+
+            <!-- Activate an existing key -->
+            <div class="section">
+                <h3>Already purchased?</h3>
+                <p class="support-text">Paste the license key from your purchase email.</p>
+                <div class="flex-col gap-md" style="margin-top:10px; max-width:520px;">
+                    <input type="text" id="licenseKeyInput" autocomplete="off" spellcheck="false"
+                           placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" aria-label="License key"
+                           style="font-family:'Consolas',monospace; letter-spacing:0.5px; width:100%;">
+                    <div class="flex-row gap-md">
+                        <button class="btn btn-secondary-orange" id="btnActivateLicense" onclick="activateLicenseFromSettings()">Activate QuickSay</button>
+                    </div>
+                    <p class="support-text" id="licenseActivateMsg" role="status" aria-live="polite" style="min-height:16px;"></p>
+                </div>
+            </div>
+
+            <!-- Footer micro links -->
+            <div class="section">
+                <p class="sub-text">
+                    <a href="#" onclick="postToAHK('openUrl','https://quicksay.app/terms');return false;">Terms</a> ·
+                    <a href="#" onclick="postToAHK('openUrl','https://quicksay.app/refund');return false;">Refund policy</a> ·
+                    <a href="#" onclick="postToAHK('openUrl','https://quicksay.app/support');return false;">support@quicksay.app</a>
+                </p>
+            </div>
+        </div>
     </main> <!-- closes .main-content -->
 
     <!-- FOOTER -->
@@ -1287,13 +1339,14 @@
             // Hide footer on tabs that have their own save mechanisms or are non-editable
             var footer = document.querySelector('.footer');
             if (footer) {
-                var hideFooterTabs = ['view-history', 'view-statistics', 'about', 'modes', 'dictionary'];
+                var hideFooterTabs = ['view-history', 'view-statistics', 'about', 'modes', 'dictionary', 'license'];
                 footer.style.display = hideFooterTabs.indexOf(tabId) !== -1 ? 'none' : '';
             }
 
             // Lazy Load
             if (tabId === 'audio') postToAHK('getAudioDevices');
             if (tabId === 'modes') postToAHK('loadModes');
+            if (tabId === 'license') postToAHK('loadLicenseState');
 
             if (tabId === 'dictionary') {
                 postToAHK('loadDictionary');
@@ -1342,6 +1395,80 @@
             } catch (e) {
                 console.error('postToAHK ERROR:', e);
             }
+        }
+
+        // --- LICENSE (T2.3) ---
+        // data: { state, daysRemaining, email, price:{available,tier,price,currency,ordersRemaining,financingAvailable} }
+        window.setLicenseState = function (data) {
+            data = data || {};
+            var st = data.state || 'INSTALLED';
+            var txt = document.getElementById('licenseStatusText');
+            var purchase = document.getElementById('licensePurchaseSection');
+            var priceLine = document.getElementById('licensePriceLine');
+            var msg = '';
+            var showPurchase = true;
+            if (st === 'LICENSED') {
+                msg = '✓ Licensed' + (data.email ? ' to ' + data.email : '') + '. Thank you!';
+                showPurchase = false;
+            } else if (st === 'GRACE_PERIOD') {
+                msg = '✓ Licensed' + (data.email ? ' to ' + data.email : '') + '. Re-validating in the background.';
+                showPurchase = false;
+            } else if (st === 'RE_VALIDATION_NEEDED') {
+                msg = 'Your license needs to re-validate online. Connect to the internet, then try recording again.';
+            } else if (st === 'TRIAL_ACTIVE') {
+                var d = data.daysRemaining || 0;
+                msg = 'Free trial — ' + d + ' day' + (d === 1 ? '' : 's') + ' remaining.';
+            } else if (st === 'TRIAL_EXPIRED' || st === 'PAYWALL_BLOCKING') {
+                msg = 'Your free trial has ended. Unlock QuickSay below to keep dictating.';
+            } else if (st === 'LICENSE_REVOKED') {
+                msg = 'We couldn’t verify your license. Re-activate below, or get a new one.';
+            } else {
+                msg = 'Starting your free trial…';
+            }
+            if (txt) txt.textContent = msg;
+            if (purchase) purchase.style.display = showPurchase ? '' : 'none';
+
+            if (priceLine) {
+                var p = data.price || {};
+                if (!p.available) {
+                    priceLine.textContent = 'See the current price at checkout.';
+                } else {
+                    var sym = (p.currency === 'USD' || !p.currency) ? '$' : '';
+                    var line = sym + p.price + ' ' + (p.currency || 'USD') + ' · one-time, lifetime';
+                    if (p.tier === 'launch' && typeof p.ordersRemaining === 'number' && p.ordersRemaining > 0)
+                        line += '  (launch price — ' + p.ordersRemaining + ' left)';
+                    else if (p.financingAvailable)
+                        line += '  (pay-over-time at checkout)';
+                    priceLine.textContent = line;
+                }
+            }
+        };
+
+        // data: { success, message }
+        window.setLicenseActivationResult = function (data) {
+            data = data || {};
+            var btn = document.getElementById('btnActivateLicense');
+            var m = document.getElementById('licenseActivateMsg');
+            if (btn) { btn.disabled = false; btn.textContent = 'Activate QuickSay'; }
+            if (m) {
+                m.textContent = data.message || (data.success ? 'Activated!' : 'Activation failed.');
+                m.style.color = data.success ? 'var(--success)' : 'var(--error)';
+            }
+            if (data.success) postToAHK('loadLicenseState');   // refresh status display
+        };
+
+        function activateLicenseFromSettings() {
+            var input = document.getElementById('licenseKeyInput');
+            var key = (input && input.value ? input.value : '').trim();
+            var m = document.getElementById('licenseActivateMsg');
+            if (!key) {
+                if (m) { m.textContent = 'Please paste your license key first.'; m.style.color = 'var(--error)'; }
+                return;
+            }
+            var btn = document.getElementById('btnActivateLicense');
+            if (btn) { btn.disabled = true; btn.textContent = 'Activating…'; }
+            if (m) { m.textContent = 'Contacting the license server…'; m.style.color = 'var(--text-tertiary)'; }
+            postToAHK('licenseActivate', { key: key });
         }
 
         // --- RECEIVERS ---

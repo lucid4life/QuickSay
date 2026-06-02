@@ -24,6 +24,7 @@ class SettingsUI {
     static _boundOnGetIcon := ""       ; WM_GETICON handler reference
     static _historyCache := ""         ; Cached parsed history array for pagination
     static _historyRetention := 0      ; Cached retention limit for pagination
+    static _checkoutUrl := ""          ; Cached LemonSqueezy checkout URL from GET /pricing (T2.3)
 
     ; Show the Settings Window
     static Show() {
@@ -310,6 +311,13 @@ class SettingsUI {
                     this.HandleTourCompleted()
                 case "clearStartTourFlag":
                     this.HandleClearStartTourFlag()
+                case "loadLicenseState":
+                    this.HandleLoadLicenseState()
+                case "licenseGetCheckout":
+                    this.HandleLicenseGetCheckout()
+                case "licenseActivate":
+                    key := (msg.Has("data") && Type(msg["data"]) = "Map" && msg["data"].Has("key")) ? msg["data"]["key"] : ""
+                    this.HandleLicenseActivate(key)
             }
         } catch as err {
             OutputDebug("WebMessage Error: " err.Message)
@@ -1409,6 +1417,71 @@ class SettingsUI {
         }
 
         this.SendToJS("receiveStatisticsData", data)
+    }
+
+    ; ==========================================================================
+    ; LICENSE HANDLERS (T2.3) — read-only display + activation from settings
+    ; ==========================================================================
+    static HandleLoadLicenseState() {
+        state := Map("state", "INSTALLED", "daysRemaining", 0, "email", "", "exp", 0)
+        try state := CheckLicenseState()
+        out := Map()
+        out["state"]         := state["state"]
+        out["daysRemaining"] := state["daysRemaining"]
+        out["email"]         := state["email"]
+        out["price"]         := this._LicensePriceMap()
+        this.SendToJS("setLicenseState", out)
+    }
+
+    static _LicensePriceMap() {
+        price := Map("available", false)
+        p := ""
+        try p := LicenseFetchPricing()
+        if (p is Map && p.Has("price")) {
+            price["available"] := true
+            price["tier"]      := p.Has("tier") ? p["tier"] : ""
+            price["price"]     := p["price"]
+            price["currency"]  := p.Has("currency") ? p["currency"] : "USD"
+            if (p.Has("ordersRemaining") && p["ordersRemaining"] != "" && !(p["ordersRemaining"] == JSON.null))
+                price["ordersRemaining"] := p["ordersRemaining"]
+            price["financingAvailable"] := (p.Has("financingAvailable") && (p["financingAvailable"] = true || p["financingAvailable"] = 1))
+            if (p.Has("checkoutUrl") && p["checkoutUrl"] is String)
+                this._checkoutUrl := p["checkoutUrl"]
+        }
+        return price
+    }
+
+    static HandleLicenseGetCheckout() {
+        url := (this.HasProp("_checkoutUrl") && this._checkoutUrl is String) ? this._checkoutUrl : ""
+        if (url = "" || !RegExMatch(url, "^https://")) {
+            try {
+                p := LicenseFetchPricing()
+                if (p is Map && p.Has("checkoutUrl") && p["checkoutUrl"] is String)
+                    url := p["checkoutUrl"]
+            }
+        }
+        if (url = "" || !RegExMatch(url, "^https://"))
+            url := (LEMONSQUEEZY_PRODUCT_URL != "") ? LEMONSQUEEZY_PRODUCT_URL : "https://quicksay.app/buy"
+        if (RegExMatch(url, "^https://"))
+            try Run(url)
+    }
+
+    static HandleLicenseActivate(key) {
+        if (Trim(key) = "") {
+            this.SendToJS("setLicenseActivationResult", Map("success", false, "message", "Please paste your license key first."))
+            return
+        }
+        result := Map("ok", false, "message", "Activation failed.")
+        try result := ActivateLicense(Trim(key))
+        if (result["ok"]) {
+            this.SendToJS("setLicenseActivationResult", Map("success", true, "message", "Activated — thank you! QuickSay is ready."))
+            ; Tell the running tray engine to re-read license.dat and lift the recording gate.
+            DetectHiddenWindows(true)
+            if WinExist("QuickSay_TrayMode ahk_class AutoHotkey")
+                PostMessage(0x5555, 1, 0)
+        } else {
+            this.SendToJS("setLicenseActivationResult", Map("success", false, "message", result.Has("message") ? result["message"] : "Activation failed."))
+        }
     }
 
     ; ==========================================================================

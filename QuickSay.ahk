@@ -34,7 +34,10 @@ try {
 #Include lib\JSON.ahk
 #Include lib\dpapi.ahk
 #Include lib\http.ahk
+#Include lib\ed25519.ahk
+#Include lib\license.ahk
 #Include lib\settings-ui.ahk
+#Include lib\paywall-ui.ahk
 
 ; ==============================================================================
 ;  QuickSay Beta v1.9 - Unified Voice-to-Text Application
@@ -118,6 +121,11 @@ global isProcessing := false
 global isPaused := false
 global Config := Map()
 global Dictionary := Map()
+
+; License/trial state (T2.3). Authoritative state lives in license.dat (lib/license.ahk);
+; this is the in-memory cache the recording gate reads on the hot path.
+global g_LicenseState := Map("state", "INSTALLED", "daysRemaining", 0, "email", "", "exp", 0)
+global g_TrialCountdownShown := false
 global StartTime := 0
 global CurrentHotkey := ""
 global FFmpegPID := 0
@@ -251,6 +259,15 @@ if Config.Has("show_widget") && Config["show_widget"]
 ; --- DEFERRED INIT (non-critical, runs after UI is responsive) ---
 SetTimer(DeferredStartup, -200)
 
+; --- LICENSE / TRIAL CHECK (T2.3) ---
+; Deferred so the one-time Ed25519 verify (~1–2 s) never blocks tray startup.
+; PaywallUI re-enables recording via this callback after a successful activation.
+PaywallUI.OnLicensed := OnLicenseActivated
+SetTimer(InitLicenseCheck, -300)
+; Periodic re-evaluation: catches trial expiry mid-session. Cheap after the first
+; verify (lib/license.ahk caches the crypto result per token).
+SetTimer(RefreshLicenseState, 300000)   ; every 5 minutes
+
 DeferredStartup() {
     global Config
     PreWarm()
@@ -273,6 +290,113 @@ tourDone := (Config.Has("tour_completed") && Config["tour_completed"])
 tourRequested := (Config.Has("show_guided_tour") && Config["show_guided_tour"]) || (Config.Has("startTourOnOpen") && Config["startTourOnOpen"])
 if (tourRequested && !tourDone)
     SetTimer((*) => LaunchSettings(), -1500)  ; Open settings after 1.5s for tour
+
+; ==============================================================================
+;  LICENSE / TRIAL (T2.3)
+; ==============================================================================
+
+; First license evaluation: starts the trial on first run (best-effort fail-open
+; /trial/status gate) and runs the one-time JWT crypto-verify. Off the hot path.
+InitLicenseCheck() {
+    global g_LicenseState
+    try {
+        g_LicenseState := EnsureLicenseOnStartup()
+    } catch as err {
+        ; Never let a license-check failure brick the app — fail to TRIAL_ACTIVE-ish
+        OutputDebug("InitLicenseCheck error: " err.Message)
+        return
+    }
+    UpdateTrayTooltipForLicense()
+    MaybeShowTrialCountdown()
+    ; If already expired/revoked at startup, surface the paywall so the user knows.
+    if (!LicenseAllowsRecording(g_LicenseState["state"]))
+        ShowPaywallForState(g_LicenseState["state"])
+}
+
+; Cheap re-evaluation (crypto result is cached per token in lib/license.ahk).
+RefreshLicenseState() {
+    global g_LicenseState
+    try {
+        g_LicenseState := CheckLicenseState()
+    } catch as err {
+        OutputDebug("RefreshLicenseState error: " err.Message)
+        return
+    }
+    UpdateTrayTooltipForLicense()
+    MaybeShowTrialCountdown()
+}
+
+; Gate consulted by StartRecording(). Returns true if recording may proceed.
+; Re-checks state fresh (cheap post-verify) so a trial that expired mid-session blocks.
+RequireLicenseForRecording() {
+    global g_LicenseState
+    try {
+        g_LicenseState := CheckLicenseState()
+    } catch as err {
+        OutputDebug("RequireLicenseForRecording error: " err.Message)
+        return true   ; fail-open on an unexpected error — never block a paying user on a bug
+    }
+    if (LicenseAllowsRecording(g_LicenseState["state"]))
+        return true
+    ShowPaywallForState(g_LicenseState["state"])
+    return false
+}
+
+ShowPaywallForState(state) {
+    mode := (state = "LICENSE_REVOKED" || state = "RE_VALIDATION_NEEDED") ? "revoked" : "expired"
+    PaywallUI.Show(mode)
+}
+
+; Tray "License / Unlock…" — buy-now affordance available at any time.
+MenuShowLicense(*) {
+    global g_LicenseState
+    try g_LicenseState := CheckLicenseState()
+    st := g_LicenseState["state"]
+    if (st = "LICENSED" || st = "GRACE_PERIOD") {
+        em := g_LicenseState["email"]
+        TrayTip("QuickSay is licensed" (em != "" ? " to " em : "") ". Thank you!", "QuickSay — License", 0x1)
+        return
+    }
+    if (st = "TRIAL_ACTIVE") {
+        PaywallUI.Show("welcome")        ; let trial users purchase early
+        return
+    }
+    ShowPaywallForState(st)
+}
+
+; Called by PaywallUI after a successful activation.
+OnLicenseActivated() {
+    global g_LicenseState
+    try g_LicenseState := CheckLicenseState()
+    UpdateTrayTooltipForLicense()
+    TrayTip("QuickSay is now licensed. Thank you!", "QuickSay", 0x1)
+    UpdateTrayTooltip("Idle")
+}
+
+UpdateTrayTooltipForLicense() {
+    global g_LicenseState
+    st := g_LicenseState["state"]
+    if (st = "TRIAL_ACTIVE") {
+        d := g_LicenseState["daysRemaining"]
+        UpdateTrayTooltip("Idle — trial: " d " day" (d = 1 ? "" : "s") " left")
+    } else if (st = "TRIAL_EXPIRED" || st = "LICENSE_REVOKED" || st = "RE_VALIDATION_NEEDED") {
+        UpdateTrayTooltip("Trial ended — click to unlock")
+    }
+}
+
+; Gentle countdown reminder from day 11 of 14 (≤4 days remaining), once per launch.
+MaybeShowTrialCountdown() {
+    global g_LicenseState, g_TrialCountdownShown
+    if (g_TrialCountdownShown)
+        return
+    if (g_LicenseState["state"] != "TRIAL_ACTIVE")
+        return
+    d := g_LicenseState["daysRemaining"]
+    if (d >= 1 && d <= 4) {
+        g_TrialCountdownShown := true
+        TrayTip("Your free trial ends in " d " day" (d = 1 ? "" : "s") ". Unlock QuickSay anytime from the tray menu.", "QuickSay", 0x1)
+    }
+}
 
 ; ==============================================================================
 ;  TRAY MENU FUNCTIONS
@@ -374,6 +498,7 @@ SetupTray() {
 
     ; Section 5: Settings & Updates
     Tray.Add("⚙️ Settings", LaunchSettings)
+    Tray.Add("🔑 License / Unlock…", MenuShowLicense)
     Tray.Add("🔄 Check for Updates", MenuCheckForUpdates)
     Tray.Add()
 
@@ -797,6 +922,11 @@ ReloadConfig(*) {
         HideFloatingWidget()
     }
 
+    ; Pick up any license change made by the settings process (license.dat is
+    ; the shared source of truth; clear the in-memory verify cache so a newly
+    ; activated token is re-verified rather than reusing a stale verdict).
+    LicenseClearVerifyCache()
+    SetTimer(RefreshLicenseState, -50)
 }
 
 TranscribeFile(*) {
@@ -2773,6 +2903,12 @@ StartRecording() {
     if (isRecording)
         return
     if (isProcessing)
+        return
+
+    ; --- T2.3: license/trial gate. Refuses to record once the trial ends or a
+    ; license is revoked (PAYWALL_BLOCKING). Shows the paywall instead. The app
+    ; itself stays open (settings/help/purchase remain available). ---
+    if (!RequireLicenseForRecording())
         return
 
     ; --- 4.1: Check if any microphone is available before recording ---

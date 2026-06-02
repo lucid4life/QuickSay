@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickSay</title>
+    <link rel="stylesheet" href="paywall.css">
+</head>
+<body>
+    <main class="card" role="dialog" aria-labelledby="headline" aria-describedby="subhead">
+        <img class="logo" src="assets/logo_128.png" alt="QuickSay">
+
+        <h1 id="headline">Your free trial has ended</h1>
+        <p class="subhead" id="subhead">
+            One-time payment. No subscription. Lifetime updates.
+        </p>
+
+        <!-- Price is fetched from the license worker at runtime (GET /pricing) and is
+             NEVER hardcoded in the app — it flips $39 → $74 at 500 orders server-side. -->
+        <div class="price-line" id="priceLine" aria-live="polite">
+            <span class="price-loading">Loading current price…</span>
+        </div>
+
+        <button class="btn-primary" id="getLicenseBtn" type="button">Get my license</button>
+
+        <button class="btn-link" id="haveKeyBtn" type="button" aria-expanded="false" aria-controls="activatePanel">
+            I already purchased — enter my license key
+        </button>
+
+        <div class="activate-panel" id="activatePanel">
+            <label class="activate-label" for="keyInput">License key</label>
+            <input class="key-input" id="keyInput" type="text" autocomplete="off" spellcheck="false"
+                   placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" aria-describedby="msg">
+            <button class="btn-activate" id="activateBtn" type="button">Activate QuickSay</button>
+        </div>
+
+        <p class="msg info" id="msg" role="status" aria-live="polite"></p>
+
+        <div class="footer">
+            <a id="termsLink" tabindex="0" role="link">Terms</a>
+            <span class="sep">·</span>
+            <a id="refundLink" tabindex="0" role="link">Refund policy</a>
+            <span class="sep">·</span>
+            <a id="supportLink" tabindex="0" role="link">support@quicksay.app</a>
+        </div>
+    </main>
+
+    <script>
+        "use strict";
+        const TERMS_URL   = "https://quicksay.app/terms";
+        const REFUND_URL  = "https://quicksay.app/refund";
+        const SUPPORT_URL = "https://quicksay.app/support";
+
+        function post(action, data) {
+            if (window.chrome && window.chrome.webview)
+                window.chrome.webview.postMessage(JSON.stringify({ action, data }));
+        }
+
+        const $ = (id) => document.getElementById(id);
+        const msgEl = () => $("msg");
+        function setMsg(text, kind) {
+            const m = msgEl();
+            m.textContent = text || "";
+            m.className = "msg " + (kind || "info");
+        }
+
+        // ── AHK → JS entry points (called via window[fn](data)) ──────────────
+        window.setMode = function (data) {
+            data = data || {};
+            const mode = data.mode || "expired";
+            if (mode === "welcome") {
+                $("headline").textContent = "Welcome to QuickSay";
+                $("subhead").textContent = "Get a lifetime license — one-time payment, no subscription.";
+            } else if (mode === "revoked") {
+                $("headline").textContent = "Your license needs attention";
+                $("subhead").textContent = data.detail || "We couldn't verify your license. Re-activate below, or get a new one.";
+            } else {
+                $("headline").textContent = "Your free trial has ended";
+                $("subhead").textContent = "Thanks for trying QuickSay! Unlock it for good — one-time payment, lifetime updates.";
+            }
+        };
+
+        // data: { tier, price, currency, ordersRemaining, financingAvailable, available }
+        window.setPricing = function (data) {
+            const el = $("priceLine");
+            data = data || {};
+            if (!data.available) {
+                el.innerHTML = '<span class="price-main">Get lifetime access</span>' +
+                               '<span class="price-sub">One-time payment — see price at checkout</span>';
+                return;
+            }
+            const cur = (data.currency || "USD");
+            const sym = cur === "USD" ? "$" : "";
+            let main = `${sym}${data.price} ${cur} · one-time, lifetime`;
+            let sub = "";
+            if (data.tier === "launch" && typeof data.ordersRemaining === "number" && data.ordersRemaining > 0)
+                sub = `Launch price — only ${data.ordersRemaining} left at this rate`;
+            else if (data.financingAvailable)
+                sub = "Pay-over-time options available at checkout";
+            else
+                sub = "Lifetime updates included";
+            el.innerHTML = `<span class="price-main">${main}</span><span class="price-sub">${sub}</span>`;
+        };
+
+        // data: { success: bool, message: string }
+        window.setActivationResult = function (data) {
+            data = data || {};
+            const btn = $("activateBtn");
+            btn.disabled = false;
+            btn.textContent = "Activate QuickSay";
+            if (data.success) {
+                setMsg(data.message || "Activated! Thank you. QuickSay is ready.", "success");
+            } else {
+                setMsg(data.message || "Activation failed. Please try again.", "error");
+                $("keyInput").focus();
+            }
+        };
+
+        // ── JS → AHK wiring ──────────────────────────────────────────────────
+        $("getLicenseBtn").addEventListener("click", () => post("openCheckout", {}));
+
+        $("haveKeyBtn").addEventListener("click", () => {
+            const panel = $("activatePanel");
+            const open = panel.classList.toggle("open");
+            $("haveKeyBtn").setAttribute("aria-expanded", open ? "true" : "false");
+            if (open) { $("keyInput").focus(); setMsg("", "info"); }
+        });
+
+        function doActivate() {
+            const key = $("keyInput").value.trim();
+            if (!key) { setMsg("Please paste your license key first.", "error"); return; }
+            const btn = $("activateBtn");
+            btn.disabled = true;
+            btn.textContent = "Activating…";
+            setMsg("Contacting the license server…", "info");
+            post("activate", { key });
+        }
+        $("activateBtn").addEventListener("click", doActivate);
+        $("keyInput").addEventListener("keydown", (e) => { if (e.key === "Enter") doActivate(); });
+
+        function linkHandler(url) {
+            return (e) => {
+                if (e.type === "click" || e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    post("openUrl", { url });
+                }
+            };
+        }
+        ["termsLink", "refundLink", "supportLink"].forEach((id, i) => {
+            const url = [TERMS_URL, REFUND_URL, SUPPORT_URL][i];
+            $(id).addEventListener("click", linkHandler(url));
+            $(id).addEventListener("keydown", linkHandler(url));
+        });
+
+        // Tell AHK we're ready (it will push setMode + setPricing).
+        post("ready", {});
+    </script>
+</body>
+</html>

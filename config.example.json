@@ -27,5 +27,9 @@
   "showGuidedTour": 0,
   "lastSeenVersion": "",
   "lastWeeklySummary": "",
-  "tourCompleted": 0
+  "tourCompleted": 0,
+  "_comment_license": "T2.3 trial/license fields below are DOCUMENTATION ONLY. The authoritative, DPAPI-encrypted state lives in %APPDATA%\\QuickSay\\license.dat (see lib/license.ahk) — these keys are NOT read from config.json, and the license JWT is NEVER stored here in plaintext.",
+  "trialStartedAt": null,
+  "trialState": "",
+  "licenseJwt": null
 }
