@@ -50,7 +50,7 @@ class CrashOptInUI {
             }
         }
 
-        this.gui.Show("w460 h360")
+        this.gui.Show("w460 h500")   ; tall enough for the full card incl. "No thanks" (card ≈ 475px)
         try {
             this.wvc := WebView2.create(this.gui.Hwnd)
             this.wv := this.wvc.CoreWebView2
@@ -58,7 +58,7 @@ class CrashOptInUI {
             q := Chr(34)
             this.wv.AddScriptToExecuteOnDocumentCreated("var m=document.createElement('meta');m.httpEquiv='Content-Security-Policy';m.content=" q "default-src 'self' 'unsafe-inline'; img-src 'self' data:;" q ";document.head.appendChild(m);")
             this.wv.Navigate("file:///" StrReplace(htmlPath, "\", "/"))
-            this.gui.Move(,, 460, 360)
+            this.gui.Move(,, 460, 500)
             this.CenterWindow(this.gui)
             this.wvc.Fill()
         } catch as err {
@@ -86,7 +86,7 @@ class CrashOptInUI {
     static _FallbackMsgBox() {
         ; Native consent capture if WebView2 / HTML is unavailable. Defaults to "No".
         res := MsgBox("Help us fix bugs?`n`nQuickSay can send anonymous crash reports — no transcripts, no audio, no personal information.`n`nTurn on anonymous crash reports?",
-            "QuickSay", "YesNo Icon? Owner")
+            "QuickSay", "YesNo Icon?")
         this._Resolve(res = "Yes")
     }
 

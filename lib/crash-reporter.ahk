@@ -87,14 +87,17 @@ CrashReporter_Scrub(text) {
         return (IsSet(text) ? text : "")
     out := text
 
-    ; 1) License JWT. Both the header AND the payload are base64url(JSON) and so
-    ;    always start with "eyJ" (= `{"`), which makes `eyJ…\.eyJ…` a highly
-    ;    distinctive shape with near-zero false positives. We match 2-OR-3 segments
-    ;    (a truncated 2-segment token still carries the PII-bearing `email` claim —
-    ;    security review) and tolerate whitespace AROUND the dots (a token wrapped at
-    ;    a segment boundary). Run before the key rule. Residual (accepted, documented):
+    ; 1) License JWT. Anchor on the HEADER: a JWT header is compact base64url(JSON)
+    ;    beginning `{"alg"…` → it base64url-encodes to "eyJ" (the only reliable
+    ;    anchor — the PAYLOAD does NOT always start "eyJ": a pretty-printed payload
+    ;    `{ "…"}` encodes to "eyA"/"ewo", security review). So: header starts "eyJ",
+    ;    then 1-OR-2 more base64url segments (a truncated 2-segment token still
+    ;    carries the PII-bearing `email` claim), whitespace tolerated AROUND the dots
+    ;    (a token wrapped at a segment boundary). Run before the key rule. Privacy-
+    ;    favoring: an `eyJ…`-prefixed identifier followed by `.token` may be
+    ;    over-redacted — acceptable for a backstop. Residual (accepted, documented):
     ;    a newline INSIDE a base64 segment is not stitched back together.
-    out := RegExReplace(out, "eyJ[A-Za-z0-9_\-]+\s*\.\s*eyJ[A-Za-z0-9_\-]+(?:\s*\.\s*[A-Za-z0-9_\-]+)?", "[REDACTED_JWT]")
+    out := RegExReplace(out, "eyJ[A-Za-z0-9_\-]+\s*\.\s*[A-Za-z0-9_\-]+(?:\s*\.\s*[A-Za-z0-9_\-]+)?", "[REDACTED_JWT]")
 
     ; 2) Groq API key
     out := RegExReplace(out, "gsk_[A-Za-z0-9]+", "[REDACTED_API_KEY]")
