@@ -50,8 +50,10 @@ class PaywallUI {
             this._iconBig   := DllCall("LoadImage", "Ptr", 0, "Str", iconPath, "UInt", 1, "Int", 32, "Int", 32, "UInt", 0x10, "Ptr")
             this._iconSmall := DllCall("LoadImage", "Ptr", 0, "Str", iconPath, "UInt", 1, "Int", 16, "Int", 16, "UInt", 0x10, "Ptr")
             if (this._iconBig) {
-                SendMessage(0x0080, 1, this._iconBig, , "ahk_id " this.gui.Hwnd)
-                SendMessage(0x0080, 0, this._iconSmall ? this._iconSmall : this._iconBig, , "ahk_id " this.gui.Hwnd)
+                ; DllCall (raw HWND) — works on the not-yet-shown window; AHK's SendMessage
+                ; with "ahk_id" would throw "target window not found" (DetectHiddenWindows off).
+                DllCall("SendMessage", "Ptr", this.gui.Hwnd, "UInt", 0x0080, "Ptr", 1, "Ptr", this._iconBig)
+                DllCall("SendMessage", "Ptr", this.gui.Hwnd, "UInt", 0x0080, "Ptr", 0, "Ptr", this._iconSmall ? this._iconSmall : this._iconBig)
             }
         }
 
