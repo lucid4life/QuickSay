@@ -38,6 +38,7 @@ try {
 #Include lib\update-verify.ahk
 #Include lib\license.ahk
 #Include lib\crash-reporter.ahk
+#Include lib\telemetry.ahk
 #Include lib\settings-ui.ahk
 #Include lib\paywall-ui.ahk
 #Include lib\crash-optin-ui.ahk
@@ -179,6 +180,8 @@ CleanupOnExit(ExitReason, ExitCode) {
     rawPath := ScriptDir . "\raw.wav"
     if FileExist(rawPath)
         try FileDelete(rawPath)
+    ; T2.7: flush any queued telemetry events before exit
+    try Telemetry_FlushNow()
     return 0
 }
 
@@ -276,6 +279,20 @@ if Config.Has("show_widget") && Config["show_widget"]
 
 ; --- DEFERRED INIT (non-critical, runs after UI is responsive) ---
 SetTimer(DeferredStartup, -200)
+
+; --- T2.7: app_started telemetry (deferred 5 s, no-op when off) ─────────────
+SetTimer(TelemetryAppStarted, -5000)
+
+TelemetryAppStarted() {
+    global localVersion
+    try {
+        osBuild  := ""
+        try osBuild := RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CurrentBuildNumber")
+        osBucket := (IsInteger(osBuild) && Integer(osBuild) >= 22000) ? "11" : "10"
+        EmitEvent("app_started", Map("app_version", localVersion, "os_build_bucket", osBucket))
+    } catch {
+    }
+}
 
 ; --- FIRST-RUN CRASH-REPORTING OPT-IN (deferred; never blocks startup) ---
 ; Shows once (when never prompted). Defaults OFF until answered — no silent sends.
@@ -1466,6 +1483,25 @@ LoadConfig() {
         }
     } else {
         Config := GetDefaultConfig()
+    }
+
+    ; ── T2.7: configure telemetry from freshly-loaded config ─────────────────
+    ; Called on every load/reload so toggling the opt-in takes effect instantly.
+    ; All EmitEvent calls are no-ops until the user explicitly opts in.
+    try {
+        telEnabled := Config.Has("telemetryEnabled") ? Config["telemetryEnabled"] : false
+        telId      := Config.Has("telemetryInstallId") ? Config["telemetryInstallId"] : ""
+        Telemetry_Configure(Map(
+            "enabled",    telEnabled = 1 || telEnabled = true,
+            "installId",  telId,
+            "appVersion", localVersion
+        ))
+        ; If telemetry was just disabled, regenerate the install ID so that
+        ; re-enabling gets a fresh UUID and the timeline is genuinely broken.
+        if (!(telEnabled = 1 || telEnabled = true))
+            Telemetry_RegenerateInstallId()
+    } catch {
+        ; Telemetry configuration errors must never affect app startup
     }
 }
 
@@ -3438,6 +3474,18 @@ StopAndProcess() {
                 LastTranscription := FinalText
                 LastTranscriptionTime := A_TickCount
 
+                ; ── T2.7: recording_completed (no-op when off) ───────────────
+                try {
+                    _tm := Config.Has("currentMode") ? Config["currentMode"] : "standard"
+                    _presets := Map("standard","Standard","email","Email","code","Code","casual","Casual")
+                    EmitEvent("recording_completed", Map(
+                        "duration_ms",         recordDuration,
+                        "llm_cleanup_enabled", Config.Has("enableLLMCleanup") ? Config["enableLLMCleanup"] : false,
+                        "mode",                _presets.Has(_tm) ? _presets[_tm] : "custom"
+                    ))
+                } catch {
+                }
+
                 PlaySound("success")
                 UpdateRecordingOverlay("success")
                 UpdateWidgetStatus("idle")
@@ -3708,7 +3756,15 @@ CheckForUpdates(silent := false) {
     Config["last_update_check"] := today
     SaveConfigToggle("lastUpdateCheck", today)
 
-    if (CompareVersions(localVersion, remoteVersion) > 0) {
+    updateAvailable := CompareVersions(localVersion, remoteVersion) > 0
+
+    ; ── T2.7: update_check telemetry (no-op when off) ────────────────────────
+    try {
+        EmitEvent("update_check", Map("current_version", localVersion, "update_available", updateAvailable))
+    } catch {
+    }
+
+    if (updateAvailable) {
         ; Update available — ensure changelog is a string (version.json may return an array)
         if (Type(changelog) = "Array") {
             clStr := ""
@@ -3730,6 +3786,12 @@ CheckForUpdates(silent := false) {
                 "QuickSay - Update Available", 0x24)  ; Yes/No + Question icon
 
             if (msgResult = "Yes" && downloadUrl != "" && RegExMatch(downloadUrl, "^https://")) {
+                ; ── T2.7: update_installed telemetry ─────────────────────────
+                try {
+                    EmitEvent("update_installed", Map("from_version", localVersion, "to_version", remoteVersion))
+                    Telemetry_FlushNow()   ; flush before Run() exits this context
+                } catch {
+                }
                 try Run(downloadUrl)
             }
         }

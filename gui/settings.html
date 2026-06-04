@@ -569,6 +569,28 @@
                     </label>
                     <label for="crashReportingEnabled">Send anonymous crash reports <span class="sub-text" style="display:inline; margin:0;">No transcripts, audio, or personal info — just what went wrong, to help fix bugs</span></label>
                 </div>
+                <div class="toggle-item" style="margin-top:10px;">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="telemetryEnabled">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="telemetryEnabled">Help improve QuickSay — send anonymous usage stats
+                        <span class="sub-text" style="display:inline; margin:0;">Off by default. No transcripts, audio, personal info, or API keys ever sent.</span>
+                    </label>
+                </div>
+                <div id="telemetryDisclosure" style="display:none; margin-top:10px; padding:10px 12px; background:var(--bg-elevated,#1e1e1e); border-radius:8px; border:1px solid var(--border-subtle);">
+                    <p style="margin:0 0 6px; font-size:12px; color:var(--text-secondary); font-weight:600;">What's collected (aggregate &amp; anonymous only):</p>
+                    <ul style="margin:0; padding-left:18px; font-size:12px; color:var(--text-tertiary); line-height:1.7;">
+                        <li><strong>app_started</strong> — app version, Windows version bucket</li>
+                        <li><strong>recording_completed</strong> — duration bucket (&lt;5s / 5-15s / 15-60s / &gt;60s), AI cleanup on/off, preset mode name</li>
+                        <li><strong>settings_changed</strong> — which setting was changed (name only, never the value)</li>
+                        <li><strong>update_check / update_installed</strong> — version numbers</li>
+                    </ul>
+                    <p style="margin:6px 0 0; font-size:11px; color:var(--text-quaternary);">Never sent: transcript text, audio, API keys, license info, email, username, file paths. Install ID is a random UUID — regenerated when you disable and re-enable.</p>
+                </div>
+                <div style="margin-top:6px;">
+                    <button class="btn btn-link" id="btnTelemetryDetails" onclick="toggleTelemetryDisclosure()" style="font-size:12px; color:var(--accent-primary); background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;">What's collected?</button>
+                </div>
             </div>
 
             <div class="section" id="voiceCommandsSection">
@@ -1679,8 +1701,10 @@
             // Processing - Debug
             document.getElementById('debugLogging').checked = toBool(cfg.debugLogging);
 
-            // Privacy - crash reporting (opt-in, default OFF)
+            // Privacy - crash reporting + telemetry (both opt-in, both default OFF)
             document.getElementById('crashReportingEnabled').checked = toBool(cfg.crashReportingEnabled);
+            document.getElementById('telemetryEnabled').checked = toBool(cfg.telemetryEnabled);
+            window._lastSavedConfig = Object.assign({}, cfg);  // snapshot for opt-out detection
 
             // Hotkey conflict banner
             var conflictBanner = document.getElementById('hotkeyConflictBanner');
@@ -1762,6 +1786,15 @@
             // explicit answer to the consent question, so mark it prompted when ON.
             config.crashReportingEnabled = getCheck('crashReportingEnabled');
             if (config.crashReportingEnabled) config.crashReportingPrompted = true;
+
+            // Privacy - telemetry (T2.7, opt-in, off by default).
+            // When turning OFF, clear the install ID so re-enabling gets a fresh UUID
+            // (timeline break — as promised in the disclosure).
+            var prevTelEnabled = window._lastSavedConfig ? !!window._lastSavedConfig.telemetryEnabled : false;
+            config.telemetryEnabled = getCheck('telemetryEnabled');
+            if (prevTelEnabled && !config.telemetryEnabled) {
+                config.telemetryInstallId = '';  // AHK side will also call RegenerateInstallId
+            }
 
             // Ensure hotkey is always present (safety net)
             if (!config.hotkey) config.hotkey = "^LWin";
@@ -3363,6 +3396,16 @@
         }
 
         // Voice Commands toggle
+        // Telemetry "What's collected?" disclosure toggle (T2.7)
+        function toggleTelemetryDisclosure() {
+            var disc = document.getElementById('telemetryDisclosure');
+            var btn  = document.getElementById('btnTelemetryDetails');
+            if (!disc) return;
+            var showing = disc.style.display !== 'none';
+            disc.style.display = showing ? 'none' : '';
+            if (btn) btn.textContent = showing ? "What's collected?" : "Hide details";
+        }
+
         function toggleVoiceCommands() {
             var content = document.getElementById('voiceCmdContent');
             var icon = document.getElementById('voiceCmdToggleIcon');

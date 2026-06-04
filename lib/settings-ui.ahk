@@ -980,6 +980,9 @@ class SettingsUI {
                     newConfig.Delete("api_key")
             }
 
+            ; Read existing config BEFORE overwriting (for settings_changed diff)
+            oldConfig := this.LoadJSON(this.configFile)
+
             if (this.SaveJSON(this.configFile, newConfig)) {
                 ; Handle Launch at Startup registry key
                 this.UpdateStartupRegistry(newConfig)
@@ -988,6 +991,45 @@ class SettingsUI {
                 DetectHiddenWindows(true)
                 if WinExist("QuickSay_TrayMode ahk_class AutoHotkey")
                     PostMessage(0x5555, 1, 0)
+
+                ; ── T2.7: settings_changed + opt-out ID regeneration ──────────
+                try {
+                    ; Configure telemetry from the saved config (settings process
+                    ; doesn't go through LoadConfig so we configure it here).
+                    telEnabled := (Type(newConfig) = "Map" && newConfig.Has("telemetryEnabled"))
+                        ? newConfig["telemetryEnabled"] : false
+                    telEnabled := (telEnabled = 1 || telEnabled = true)
+                    telId := (Type(newConfig) = "Map" && newConfig.Has("telemetryInstallId"))
+                        ? newConfig["telemetryInstallId"] : ""
+                    Telemetry_Configure(Map("enabled", telEnabled, "installId", telId))
+                    ; HIGH-1: if telemetry was just turned OFF, regenerate the install ID.
+                    if (!telEnabled)
+                        Telemetry_RegenerateInstallId()
+                    ; Diff allowlisted keys and emit settings_changed if anything changed.
+                    ALLOWED := Map(
+                        "soundTheme",1,"hotkeyMode",1,"playSounds",1,"showOverlay",1,
+                        "enableLLMCleanup",1,"autoRemoveFillers",1,"smartPunctuation",1,
+                        "debugLogging",1,"recordingQuality",1,"launchAtStartup",1,
+                        "saveAudioRecordings",1,"historyRetention",1,"accessibilityMode",1,
+                        "autoPaste",1,"stickyMode",1,"contextAwareModes",1,
+                        "showWidget",1,"currentMode",1
+                    )
+                    changedKeys := []
+                    if (Type(newConfig) = "Map") {
+                        for k, v in newConfig {
+                            if (!ALLOWED.Has(k))
+                                continue
+                            oldVal := (Type(oldConfig) = "Map" && oldConfig.Has(k)) ? oldConfig[k] : ""
+                            if (v != oldVal)
+                                changedKeys.Push(k)
+                        }
+                    }
+                    if (changedKeys.Length > 0)
+                        EmitEvent("settings_changed", Map("changed_keys", changedKeys))
+                } catch {
+                    ; Telemetry errors MUST NEVER block settings saving or surface to the user
+                }
+
                 ; Notify JS of success
                 this.SendToJS("receiveConfigSaved", Map("success", true))
             } else {

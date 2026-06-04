@@ -34,5 +34,8 @@
   "_comment_license": "T2.3 trial/license fields below are DOCUMENTATION ONLY. The authoritative, DPAPI-encrypted state lives in %APPDATA%\\QuickSay\\license.dat (see lib/license.ahk) — these keys are NOT read from config.json, and the license JWT is NEVER stored here in plaintext.",
   "trialStartedAt": null,
   "trialState": "",
-  "licenseJwt": null
+  "licenseJwt": null,
+  "_comment_telemetry": "T2.7 opt-in telemetry (PostHog HTTP, no SDK). OFF by default — nothing is sent until the user opts in via Settings → Privacy. telemetryInstallId is a random UUID (CoCreateGuid), never derived from hardware, never correlatable to the license/trial identity. It is regenerated on each opt-out→opt-in transition so the timeline genuinely breaks. See Development/docs/telemetry-events.md for the full event list. Never sent: transcripts, audio, API keys, license JWT, email, username, machine name, MAC address, or full file paths.",
+  "telemetryEnabled": false,
+  "telemetryInstallId": ""
 }
