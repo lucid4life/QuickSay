@@ -35,7 +35,7 @@ corpus/
     silence.wav          pure silence — must be rejected by hallucination filter
     noise.wav            white noise  — must be rejected by hallucination filter
     short-utterance.wav  ~1.5s SAPI "okay" — guards false-positive risk (T1.1 #015)
-    long-2min.wav        10 LibriSpeech clips concatenated (>2 min)
+    long-2min.wav        all 38 chapter-1089 utterances concatenated (~276s, >2 min)
     multi-speaker.wav    two LibriSpeech speakers interleaved
 
 baseline/

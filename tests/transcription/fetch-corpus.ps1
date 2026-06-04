@@ -143,26 +143,41 @@ for ($i = 0; $i -le 1; $i++) {
     }
 }
 
-# ── 4. Build long-2min.wav (10 clips concatenated) ───────────────────────────
+# ── 4. Build long-2min.wav (>2 min continuous clip) ──────────────────────────
+# Concatenate ALL utterances of chapter 1089/134686 (≈276s) so the clip exceeds
+# 2 minutes — this is the no-truncation / timeout edge case (spec edge case #4).
+# The ordered utterance IDs used here also drive the long-2min expected_text below.
+$longChapterDir = Join-Path $ExtractDir "LibriSpeech\test-clean\1089\134686"
+$script:LongUtteranceIds = @()
+if (Test-Path $longChapterDir) {
+    $script:LongUtteranceIds = Get-ChildItem (Join-Path $longChapterDir "*.flac") |
+        Sort-Object Name |
+        ForEach-Object { [IO.Path]::GetFileNameWithoutExtension($_.Name) }
+}
+
 Write-Step "Building long-2min.wav"
 $longDst = Join-Path $EdgeDir "long-2min.wav"
 if (!(Test-Path $longDst)) {
-    $clips = @()
-    for ($i = 0; $i -le 9; $i++) {
-        $id = "1089-134686-{0:D4}" -f $i
-        $w = Join-Path $CleanDir "$id.wav"
-        if (Test-Path $w) { $clips += $w }
-    }
-    if ($clips.Count -lt 5) { throw "Not enough clean clips to build long-2min.wav (got $($clips.Count))" }
+    # Concat directly from the FLAC sources (all utterances in the chapter)
+    $flacs = $script:LongUtteranceIds | ForEach-Object { Join-Path $longChapterDir "$_.flac" } |
+             Where-Object { Test-Path $_ }
+    if ($flacs.Count -lt 15) { throw "Not enough clips to build a >2min long clip (got $($flacs.Count))" }
 
-    # Write ffmpeg concat list
     $listFile = Join-Path $env:TEMP "qs-concat.txt"
-    ($clips | ForEach-Object { "file '$_'" }) | Set-Content $listFile -Encoding UTF8
+    ($flacs | ForEach-Object { "file '$_'" }) | Set-Content $listFile -Encoding UTF8
     & $Ffmpeg -f concat -safe 0 -i $listFile -ar 16000 -ac 1 -acodec pcm_s16le $longDst -y 2>&1 | Out-Null
     Remove-Item $listFile -Force -ErrorAction SilentlyContinue
     if (!(Test-Path $longDst)) { throw "ffmpeg failed building long-2min.wav" }
-    $dur = & $Ffmpeg -i $longDst 2>&1 | Select-String "Duration" | Select-Object -First 1
-    Write-Ok "long-2min.wav created ($dur)"
+
+    # Verify the clip actually exceeds 2 minutes
+    $durLine = & $Ffmpeg -i $longDst 2>&1 | Select-String "Duration: (\d+):(\d+):([\d.]+)"
+    if ($durLine -match "Duration: (\d+):(\d+):([\d.]+)") {
+        $secs = [int]$matches[1]*3600 + [int]$matches[2]*60 + [double]$matches[3]
+        if ($secs -lt 120) { throw "long-2min.wav is only ${secs}s — must exceed 120s" }
+        Write-Ok "long-2min.wav created ($([Math]::Round($secs,1))s, $($flacs.Count) utterances)"
+    } else {
+        Write-Warn "long-2min.wav created but duration could not be verified"
+    }
 } else {
     Write-Ok "long-2min.wav already exists"
 }
@@ -217,12 +232,13 @@ foreach ($tf in $transFiles) {
 }
 Write-Ok "Loaded $($transcripts.Count) transcripts"
 
-# Build long-2min expected text: concatenate the clean clips used
+# Build long-2min expected text: concatenate the exact utterances used to build
+# the clip (all utterances in the chapter, in the same sorted order).
 $longExpected = ""
-for ($i = 0; $i -le 9; $i++) {
-    $id = "1089-134686-{0:D4}" -f $i
-    if ($transcripts.ContainsKey($id)) {
-        $longExpected = ($longExpected + " " + $transcripts[$id]).Trim()
+foreach ($id in $script:LongUtteranceIds) {
+    $key = $id.ToLower()
+    if ($transcripts.ContainsKey($key)) {
+        $longExpected = ($longExpected + " " + $transcripts[$key]).Trim()
     }
 }
 
