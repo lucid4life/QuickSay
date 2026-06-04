@@ -25,6 +25,7 @@ DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.Voi
 #Include %A_ScriptDir%\lib\dpapi.ahk
 #Include %A_ScriptDir%\lib\ed25519.ahk
 #Include %A_ScriptDir%\lib\license.ahk
+#Include %A_ScriptDir%\lib\telemetry.ahk
 #Include %A_ScriptDir%\lib\settings-ui.ahk
 
 ; ==============================================================================
