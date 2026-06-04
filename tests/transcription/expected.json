@@ -1,0 +1,186 @@
+{
+  "_comment": "Ground-truth corpus for QuickSay transcription regression suite (T2.6). Run fetch-corpus.ps1 to download LibriSpeech audio and populate expected_text for clean/accents buckets. Edge cases are fully specified here. Every entry has a source + license — these are third-party assets.",
+  "clips": [
+    {
+      "file": "corpus/clean/1089-134686-0000.wav",
+      "bucket": "clean",
+      "expected_text": "he hoped there would be stew for dinner turnips and carrots and bruised potatoes and fat mutton pieces to be ladled out in thick peppered flour fattened sauce",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0000 (librivox public domain)",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/clean/1089-134686-0001.wav",
+      "bucket": "clean",
+      "expected_text": "stuff it into you his belly counselled him",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0001",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/clean/1089-134686-0002.wav",
+      "bucket": "clean",
+      "expected_text": "after early nightfall the yellow lamps would light up here and there the squalid quarter of the brothels",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0002",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/clean/1089-134686-0003.wav",
+      "bucket": "clean",
+      "expected_text": "hello bertie any good in your mind",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0003",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/clean/1089-134686-0004.wav",
+      "bucket": "clean",
+      "expected_text": "number ten fresh nelly is waiting on you good night husband",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0004",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/clean/1089-134686-0005.wav",
+      "bucket": "clean",
+      "expected_text": "the music came nearer and he recalled the words the words of shelley's fragment upon the moon wandering companionless pale for weariness",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0005",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/clean/1089-134686-0006.wav",
+      "bucket": "clean",
+      "expected_text": "the dull light fell more faintly upon the page whereon another equation began to unfold itself slowly and to spread abroad its widening tail",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0006",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/clean/1089-134686-0007.wav",
+      "bucket": "clean",
+      "expected_text": "a cold lucid indifference reigned in his soul",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0007",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/clean/1089-134686-0008.wav",
+      "bucket": "clean",
+      "expected_text": "the chaos in which his ardour extinguished itself was a cold indifferent knowledge of himself",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0008",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/clean/1089-134686-0009.wav",
+      "bucket": "clean",
+      "expected_text": "at most by an alms given to a beggar whose blessing he fled from he might hope wearily to win for himself some measure of actual grace",
+      "assert": "wer",
+      "max_wer": 0.1,
+      "source": "LibriSpeech test-clean speaker 1089 chapter 134686 utterance 0009",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/accents/1221-135766-0000.wav",
+      "bucket": "accents",
+      "expected_text": "how strange it seemed to the sad woman as she watched the growth and the beauty that became every day more brilliant and the intelligence that threw its quivering sunshine over the tiny features of this child",
+      "assert": "wer",
+      "max_wer": 0.2,
+      "source": "LibriSpeech test-clean speaker 1221 chapter 135766 utterance 0000 (diverse speaker set)",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/accents/1221-135766-0001.wav",
+      "bucket": "accents",
+      "expected_text": "god as a direct consequence of the sin which man thus punished had given her a lovely child whose place was on that same dishonoured bosom to connect her parent for ever with the race and descent of mortals and to be finally a blessed soul in heaven",
+      "assert": "wer",
+      "max_wer": 0.2,
+      "source": "LibriSpeech test-clean speaker 1221 chapter 135766 utterance 0001",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/accents/1221-135766-0002.wav",
+      "bucket": "accents",
+      "expected_text": "yet these thoughts affected hester prynne less with hope than apprehension",
+      "assert": "wer",
+      "max_wer": 0.2,
+      "source": "LibriSpeech test-clean speaker 1221 chapter 135766 utterance 0002",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/accents/3570-5694-0000.wav",
+      "bucket": "accents",
+      "expected_text": "but already at a point in economic evolution far antedating the emergence of the lady specialised consumption of goods as an evidence of pecuniary strength had begun to work out in a more or less elaborate system",
+      "assert": "wer",
+      "max_wer": 0.2,
+      "source": "LibriSpeech test-clean speaker 3570 chapter 5694 utterance 0000 (diverse speaker set)",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/accents/3570-5694-0001.wav",
+      "bucket": "accents",
+      "expected_text": "the utility of consumption as an evidence of wealth is to be classed as a derivative growth",
+      "assert": "wer",
+      "max_wer": 0.2,
+      "source": "LibriSpeech test-clean speaker 3570 chapter 5694 utterance 0001",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/edge/silence.wav",
+      "bucket": "edge",
+      "expected_text": "",
+      "assert": "empty_or_hallucination",
+      "max_wer": null,
+      "source": "FFmpeg anullsrc synthetic 3s mono 16kHz silence",
+      "license": "generated"
+    },
+    {
+      "file": "corpus/edge/noise.wav",
+      "bucket": "edge",
+      "expected_text": "",
+      "assert": "empty_or_hallucination",
+      "max_wer": null,
+      "source": "FFmpeg anoisesrc synthetic 3s mono white noise",
+      "license": "generated"
+    },
+    {
+      "file": "corpus/edge/short-utterance.wav",
+      "bucket": "edge",
+      "expected_text": "okay",
+      "assert": "exact_raw",
+      "max_wer": null,
+      "source": "Windows SAPI TTS 'okay' ~1.5s 16kHz mono",
+      "license": "generated",
+      "_note": "T1.1 finding 015: IsWhisperHallucination() flags single-word output as a false positive. This test asserts Whisper DOES return the word (actual_raw correct) — it is the app filter that incorrectly drops it. actual_kept will be empty; that is the KNOWN BUG, not a test failure."
+    },
+    {
+      "file": "corpus/edge/long-2min.wav",
+      "bucket": "edge",
+      "expected_text": "he hoped there would be stew for dinner turnips and carrots and bruised potatoes and fat mutton pieces to be ladled out in thick peppered flour fattened sauce stuff it into you his belly counselled him after early nightfall the yellow lamps would light up here and there the squalid quarter of the brothels hello bertie any good in your mind number ten fresh nelly is waiting on you good night husband the music came nearer and he recalled the words the words of shelley's fragment upon the moon wandering companionless pale for weariness the dull light fell more faintly upon the page whereon another equation began to unfold itself slowly and to spread abroad its widening tail a cold lucid indifference reigned in his soul the chaos in which his ardour extinguished itself was a cold indifferent knowledge of himself at most by an alms given to a beggar whose blessing he fled from he might hope wearily to win for himself some measure of actual grace",
+      "assert": "wer",
+      "max_wer": 0.15,
+      "source": "LibriSpeech test-clean 10 clips concatenated (speaker 1089 ch 134686) — generated by fetch-corpus.ps1",
+      "license": "CC BY 4.0"
+    },
+    {
+      "file": "corpus/edge/multi-speaker.wav",
+      "bucket": "edge",
+      "expected_text": "he hoped there would be stew for dinner turnips and carrots and bruised potatoes and fat mutton pieces to be ladled out in thick peppered flour fattened sauce how strange it seemed to the sad woman as she watched the growth and the beauty that became every day more brilliant and the intelligence that threw its quivering sunshine over the tiny features of this child stuff it into you his belly counselled him god as a direct consequence of the sin which man thus punished had given her a lovely child whose place was on that same dishonoured bosom to connect her parent for ever with the race and descent of mortals and to be finally a blessed soul in heaven after early nightfall the yellow lamps would light up here and there the squalid quarter of the brothels yet these thoughts affected hester prynne less with hope than apprehension",
+      "assert": "informational",
+      "max_wer": null,
+      "source": "LibriSpeech test-clean speaker 1089 and speaker 1221 interleaved — generated by fetch-corpus.ps1",
+      "license": "CC BY 4.0"
+    }
+  ]
+}
