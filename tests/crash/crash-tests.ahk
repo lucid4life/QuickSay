@@ -58,6 +58,13 @@ Assert("T2b: 2-seg jwt redacted",    !InStr(CrashReporter_Scrub("clip " twoSeg "
 wrapped := "token eyJhbGciOiJFZERTQSJ9.`neyJzdWIiOiJ4In0.`nZm9vc2ln rest"
 Assert("T2c: dot-wrapped jwt redacted", !InStr(CrashReporter_Scrub(wrapped), "eyJ"))
 
+; T2d: JWT with a PRETTY-PRINTED payload (valid JSON with a leading space →
+;      base64url starts "eyA", NOT "eyJ"). The header still starts "eyJ", so the
+;      scrub must anchor on the header, not assume the payload starts "eyJ".
+;      Payload here decodes to `{ "e":1}`. (security review regression check)
+ppJwt := "eyJhbGciOiJFZERTQSJ9.eyAiZSI6MX0.abc123_def-456"
+Assert("T2d: pretty-printed-payload jwt redacted", !InStr(CrashReporter_Scrub("err " ppJwt " x"), "eyAiZSI6MX0"))
+
 ; T3: Windows username in a path → C:\Users\[USER]\...
 s3 := CrashReporter_Scrub("could not open " USERPATH)
 Assert("T3: username scrubbed",      InStr(s3, "C:\Users\[USER]\"))
