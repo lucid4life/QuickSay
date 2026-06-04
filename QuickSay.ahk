@@ -35,6 +35,7 @@ try {
 #Include lib\dpapi.ahk
 #Include lib\http.ahk
 #Include lib\ed25519.ahk
+#Include lib\update-verify.ahk
 #Include lib\license.ahk
 #Include lib\crash-reporter.ahk
 #Include lib\settings-ui.ahk
@@ -92,6 +93,10 @@ if (LaunchMode = "tray") {
 ; ==============================================================================
 
 global ScriptDir := A_ScriptDir
+; App version — single runtime source. SSOT is Development/VERSION; release.ps1
+; rewrites this literal (and -CheckSync verifies it). Read by CheckForUpdates and
+; the crash reporter's Sentry "release" tag so neither can drift.
+global localVersion := "1.9.0"
 global DictCompiledPattern := ""  ; Compiled regex pattern for dictionary
 global DictReplacements := Map()  ; Map of lowercase keys to replacement values
 
@@ -951,11 +956,11 @@ ReloadConfig(*) {
 ; Push the current config into the crash reporter. Opt-in defaults OFF; the
 ; reporter is a hard no-op until the user answers the first-run modal AND opts in.
 ConfigureCrashReporter() {
-    global Config, ScriptDir, SENTRY_DSN_PUBLIC, SENTRY_ENVIRONMENT
+    global Config, ScriptDir, SENTRY_DSN_PUBLIC, SENTRY_ENVIRONMENT, localVersion
     enabled  := Config.Has("crash_reporting_enabled")  && Config["crash_reporting_enabled"]
     prompted := Config.Has("crash_reporting_prompted") && Config["crash_reporting_prompted"]
     debug    := Config.Has("debug_logging")            && Config["debug_logging"]
-    ver := "1.9.0"   ; Sentry release tag; kept in sync with localVersion by release.ps1
+    ver := localVersion   ; Sentry release tag — the shared app-version global
     CrashReporter_Configure(Map(
         "enabled",     enabled ? true : false,
         "prompted",    prompted ? true : false,
@@ -3661,13 +3666,11 @@ CompareVersions(localVer, remote) {
 ; silent=true: only notify if update available (used on startup)
 ; silent=false: always notify result (used from menu)
 CheckForUpdates(silent := false) {
-    global ScriptDir, Config, isRecording, isProcessing
+    global ScriptDir, Config, isRecording, isProcessing, localVersion
     if (isRecording || isProcessing)
         return
 
-    ; Current version from app metadata
-    localVersion := "1.9.0"
-
+    ; Current version from the shared global (SSOT = Development/VERSION via release.ps1)
     versionUrl := "https://quicksay.app/version.json"
     apiResult := HttpGet(versionUrl, 10)
 
@@ -3679,43 +3682,26 @@ CheckForUpdates(silent := false) {
 
     responseBody := apiResult["body"]
 
-    ; Parse version from JSON response
-    remoteVersion := ""
-    downloadUrl := ""
-    changelog := ""
-
-    try {
-        parsed := JSON.Parse(responseBody)
-        remoteVersion := parsed.Has("version") ? parsed["version"] : ""
-        if parsed.Has("download_url")
-            downloadUrl := parsed["download_url"]
-        else if parsed.Has("url")
-            downloadUrl := parsed["url"]
-        changelogRaw := parsed.Has("changelog") ? parsed["changelog"] : ""
-        if (Type(changelogRaw) = "Array") {
-            changelog := ""
-            for item in changelogRaw
-                changelog .= (changelog != "" ? "`n• " : "• ") . item
-        } else {
-            changelog := changelogRaw
-        }
-    } catch {
-        ; Fallback to regex if JSON.Parse fails
-        if RegExMatch(responseBody, '"version"\s*:\s*"([^"]+)"', &vMatch)
-            remoteVersion := vMatch[1]
-        if RegExMatch(responseBody, '"download_url"\s*:\s*"([^"]+)"', &uMatch)
-            downloadUrl := uMatch[1]
-        else if RegExMatch(responseBody, '"url"\s*:\s*"([^"]+)"', &uMatch)
-            downloadUrl := uMatch[1]
-        if RegExMatch(responseBody, '"changelog"\s*:\s*"([^"]+)"', &cMatch)
-            changelog := cMatch[1]
-    }
-
-    if (remoteVersion = "") {
+    ; ── T2.5: verify the Ed25519 signature BEFORE trusting ANY field ──────────
+    ; The manifest must cryptographically prove it came from us (signed by the
+    ; qs-2026 key, spec §7). Unsigned / tampered / wrong-key / unknown-keyId
+    ; manifests are rejected and the app fails CLOSED (no update offered). The
+    ; old unauthenticated JSON+regex parse is gone on purpose: an unverifiable
+    ; manifest must NEVER drive an update decision. The user-facing message stays
+    ; generic so a probing attacker learns nothing; the specific reason is only
+    ; written to the debug log when debug_logging is on.
+    verify := VerifyUpdateManifest(responseBody)
+    if (!verify["ok"]) {
+        if (Config.Has("debug_logging") && Config["debug_logging"])
+            try FileAppend("[" A_Now "] update rejected: " . verify["reason"] . "`n", ScriptDir . "\debug_log.txt")
         if (!silent)
-            TrayTip("Could not check for updates. Please try again later.", "QuickSay", 0x2)
+            TrayTip("Could not verify the update. Please download from quicksay.app.", "QuickSay", 0x2)
         return
     }
+
+    remoteVersion := verify["version"]
+    downloadUrl   := verify["download_url"]
+    changelog     := verify["changelog"]   ; Array — converted to a display string below
 
     ; Record successful check date
     today := FormatTime(A_Now, "yyyy-MM-dd")

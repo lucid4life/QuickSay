@@ -611,9 +611,15 @@ if (-not $SkipCompile) {
 }
 
 # =============================================================================
-# STEP 6: Create/update Website version.json for auto-update
+# STEP 6: Create/update Website version.json for auto-update (Ed25519-SIGNED, T2.5)
 # =============================================================================
-Write-Step "STEP 6: Creating version.json for auto-update"
+# The manifest is signed with the qs-2026 Ed25519 key and commits to the
+# installer's SHA-256, so the app (CheckForUpdates) only trusts an update it can
+# cryptographically prove came from us. Signing runs AFTER the installer is built
+# + code-signed (STEP 4/5) so installer_sha256 is final, and BEFORE the website
+# is committed/pushed (STEP 7b). No installer → no signed manifest. Key absent →
+# the signer FAILS LOUDLY and the release aborts (never ships an unsigned manifest).
+Write-Step "STEP 6: Creating SIGNED version.json for auto-update"
 
 $versionJsonPath = Join-Path $websiteDir "public\version.json"
 $versionJsonDir  = Split-Path $versionJsonPath -Parent
@@ -622,21 +628,63 @@ if (-not (Test-Path $versionJsonDir)) {
     New-Item -ItemType Directory -Path $versionJsonDir -Force | Out-Null
 }
 
-$versionObj = [ordered]@{
-    version      = $semVer
-    download_url = "https://quicksay.app/download"
-    release_date = (Get-Date -Format "yyyy-MM-dd")
-    changelog    = if ($Changelog -ne "") {
-        $Changelog.Split(',') | ForEach-Object { $_.Trim() }
-    } else {
-        @("Bug fixes and improvements")
-    }
+# Locate the freshly built + code-signed installer (its hash is what we sign over).
+$sigInstaller = Join-Path $installerDir $installerFilename
+if (-not (Test-Path $sigInstaller)) {
+    $sigInstaller = Join-Path $installerDir "QuickSay_Beta_${displayVer}_Setup.exe"
 }
 
-$versionObj | ConvertTo-Json -Depth 5 |
-    Set-Content $versionJsonPath -Encoding UTF8 -NoNewline
+if (-not (Test-Path $sigInstaller)) {
+    Write-Warn "No installer found ($installerFilename) — skipping version.json. A SIGNED manifest must commit to the installer's SHA-256, so it is only produced with a real installer (run without -SkipCompile to publish an update)."
+} else {
+    # 1. SHA-256 of the final code-signed installer — the manifest's binary commitment.
+    $installerSha = (Get-FileHash -Algorithm SHA256 -Path $sigInstaller).Hash.ToLower()
 
-Write-OK "version.json → $semVer"
+    # 2. Changelog array (same source as the GitHub release notes).
+    #    NOTE: -Changelog is comma-split, so a single bullet must NOT contain a
+    #    literal comma (it would split into two entries). Whatever array results is
+    #    faithfully signed and verified — this is a release-authoring nicety only.
+    if ($Changelog -ne "") {
+        $changelogArr = @($Changelog.Split(',') | ForEach-Object { $_.Trim() })
+    } else {
+        $changelogArr = @("Bug fixes and improvements")
+    }
+
+    # 3. Manifest fields for the signer (released_at = ISO-8601 UTC; keyId = qs-2026).
+    $manifestFields = [ordered]@{
+        version          = $semVer
+        download_url     = "https://quicksay.app/download"
+        changelog        = $changelogArr
+        installer_sha256 = $installerSha
+        released_at      = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+        keyId            = "qs-2026"
+    }
+
+    $signerScript = Join-Path $devDir "scripts\sign-version-json.mjs"
+    $nodeCmd = Get-Command node -ErrorAction SilentlyContinue
+    if (-not $nodeCmd) {
+        Write-Fail "node not found — cannot sign version.json. Install Node (or sign manually). Refusing to ship an UNSIGNED manifest."
+        exit 1
+    }
+
+    # 4. Sign: Node reads the Ed25519 PRIVATE key from a secret/env (never the repo)
+    #    and writes the full signed version.json. Non-zero exit = key missing or
+    #    signing failed -> abort the release (no unsigned manifest ever ships).
+    $signerInput = Join-Path $env:TEMP "quicksay_version_fields.json"
+    ($manifestFields | ConvertTo-Json -Depth 5) | Set-Content $signerInput -Encoding UTF8 -NoNewline
+    $oldEAP = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    & $nodeCmd.Source $signerScript --in $signerInput --out $versionJsonPath
+    $signResult = $LASTEXITCODE
+    $ErrorActionPreference = $oldEAP
+    Remove-Item $signerInput -Force -ErrorAction SilentlyContinue
+
+    if ($signResult -ne 0) {
+        Write-Fail "version.json signing FAILED (exit $signResult). The Ed25519 private key is likely missing — set QUICKSAY_ED25519_PRIVATE_KEY (PEM) or QUICKSAY_ED25519_PRIVATE_KEY_PATH, or place ~/.quicksay-keys/qs-2026-ed25519-private.pem. Aborting — no UNSIGNED release ships."
+        exit 1
+    }
+    Write-OK "version.json (SIGNED, installer_sha256=$($installerSha.Substring(0,12))...) -> $semVer"
+}
 
 # Update PAD file (pad.xml) for Softpedia and software directories
 $padXmlPath = Join-Path $websiteDir "public\pad.xml"
