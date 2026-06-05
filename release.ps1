@@ -336,6 +336,28 @@ if (-not $DryRun -and -not $SyncOnly) {
 }
 
 # =============================================================================
+# T1.8 / T1.3-011: SOURCE ROLLBACK GUARD
+# =============================================================================
+# Snapshot every file the version-rewrite path (STEP 1) can mutate BEFORE we
+# touch anything, then wrap the whole pipeline (compile -> sign -> ISCC -> R2 ->
+# version.json signing, incl. T2.5's STEP 6) in try/finally. If the run does not
+# reach success, the finally restores a clean tree instead of stranding a
+# bumped-but-unreleased version on disk. The snapshot list is DERIVED from T1.6's
+# $VersionTargets (new version locations are auto-protected) plus the bespoke
+# files STEP 1 also writes.
+. (Join-Path $devDir "scripts\release-rollback.ps1")
+$script:ReleaseSucceeded = $false
+$script:ReleaseSnapshot  = @{}
+if (-not $DryRun) {
+    $snapPaths = Get-ReleaseSnapshotPaths -VersionTargets $VersionTargets -DevDir $devDir `
+                    -ExtraRelative @("docs\LICENSE_AGREEMENT.rtf", "data\changelog.json", "VERSION")
+    $script:ReleaseSnapshot = Save-ReleaseSnapshot -Paths $snapPaths
+    Write-OK "Rollback snapshot captured ($($script:ReleaseSnapshot.Count) source file(s))"
+}
+
+try {
+
+# =============================================================================
 # STEP 1: Update version numbers in all files
 # =============================================================================
 Write-Step "STEP 1: Updating version numbers across all files"
@@ -451,6 +473,7 @@ if ($syncFailures.Count -eq 0) {
 if ($SyncOnly) {
     Write-Step "SYNC-ONLY COMPLETE"
     Write-OK "Version strings propagated to v$semVer (VERSION + all tracked files). No build, sign, or publish performed."
+    $script:ReleaseSucceeded = $true   # T1.8: SyncOnly is an intentional success — keep the bumps
     exit 0
 }
 
@@ -1169,3 +1192,17 @@ if ($SkipGitHub -or $SkipCompile) {
     Write-Host "     2. Upload installer to Lemon Squeezy" -ForegroundColor White
 }
 Write-Host ""
+
+# ── T1.8 / T1.3-011: pipeline reached the end — the bumps are now released ────
+$script:ReleaseSucceeded = $true
+}
+finally {
+    # Restore source on ANY non-success exit/throw between STEP 1 and here
+    # (failure exit codes, the Azure-sign hang, a thrown cmdlet error). A DryRun
+    # mutates nothing, and SyncOnly / normal completion set $ReleaseSucceeded.
+    if ((-not $DryRun) -and (-not $script:ReleaseSucceeded)) {
+        Write-Host "`n>> ROLLBACK: release did not complete — restoring source files to pre-release state" -ForegroundColor Yellow
+        $restoredCount = Restore-ReleaseSnapshot -Snapshot $script:ReleaseSnapshot
+        Write-Host ">> Rollback restored $restoredCount source file(s). Tree is clean; no unreleased version bump remains." -ForegroundColor Yellow
+    }
+}

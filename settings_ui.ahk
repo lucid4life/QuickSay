@@ -20,6 +20,7 @@ DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.Voi
 ; Uses shared SettingsUI class from lib/settings-ui.ahk
 ; ==============================================================================
 
+#Include %A_ScriptDir%\lib\datadir.ahk
 #Include %A_ScriptDir%\lib\WebView2.ahk
 #Include %A_ScriptDir%\lib\JSON.ahk
 #Include %A_ScriptDir%\lib\dpapi.ahk
@@ -31,6 +32,10 @@ DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.Voi
 ; ==============================================================================
 ; STARTUP
 ; ==============================================================================
+; T1.8 / T1.3-023: ensure the data root exists (migrate/seed if first to run)
+; before the settings UI reads or writes config.
+try BootstrapDataDir()
+
 try {
     try {
         SettingsUI.Show()

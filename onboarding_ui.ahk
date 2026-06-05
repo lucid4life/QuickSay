@@ -20,6 +20,7 @@ DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.Voi
 ; First-run setup — walks user through getting a Groq API key
 ; ==============================================================================
 
+#Include %A_ScriptDir%\lib\datadir.ahk
 #Include %A_ScriptDir%\lib\WebView2.ahk
 #Include %A_ScriptDir%\lib\JSON.ahk
 #Include %A_ScriptDir%\lib\dpapi.ahk
@@ -38,7 +39,9 @@ class OnboardingUI {
     static gui := ""
     static wv := ""
     static wvc := ""
-    static configFile := A_ScriptDir "\config.json"
+    ; T1.8 / T1.3-023: config lives under GetDataDir() (%APPDATA%\QuickSay\ when
+    ; installed) so the wizard writes the same config the tray/settings read.
+    static configFile := GetDataDir() "\config.json"
     static cachedConfig := ""
     static micActive := false
     static testRecordFile := A_Temp "\quicksay_mic_test.wav"
@@ -262,7 +265,7 @@ class OnboardingUI {
                 this.HandleGetHotkeyConflict()
             }
         } catch as err {
-            try FileAppend("[" A_Now "] OnWebMessage ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] OnWebMessage ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -393,7 +396,7 @@ class OnboardingUI {
             FileMove(tmpPath, this.configFile, 1)
             this.InvalidateConfigCache()
         } catch as err {
-            try FileAppend("[" A_Now "] HandleSaveKey ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] HandleSaveKey ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -451,10 +454,10 @@ class OnboardingUI {
 
     static MarkOnboardingDone() {
         ; Write a simple marker file so we don't show onboarding again
-        markerFile := A_ScriptDir "\data\onboarding_done"
+        markerFile := GetDataDir() "\data\onboarding_done"
         try {
-            if !DirExist(A_ScriptDir "\data")
-                DirCreate(A_ScriptDir "\data")
+            if !DirExist(GetDataDir() "\data")
+                DirCreate(GetDataDir() "\data")
             f := FileOpen(markerFile, "w")
             f.Write("1")
             f.Close()
@@ -622,7 +625,7 @@ class OnboardingUI {
         } catch as err {
             this.transcriptionRecording := false
             this.SendTranscriptionError("Failed to start recording: " err.Message)
-            try FileAppend("[" A_Now "] StartTestTranscription ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] StartTestTranscription ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -712,7 +715,7 @@ class OnboardingUI {
                 DllCall("winmm\mciSendString", "Str", "close transtest", "Ptr", 0, "UInt", 0, "Ptr", 0)
             }
             this.SendTranscriptionError(err.Message)
-            try FileAppend("[" A_Now "] StopTestTranscription ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] StopTestTranscription ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -740,7 +743,7 @@ class OnboardingUI {
             FileMove(tmpPath, this.configFile, 1)
             this.InvalidateConfigCache()
         } catch as err {
-            try FileAppend("[" A_Now "] HandleMicTestSkipped ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] HandleMicTestSkipped ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -797,7 +800,7 @@ class OnboardingUI {
             }
             ObjRelease(device)
         } catch as err {
-            try FileAppend("[" A_Now "] IncreaseMicVolume ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] IncreaseMicVolume ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -839,6 +842,10 @@ class OnboardingUI {
 }
 
 ; --- LAUNCH ---
+; T1.8 / T1.3-023: ensure the data root exists (and migrate any legacy {app}
+; data) before the wizard writes config / the onboarding-done marker.
+try BootstrapDataDir()
+
 try {
     OnboardingUI.Show()
 } catch as err {

@@ -7,11 +7,14 @@ class SettingsUI {
     static gui := ""
     static wv := ""
     static wvc := "" ; WebView2 Controller
-    static configFile := A_ScriptDir "\config.json"
-    static dictFile := A_ScriptDir "\dictionary.json"
-    static historyFile := A_ScriptDir "\data\history.json"
-    static statsFile := A_ScriptDir "\data\statistics.json"
-    static logDir := A_ScriptDir "\data\logs"
+    ; T1.8 / T1.3-023: user data resolves through GetDataDir() (lib/datadir.ahk),
+    ; so the settings process and the tray process always agree on where config
+    ; lives. changelogPath (below) stays {app}-relative — it is a bundled asset.
+    static configFile := GetDataDir() "\config.json"
+    static dictFile := GetDataDir() "\dictionary.json"
+    static historyFile := GetDataDir() "\data\history.json"
+    static statsFile := GetDataDir() "\data\statistics.json"
+    static logDir := GetDataDir() "\data\logs"
     static _boundMinMaxInfo := ""  ; Stored for cleanup on close
     static _hotkeyHook := 0        ; Low-level keyboard hook handle
     static _hookCallback := 0      ; Callback pointer for hook

@@ -28,6 +28,7 @@ try {
     }
 }
 
+#Include lib\datadir.ahk
 #Include lib\web-overlay.ahk
 #Include widget-overlay.ahk
 #Include lib\WebView2.ahk
@@ -110,11 +111,14 @@ DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.Voi
 ; These properties tell Windows which exe and icon to use when pinning to taskbar
 SetTaskbarRelaunchProperties()
 
-global ConfigFile := ScriptDir . "\config.json"
-global DictionaryFile := ScriptDir . "\dictionary.json"
-global HistoryFile := ScriptDir . "\data\history.json"
-global StatsFile := ScriptDir . "\data\statistics.json"
-global AudioDir := ScriptDir . "\data\audio"
+; T1.8 / T1.3-023: user data now resolves through GetDataDir() (lib/datadir.ahk)
+; — %APPDATA%\QuickSay\ when installed (co-located with license.dat), the script
+; dir in dev. Bundled assets (sounds, gui, exes) stay ScriptDir-relative below.
+global ConfigFile := GetDataDir() . "\config.json"
+global DictionaryFile := GetDataDir() . "\dictionary.json"
+global HistoryFile := GetDataDir() . "\data\history.json"
+global StatsFile := GetDataDir() . "\data\statistics.json"
+global AudioDir := GetDataDir() . "\data\audio"
 global SoundsDir := ScriptDir . "\sounds"
 
 ; Child script path (onboarding runs as separate process)
@@ -194,6 +198,10 @@ if (LaunchMode = "settings") {
     ;  SETTINGS MODE - Show Settings UI directly
     ; ═══════════════════════════════════════════════════════════════════════════
     A_IconHidden := true  ; Hide tray icon — main tray instance already has one
+    ; T1.8 / T1.3-023: this --settings path returns before the tray-mode
+    ; BootstrapDataDir() below, so ensure the data root exists / is migrated here
+    ; too, in case this is the first process to touch user data.
+    BootstrapDataDir()
     SettingsUI.Show()
     ; Script will continue running while Settings window is open
     ; Exit when Settings window is closed (handled in SettingsUI.Close)
@@ -244,6 +252,11 @@ OnMessage(0x5555, ReloadConfigMsg)
 ReloadConfigMsg(wParam, lParam, msg, hwnd) {
     SetTimer(ReloadConfig, -100)
 }
+
+; --- T1.8 / T1.3-023: ensure the data root exists, migrate any legacy {app}
+;     data from a pre-2.0 install, and seed a clean config if none — BEFORE the
+;     first read below. Runs once per startup; idempotent + non-destructive.
+BootstrapDataDir()
 
 ; --- LOAD CONFIGURATION ---
 LoadConfig()
@@ -498,7 +511,7 @@ SetupTray() {
     ; Load modes from config, fallback to defaults
     modes := []
     try {
-        configPath := A_ScriptDir . "\config.json"
+        configPath := GetDataDir() . "\config.json"
         if FileExist(configPath) {
             raw := FileRead(configPath)
             cfg := JSON.Parse(raw)
@@ -985,7 +998,7 @@ ConfigureCrashReporter() {
         "release",     ver,
         "environment", SENTRY_ENVIRONMENT,
         "debug",       debug ? true : false,
-        "debugFile",   ScriptDir "\debug_log.txt"))
+        "debugFile",   GetDebugLogPath()))
 }
 
 ; Show the one-time opt-in modal on first run (only when never prompted). The
@@ -1061,7 +1074,7 @@ TranscribeFile(*) {
         if (!FileExist(processedFile) || FileGetSize(processedFile) = 0) {
             TrayTip("Audio conversion failed. The file format may not be supported.", "QuickSay", 0x3)
             if (dbg)
-                try FileAppend("[" A_Now "] FFmpeg transcode failed for: " . selectedFile . "`n", ScriptDir . "\debug_log.txt")
+                try FileAppend("[" A_Now "] FFmpeg transcode failed for: " . selectedFile . "`n", GetDebugLogPath())
             PlaySound("error")
             UpdateTrayTooltip("Error")
             HideRecordingOverlay()
@@ -1113,7 +1126,7 @@ TranscribeFile(*) {
         if InStr(errText, "timeout") || InStr(errText, "Timeout")
             errorMsg := "Connection timed out. Please check your internet connection and try again."
         if (dbg)
-            try FileAppend("[" A_Now "] File transcription network error: " . errText . "`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] File transcription network error: " . errText . "`n", GetDebugLogPath())
         TrayTip(errorMsg, "QuickSay - Connection Error", 0x3)
         PlaySound("error")
         UpdateTrayTooltip("Error")
@@ -1141,7 +1154,7 @@ TranscribeFile(*) {
             errorDetail := "Groq API is temporarily unavailable. Try again shortly."
 
         if (dbg)
-            try FileAppend("[" A_Now "] File transcription API error: " . errorDetail . "`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] File transcription API error: " . errorDetail . "`n", GetDebugLogPath())
         TrayTip(errorDetail, "QuickSay - API Error", 0x3)
         PlaySound("error")
         UpdateTrayTooltip("Error")
@@ -1169,7 +1182,7 @@ TranscribeFile(*) {
         ; Filter known Whisper hallucination patterns (Fix #61)
         if IsWhisperHallucination(RawText) {
             if (dbg)
-                try FileAppend("[" A_Now "] File transcription hallucination filtered: " . RawText . "`n", ScriptDir . "\debug_log.txt")
+                try FileAppend("[" A_Now "] File transcription hallucination filtered: " . RawText . "`n", GetDebugLogPath())
             TrayTip("No speech detected in the selected file.", "QuickSay", 0x2)
             HideRecordingOverlay()
             UpdateWidgetStatus("idle")
@@ -1204,14 +1217,14 @@ TranscribeFile(*) {
                 GroqPayload := '{"model": "' . safeLlmModel . '", "temperature": 0.3, "include_reasoning": false, "reasoning_effort": "low", "messages": [{"role": "system", "content": "' . SafePrompt . '"}, {"role": "user", "content": "<transcript>' . SafeText . '</transcript>"}]}'
 
                 if (dbg)
-                    try FileAppend("[" A_Now "] LLM cleanup using model: " . llmModel . "`n", ScriptDir . "\debug_log.txt")
+                    try FileAppend("[" A_Now "] LLM cleanup using model: " . llmModel . "`n", GetDebugLogPath())
 
                 ; File transcription uses longer timeout — larger audio files produce longer transcripts
                 GroqLLMURL := "https://api.groq.com/openai/v1/chat/completions"
                 llmResult := HttpPostJson(GroqLLMURL, GroqAPIKey, GroqPayload, 30)
 
                 if (llmResult["error"] != "" && dbg)
-                    try FileAppend("[" A_Now "] File transcription LLM error: " . llmResult["error"] . "`n", ScriptDir . "\debug_log.txt")
+                    try FileAppend("[" A_Now "] File transcription LLM error: " . llmResult["error"] . "`n", GetDebugLogPath())
 
                 CleanResponse := llmResult["body"]
                 if (CleanResponse != "" && llmResult["status"] = 200 && !InStr(CleanResponse, '"error"')) {
@@ -1227,18 +1240,18 @@ TranscribeFile(*) {
                         }
                     }
                 } else if (dbg) {
-                    try FileAppend("[" A_Now "] File transcription LLM cleanup failed, using raw text`n", ScriptDir . "\debug_log.txt")
+                    try FileAppend("[" A_Now "] File transcription LLM cleanup failed, using raw text`n", GetDebugLogPath())
                 }
             } catch as err {
                 if (dbg)
-                    try FileAppend("[" A_Now "] File transcription LLM exception: " . err.Message . "`n", ScriptDir . "\debug_log.txt")
+                    try FileAppend("[" A_Now "] File transcription LLM exception: " . err.Message . "`n", GetDebugLogPath())
             }
         }
 
         ; Post-LLM hallucination check for file transcription
         if IsWhisperHallucination(FinalText) {
             if (dbg)
-                try FileAppend("[" A_Now "] File transcription post-LLM hallucination filtered: " . FinalText . "`n", ScriptDir . "\debug_log.txt")
+                try FileAppend("[" A_Now "] File transcription post-LLM hallucination filtered: " . FinalText . "`n", GetDebugLogPath())
             TrayTip("No speech detected in the selected file.", "QuickSay", 0x2)
             HideRecordingOverlay()
             UpdateWidgetStatus("idle")
@@ -1295,7 +1308,7 @@ TranscribeFile(*) {
         UpdateTrayTooltip("Idle")
     } else {
         if (dbg)
-            try FileAppend("[" A_Now "] File transcription parse failure: " . ResponseText . "`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] File transcription parse failure: " . ResponseText . "`n", GetDebugLogPath())
         TrayTip("Could not process the response. Please try again.", "QuickSay", 0x3)
         PlaySound("error")
         HideRecordingOverlay()
@@ -1361,7 +1374,7 @@ SelectMode(modeId, *) {
     ; Find mode name for TrayTip
     modes := GetDefaultModes()
     try {
-        configPath := A_ScriptDir . "\config.json"
+        configPath := GetDataDir() . "\config.json"
         if FileExist(configPath) {
             raw := FileRead(configPath)
             cfg := JSON.Parse(raw)
@@ -1384,7 +1397,7 @@ SelectMode(modeId, *) {
 }
 
 SaveConfigToggle(jsonKey, value) {
-    configPath := A_ScriptDir . "\config.json"
+    configPath := GetDataDir() . "\config.json"
     if !FileExist(configPath)
         return
     hMutex := AcquireConfigLock()
@@ -1427,7 +1440,7 @@ ExitAppClean(*) {
 ; ==============================================================================
 
 NeedsOnboarding() {
-    markerFile := ScriptDir . "\data\onboarding_done"
+    markerFile := GetDataDir() . "\data\onboarding_done"
 
     if FileExist(markerFile)
         return false
@@ -1652,7 +1665,7 @@ GetContextModeId() {
     ; Debug logging
     dbg := Config.Has("debug_logging") && Config["debug_logging"]
     if (dbg)
-        try FileAppend("[" A_Now "] Context-aware check: process=" . activeProcess . " title=" . activeTitle . "`n", ScriptDir . "\debug_log.txt")
+        try FileAppend("[" A_Now "] Context-aware check: process=" . activeProcess . " title=" . activeTitle . "`n", GetDebugLogPath())
 
     ; Find first matching rule
     matchedModeId := ""
@@ -1678,7 +1691,7 @@ GetContextModeId() {
 
     if (matchedModeId = "") {
         if (dbg)
-            try FileAppend("[" A_Now "] Context-aware: no rule matched`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] Context-aware: no rule matched`n", GetDebugLogPath())
         return ""
     }
 
@@ -1686,12 +1699,12 @@ GetContextModeId() {
     currentMode := Config.Has("currentMode") ? Config["currentMode"] : "standard"
     if (matchedModeId = currentMode) {
         if (dbg)
-            try FileAppend("[" A_Now "] Context-aware: matched " . matchedModeId . " but already active, skipping`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] Context-aware: matched " . matchedModeId . " but already active, skipping`n", GetDebugLogPath())
         return ""
     }
 
     if (dbg)
-        try FileAppend("[" A_Now "] Context-aware: overriding to " . matchedModeId . " mode`n", ScriptDir . "\debug_log.txt")
+        try FileAppend("[" A_Now "] Context-aware: overriding to " . matchedModeId . " mode`n", GetDebugLogPath())
 
     return matchedModeId
 }
@@ -2231,7 +2244,7 @@ UpdateStatistics(wordCount, durationMs) {
     } catch as err {
         global ScriptDir, Config
         if (Config.Has("debug_logging") && Config["debug_logging"])
-            try FileAppend("[" A_Now "] Statistics update error: " . err.Message . "`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] Statistics update error: " . err.Message . "`n", GetDebugLogPath())
     }
 }
 
@@ -2497,7 +2510,7 @@ GetFFmpegPath() {
 StopFFmpegProcess(pid) {
     global ScriptDir, Config
     if (Config.Has("debug_logging") && Config["debug_logging"])
-        FileAppend("StopFFmpegProcess: Killing PID " . pid . "`n", ScriptDir . "\debug_log.txt")
+        FileAppend("StopFFmpegProcess: Killing PID " . pid . "`n", GetDebugLogPath())
     ProcessClose(pid)
     ProcessWaitClose(pid, 2)
     Sleep(100)
@@ -2509,28 +2522,28 @@ FixWavHeader(filePath) {
 
     if !FileExist(filePath) {
         if (dbg)
-            FileAppend("FixWavHeader: File not found: " . filePath . "`n", ScriptDir . "\debug_log.txt")
+            FileAppend("FixWavHeader: File not found: " . filePath . "`n", GetDebugLogPath())
         return false
     }
 
     fileSize := FileGetSize(filePath)
     if (fileSize < 44) {
         if (dbg)
-            FileAppend("FixWavHeader: File too small (" . fileSize . " bytes)`n", ScriptDir . "\debug_log.txt")
+            FileAppend("FixWavHeader: File too small (" . fileSize . " bytes)`n", GetDebugLogPath())
         return false
     }
 
     f := FileOpen(filePath, "rw")
     if !f {
         if (dbg)
-            FileAppend("FixWavHeader: Cannot open file`n", ScriptDir . "\debug_log.txt")
+            FileAppend("FixWavHeader: Cannot open file`n", GetDebugLogPath())
         return false
     }
 
     riff := f.Read(4)
     if (riff != "RIFF") {
         if (dbg)
-            FileAppend("FixWavHeader: Not a RIFF file`n", ScriptDir . "\debug_log.txt")
+            FileAppend("FixWavHeader: Not a RIFF file`n", GetDebugLogPath())
         f.Close()
         return false
     }
@@ -2565,7 +2578,7 @@ FixWavHeader(filePath) {
 
     if (dataChunkOffset == 0) {
         if (dbg)
-            FileAppend("FixWavHeader: Could not find 'data' chunk`n", ScriptDir . "\debug_log.txt")
+            FileAppend("FixWavHeader: Could not find 'data' chunk`n", GetDebugLogPath())
         f.Close()
         return false
     }
@@ -2584,7 +2597,7 @@ FixWavHeader(filePath) {
 
     f.Close()
     if (dbg)
-        FileAppend("FixWavHeader: Headers fixed`n", ScriptDir . "\debug_log.txt")
+        FileAppend("FixWavHeader: Headers fixed`n", GetDebugLogPath())
     return true
 }
 
@@ -2663,7 +2676,7 @@ TryStartMCICapture(dbg, logContext := "") {
         UpdateStatusDisplay(1)
         UpdateTrayTooltip("Error - Mic In Use")
         if (dbg)
-            try FileAppend("[" A_Now "] MCI open failed" . (logContext != "" ? " " . logContext : "") . " (mciResult=" mciResult "), mic may be in use`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] MCI open failed" . (logContext != "" ? " " . logContext : "") . " (mciResult=" mciResult "), mic may be in use`n", GetDebugLogPath())
         return false
     }
     DllCall("winmm\mciSendString", "Str", "record capture", "Ptr", 0, "UInt", 0, "Ptr", 0)
@@ -2711,13 +2724,13 @@ RegisterHotkey() {
         CurrentHotkey := "^LWin"
         SetHotkeyConflictFlag(false)
         if (dbg)
-            FileAppend("Default hotkey active: ^LWin`n", ScriptDir . "\debug_log.txt")
+            FileAppend("Default hotkey active: ^LWin`n", GetDebugLogPath())
     } else {
         try {
             Hotkey(newHotkey, OnCustomHotkeyPressed)
             CurrentHotkey := newHotkey
             if (dbg)
-                FileAppend("Custom hotkey registered: " . newHotkey . "`n", ScriptDir . "\debug_log.txt")
+                FileAppend("Custom hotkey registered: " . newHotkey . "`n", GetDebugLogPath())
             ; Only persist the conflict warning for known-reserved combos (registration succeeded but may still conflict)
             if (conflictWarning != "") {
                 TrayTip(conflictWarning, "QuickSay — Hotkey Warning", 0x2)
@@ -2727,7 +2740,7 @@ RegisterHotkey() {
             }
         } catch as err {
             if (dbg)
-                try FileAppend("Custom hotkey FAILED: " . err.Message . "`n", ScriptDir . "\debug_log.txt")
+                try FileAppend("Custom hotkey FAILED: " . err.Message . "`n", GetDebugLogPath())
             CurrentHotkey := "^LWin"
             errMsg := "Your custom hotkey couldn't be registered — another app may be using it. We've switched you back to Ctrl+Win. Open Settings → General → Hotkey to pick a different shortcut."
             TrayTip(errMsg, "QuickSay — Hotkey Conflict", 0x2)
@@ -2743,7 +2756,7 @@ SetHotkeyConflictFlag(hasConflict, msg := "") {
         Config["hotkeyConflict"] := hasConflict
         Config["hotkeyConflictMsg"] := msg
 
-        configPath := ScriptDir . "\config.json"
+        configPath := GetDataDir() . "\config.json"
         if !FileExist(configPath)
             return
         hMutex := AcquireConfigLock()
@@ -2878,7 +2891,7 @@ LearnFromSelection() {
         if (AddToDictionary(diff.original, diff.corrected)) {
             addedCount++
             if (Config.Has("debug_logging") && Config["debug_logging"])
-                FileAppend("Dictionary learned: '" . diff.original . "' -> '" . diff.corrected . "'`n", ScriptDir . "\debug_log.txt")
+                FileAppend("Dictionary learned: '" . diff.original . "' -> '" . diff.corrected . "'`n", GetDebugLogPath())
         }
     }
 
@@ -2991,10 +3004,16 @@ AddToDictionary(spoken, written) {
         jsonStr .= "`n]"
 
         AtomicWriteFile(DictionaryFile, jsonStr)
+        ; T1.8 / T1.4-025: recompile the live match pattern from the just-mutated
+        ; Dictionary so the learned correction applies to the VERY NEXT
+        ; transcription. Without this, DictCompiledPattern/DictReplacements (what
+        ; ApplyDictionary actually uses) stay stale until the next 0x5555 reload
+        ; or restart, and the "Added N correction(s)" toast would be lying.
+        CompileDictionaryPattern()
         return true
     } catch as err {
         if (Config.Has("debug_logging") && Config["debug_logging"])
-            try FileAppend("Failed to save dictionary: " . err.Message . "`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("Failed to save dictionary: " . err.Message . "`n", GetDebugLogPath())
         return false
     }
 }
@@ -3034,7 +3053,7 @@ StartRecording() {
         UpdateTrayTooltip("Error - No Microphone")
         dbg := Config.Has("debug_logging") && Config["debug_logging"]
         if (dbg)
-            try FileAppend("[" A_Now "] No microphone detected (waveInGetNumDevs=0)`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] No microphone detected (waveInGetNumDevs=0)`n", GetDebugLogPath())
         return
     }
 
@@ -3064,18 +3083,18 @@ StartRecording() {
         if !TryStartMCICapture(dbg)
             return
         if (dbg)
-            FileAppend("Recording started: MCI (default device)`n", ScriptDir . "\debug_log.txt")
+            FileAppend("Recording started: MCI (default device)`n", GetDebugLogPath())
     } else {
         if !IsDeviceAvailable(audioDevice) {
             if (dbg)
-                FileAppend("WARNING: Device '" . audioDevice . "' not available, falling back to MCI`n", ScriptDir . "\debug_log.txt")
+                FileAppend("WARNING: Device '" . audioDevice . "' not available, falling back to MCI`n", GetDebugLogPath())
             if !TryStartMCICapture(dbg, "on fallback")
                 return
         } else {
             ffmpegPath := GetFFmpegPath()
             if (ffmpegPath == "") {
                 if (dbg)
-                    FileAppend("WARNING: FFmpeg not found, falling back to MCI`n", ScriptDir . "\debug_log.txt")
+                    FileAppend("WARNING: FFmpeg not found, falling back to MCI`n", GetDebugLogPath())
                 if !TryStartMCICapture(dbg, "on FFmpeg-missing fallback")
                     return
             } else {
@@ -3086,7 +3105,7 @@ StartRecording() {
                 audioDevice := SanitizeDeviceName(audioDevice)
                 ffmpegCmd := '"' . ffmpegPath . '" -f dshow -rtbufsize 512M -i audio="' . audioDevice . '" -ar ' . sampleRate . ' -ac 1 -flush_packets 1 -y "' . ScriptDir . '\raw.wav"'
                 if (dbg)
-                    FileAppend("Recording started: FFmpeg device='" . audioDevice . "' quality=" . qualitySetting . " rate=" . sampleRate . "`n", ScriptDir . "\debug_log.txt")
+                    FileAppend("Recording started: FFmpeg device='" . audioDevice . "' quality=" . qualitySetting . " rate=" . sampleRate . "`n", GetDebugLogPath())
                 Run(ffmpegCmd, ScriptDir, "Hide", &FFmpegPID)
             }
         }
@@ -3121,7 +3140,7 @@ StopAndProcess() {
     ; Reject recordings shorter than 500ms (prevents Whisper hallucinations on silence)
     if (recordDuration < 500) {
         if (dbg)
-            try FileAppend("[" A_Now "] Recording too short (" recordDuration "ms), discarding`n", ScriptDir "\debug_log.txt")
+            try FileAppend("[" A_Now "] Recording too short (" recordDuration "ms), discarding`n", GetDebugLogPath())
         ; Stop any in-progress recording
         if (FFmpegPID > 0) {
             StopFFmpegProcess(FFmpegPID)
@@ -3207,7 +3226,7 @@ StopAndProcess() {
 
     ; Debug: log key length only (not prefix — security risk)
     if (dbg)
-        FileAppend("--- NEW RUN ---`nAPI Key len=" . StrLen(GroqAPIKey) . "`n", ScriptDir . "\debug_log.txt")
+        FileAppend("--- NEW RUN ---`nAPI Key len=" . StrLen(GroqAPIKey) . "`n", GetDebugLogPath())
 
     cleanResponseFile := ScriptDir . "\clean_response.txt"
 
@@ -3226,7 +3245,7 @@ StopAndProcess() {
         else if InStr(errText, "SSL") || InStr(errText, "certificate") || InStr(errText, "secure channel")
             errorMsg := "Secure connection failed. Please check your network settings or try again later."
         if (dbg)
-            try FileAppend("Network Error: " . errText . "`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("Network Error: " . errText . "`n", GetDebugLogPath())
 
         TrayTip(errorMsg, "QuickSay - Connection Error", 0x3)
         PlaySound("error")
@@ -3242,7 +3261,7 @@ StopAndProcess() {
 
     ResponseText := apiResult["body"]
     if (dbg)
-        FileAppend("Whisper Raw: " . ResponseText . "`n", ScriptDir . "\debug_log.txt")
+        FileAppend("Whisper Raw: " . ResponseText . "`n", GetDebugLogPath())
 
     ; Check for API error responses
     if (apiResult["status"] != 200 || InStr(ResponseText, '"error"')) {
@@ -3260,7 +3279,7 @@ StopAndProcess() {
             errorDetail := "Groq API is temporarily unavailable. Try again shortly."
 
         if (dbg)
-            try FileAppend("API Error: " . errorDetail . "`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("API Error: " . errorDetail . "`n", GetDebugLogPath())
         TrayTip(errorDetail, "QuickSay - API Error", 0x3)
         PlaySound("error")
         UpdateRecordingOverlay("error")
@@ -3294,7 +3313,7 @@ StopAndProcess() {
             ; Filter known Whisper hallucination patterns (Fix #61)
             if IsWhisperHallucination(RawText) {
                 if (dbg)
-                    FileAppend("Whisper hallucination filtered: " . RawText . "`n", ScriptDir . "\debug_log.txt")
+                    FileAppend("Whisper hallucination filtered: " . RawText . "`n", GetDebugLogPath())
                 TrayTip("No speech detected. Make sure your microphone is working.", "QuickSay", 0x2)
                 PlaySound("error")
                 HideRecordingOverlay()
@@ -3335,19 +3354,19 @@ StopAndProcess() {
                     GroqPayload := '{"model": "' . safeLlmModel . '", "temperature": 0.3, "include_reasoning": false, "reasoning_effort": "low", "messages": [{"role": "system", "content": "' . SafePrompt . '"}, {"role": "user", "content": "<transcript>' . SafeText . '</transcript>"}]}'
 
                     if (dbg)
-                        FileAppend("[" A_Now "] LLM cleanup using model: " . llmModel . "`n", ScriptDir . "\debug_log.txt")
+                        FileAppend("[" A_Now "] LLM cleanup using model: " . llmModel . "`n", GetDebugLogPath())
 
                     ; Use secure WinHTTP COM instead of curl (API key never on command line)
                     GroqLLMURL := "https://api.groq.com/openai/v1/chat/completions"
                     llmResult := HttpPostJson(GroqLLMURL, GroqAPIKey, GroqPayload, 8)
 
                     if (llmResult["error"] != "" && dbg)
-                        FileAppend("LLM network error: " . llmResult["error"] . "`n", ScriptDir . "\debug_log.txt")
+                        FileAppend("LLM network error: " . llmResult["error"] . "`n", GetDebugLogPath())
 
                     CleanResponse := llmResult["body"]
                     if (CleanResponse != "" && llmResult["status"] = 200 && !InStr(CleanResponse, '"error"')) {
                         if (dbg)
-                            FileAppend("Groq LLM Clean: " . CleanResponse . "`n", ScriptDir . "\debug_log.txt")
+                            FileAppend("Groq LLM Clean: " . CleanResponse . "`n", GetDebugLogPath())
 
                         try {
                             llmParsed := JSON.Parse(CleanResponse)
@@ -3361,11 +3380,11 @@ StopAndProcess() {
                             }
                         }
                     } else if (CleanResponse != "" && dbg) {
-                        FileAppend("LLM cleanup failed, using raw text. Response: " . CleanResponse . "`n", ScriptDir . "\debug_log.txt")
+                        FileAppend("LLM cleanup failed, using raw text. Response: " . CleanResponse . "`n", GetDebugLogPath())
                     }
                 } catch as err {
                     if (dbg)
-                        FileAppend("LLM exception: " . err.Message . "`n", ScriptDir . "\debug_log.txt")
+                        FileAppend("LLM exception: " . err.Message . "`n", GetDebugLogPath())
                 }
             }
 
@@ -3381,7 +3400,7 @@ StopAndProcess() {
             ; preserved a hallucination (e.g., "Thank you." cleaned to "Thank you.")
             if IsWhisperHallucination(FinalText) {
                 if (dbg)
-                    FileAppend("Post-cleanup hallucination filtered: " . FinalText . "`n", ScriptDir . "\debug_log.txt")
+                    FileAppend("Post-cleanup hallucination filtered: " . FinalText . "`n", GetDebugLogPath())
                 HideRecordingOverlay()
                 UpdateWidgetStatus("idle")
                 UpdateStatusDisplay(1)
@@ -3404,7 +3423,7 @@ StopAndProcess() {
                     clipBackup := ClipboardAll()
                     clipBackupSize := clipBackup.Size
                     if (dbg)
-                        FileAppend("Clipboard backup saved, size: " . clipBackupSize . " bytes`n", ScriptDir . "\debug_log.txt")
+                        FileAppend("Clipboard backup saved, size: " . clipBackupSize . " bytes`n", GetDebugLogPath())
 
                     ; Detect terminal/console windows — Ctrl+C sends SIGINT
                     isTerminal := false
@@ -3434,7 +3453,7 @@ StopAndProcess() {
                     if (targetIsElevated && !selfIsElevated) {
                         ; Can't paste into elevated window from non-elevated process
                         if (dbg)
-                            FileAppend("Target window is elevated, skipping Send(^v)`n", ScriptDir . "\debug_log.txt")
+                            FileAppend("Target window is elevated, skipping Send(^v)`n", GetDebugLogPath())
                         TrayTip("Text copied to clipboard. Couldn't auto-paste — the target window is running as administrator. Press Ctrl+V to paste manually.", "QuickSay", 0x2)
                     } else {
                         if (isTerminal)
@@ -3455,7 +3474,7 @@ StopAndProcess() {
                             A_Clipboard := clipBackup
                             ClipWait(0.2)
                             if (dbg)
-                                FileAppend("Clipboard restored`n", ScriptDir . "\debug_log.txt")
+                                FileAppend("Clipboard restored`n", GetDebugLogPath())
                         }
                     }
                     clipBackup := ""
@@ -3468,7 +3487,7 @@ StopAndProcess() {
                         TrayTip("Text copied to clipboard (" . StrSplit(FinalText, " ").Length . " words)", "QuickSay", 0x1)
                     }
                     if (dbg)
-                        FileAppend("Clipboard-only mode: text copied, not pasted`n", ScriptDir . "\debug_log.txt")
+                        FileAppend("Clipboard-only mode: text copied, not pasted`n", GetDebugLogPath())
                 }
 
                 LastTranscription := FinalText
@@ -3510,7 +3529,7 @@ StopAndProcess() {
             }
         } else {
              if (dbg)
-                 try FileAppend("API Failure: " . ResponseText . "`n", ScriptDir . "\debug_log.txt")
+                 try FileAppend("API Failure: " . ResponseText . "`n", GetDebugLogPath())
              TrayTip("Something went wrong with the transcription. Please try again.", "QuickSay - Error", 0x3)
              PlaySound("error")
              UpdateRecordingOverlay("error")
@@ -3662,7 +3681,7 @@ HttpPostFileWithRetry(url, apiKey, filePath, formFields, timeoutSec, dbg := fals
             break
         retries++
         if (dbg)
-            try FileAppend("[" A_Now "] " . logLabel . " returned 429, retrying after 2s`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] " . logLabel . " returned 429, retrying after 2s`n", GetDebugLogPath())
         Sleep(2000)
     }
     return apiResult
@@ -3741,7 +3760,7 @@ CheckForUpdates(silent := false) {
     verify := VerifyUpdateManifest(responseBody)
     if (!verify["ok"]) {
         if (Config.Has("debug_logging") && Config["debug_logging"])
-            try FileAppend("[" A_Now "] update rejected: " . verify["reason"] . "`n", ScriptDir . "\debug_log.txt")
+            try FileAppend("[" A_Now "] update rejected: " . verify["reason"] . "`n", GetDebugLogPath())
         if (!silent)
             TrayTip("Could not verify the update. Please download from quicksay.app.", "QuickSay", 0x2)
         return
