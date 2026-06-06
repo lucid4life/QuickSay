@@ -91,6 +91,14 @@ Assert ($rel -match '(?m)^\s*try\s*\{')                         "release.ps1 ope
 Assert ($rel -match '(?ms)finally\s*\{.*Restore-ReleaseSnapshot') "release.ps1 restores in finally{}"
 Assert ($rel -match 'ReleaseSucceeded\s*=\s*\$true')            "release.ps1 sets the success flag on completion"
 
+# ---------------------------------------------------------------------------
+Section "changelog block survives a single-item -Changelog (T1.3-012 family)"
+# ---------------------------------------------------------------------------
+# A single -Changelog item makes `$items` a scalar string; `.Count` on it throws
+# under $ErrorActionPreference=Stop and aborts STEP 1. Must use @($items).Count.
+Assert ($rel -notmatch '[^(]\$items\.Count')  "no unwrapped \$items.Count (scalar-crash on single-item changelog)"
+Assert ($rel -match '@\(\$items\)\.Count')     "changelog count uses @(\$items).Count (array-safe)"
+
 if ($fail -eq 0) {
     Write-Host "`nALL PASS (release rollback)" -ForegroundColor Green
     exit 0

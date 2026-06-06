@@ -431,7 +431,7 @@ if ($Changelog -ne "") {
                 $changelogJson | ConvertTo-Json -Depth 10 |
                     Set-Content $changelogFile -Encoding UTF8 -NoNewline
             }
-            Write-OK "changelog.json — added $semVer with $($items.Count) changes"
+            Write-OK "changelog.json — added $semVer with $(@($items).Count) changes"
         }
     }
 }
