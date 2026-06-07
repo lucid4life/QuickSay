@@ -1648,8 +1648,8 @@ class SettingsUI {
 
             ; Set RelaunchDisplayNameResource
             NumPut("UShort", 31, propVar, 0)
-            pStr := DllCall("ole32\CoTaskMemAlloc", "UPtr", (StrLen("QuickSay Beta v1.9") + 1) * 2, "Ptr")
-            StrPut("QuickSay Beta v1.9", pStr, "UTF-16")
+            pStr := DllCall("ole32\CoTaskMemAlloc", "UPtr", (StrLen("QuickSay Beta v2.0") + 1) * 2, "Ptr")
+            StrPut("QuickSay Beta v2.0", pStr, "UTF-16")
             NumPut("Ptr", pStr, propVar, 8)
             ComCall(6, pPS, "Ptr", PKEY_RelaunchDisplayName, "Ptr", propVar)
             DllCall("ole32\PropVariantClear", "Ptr", propVar)

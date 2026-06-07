@@ -1,9 +1,9 @@
-; QuickSay Beta v1.9 Installer Script for Inno Setup
-; Beta v1.9 Release — Visual overhaul + installer branding
+; QuickSay Beta v2.0 Installer Script for Inno Setup
+; Beta v2.0 Release — Visual overhaul + installer branding
 
 #define MyAppName "QuickSay Beta"
-#define MyAppVersion "1.9.0"
-#define MyAppVerName "QuickSay Beta v1.9"
+#define MyAppVersion "2.0.0"
+#define MyAppVerName "QuickSay Beta v2.0"
 #define MyAppPublisher "QuickSay"
 #define MyAppURL "https://quicksay.app"
 #define MyAppExeName "QuickSay.exe"
@@ -21,7 +21,7 @@ DefaultDirName={autopf}\QuickSay Beta
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=installer
-OutputBaseFilename=QuickSay_Beta_v1.9_Setup
+OutputBaseFilename=QuickSay_Beta_v2.0_Setup
 SetupIconFile=gui\assets\icon.ico
 LicenseFile=docs\LICENSE_AGREEMENT.rtf
 Compression=lzma
@@ -42,7 +42,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
 WelcomeLabel1=Welcome to QuickSay
-WelcomeLabel2=QuickSay turns your voice into text — anywhere on Windows.%n%nThis will install QuickSay Beta v1.9 on your computer. You'll need a free Groq API key to get started.
+WelcomeLabel2=QuickSay turns your voice into text — anywhere on Windows.%n%nThis will install QuickSay Beta v2.0 on your computer. You'll need a free Groq API key to get started.
 FinishedHeadingLabel=You're all set.
 FinishedLabel=QuickSay Beta is ready to go. Launch it to complete a quick mic check and start dictating.
 ClickFinish=Click Finish to begin.

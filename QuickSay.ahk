@@ -1,8 +1,8 @@
 ;@Ahk2Exe-SetCompanyName QuickSay
-;@Ahk2Exe-SetDescription QuickSay Beta v1.9 - Voice-to-Text
-;@Ahk2Exe-SetFileVersion 1.9.0.0
-;@Ahk2Exe-SetProductName QuickSay Beta v1.9
-;@Ahk2Exe-SetProductVersion 1.9.0.0
+;@Ahk2Exe-SetDescription QuickSay Beta v2.0 - Voice-to-Text
+;@Ahk2Exe-SetFileVersion 2.0.0.0
+;@Ahk2Exe-SetProductName QuickSay Beta v2.0
+;@Ahk2Exe-SetProductVersion 2.0.0.0
 ;@Ahk2Exe-SetCopyright Copyright (c) 2024-2026 QuickSay
 ;@Ahk2Exe-SetOrigFilename QuickSay.exe
 ;@Ahk2Exe-SetMainIcon gui\assets\icon.ico
@@ -52,7 +52,7 @@ try {
 CrashReporter_Install()
 
 ; ==============================================================================
-;  QuickSay Beta v1.9 - Unified Voice-to-Text Application
+;  QuickSay Beta v2.0 - Unified Voice-to-Text Application
 ;  Single-process architecture for reliable Windows taskbar icon display
 ;  The fastest voice dictation tool - 200ms transcription via Groq
 ;
@@ -99,14 +99,14 @@ global ScriptDir := A_ScriptDir
 ; App version — single runtime source. SSOT is Development/VERSION; release.ps1
 ; rewrites this literal (and -CheckSync verifies it). Read by CheckForUpdates and
 ; the crash reporter's Sentry "release" tag so neither can drift.
-global localVersion := "1.9.0"
+global localVersion := "2.0.0"
 global DictCompiledPattern := ""  ; Compiled regex pattern for dictionary
 global DictReplacements := Map()  ; Map of lowercase keys to replacement values
 
 ; --- SET APP IDENTITY FOR WINDOWS TASKBAR ---
 ; This ensures Windows recognizes QuickSay as a distinct app with its own icon
 ; when pinned to taskbar (instead of showing generic AutoHotkey icon)
-DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.1.9")
+DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.2.0")
 
 ; --- SET RELAUNCH PROPERTIES FOR TASKBAR PINNING ---
 ; These properties tell Windows which exe and icon to use when pinning to taskbar
@@ -896,8 +896,8 @@ SetTaskbarRelaunchProperties() {
 
         ; Set RelaunchDisplayNameResource (the name shown in taskbar)
         NumPut("UShort", 31, propVar, 0)
-        pStr := DllCall("ole32\CoTaskMemAlloc", "UPtr", (StrLen("QuickSay Beta v1.9") + 1) * 2, "Ptr")
-        StrPut("QuickSay Beta v1.9", pStr, "UTF-16")
+        pStr := DllCall("ole32\CoTaskMemAlloc", "UPtr", (StrLen("QuickSay Beta v2.0") + 1) * 2, "Ptr")
+        StrPut("QuickSay Beta v2.0", pStr, "UTF-16")
         NumPut("Ptr", pStr, propVar, 8)
         ComCall(6, pPS, "Ptr", PKEY_RelaunchDisplayName, "Ptr", propVar)
         DllCall("ole32\PropVariantClear", "Ptr", propVar)
