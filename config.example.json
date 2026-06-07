@@ -20,7 +20,7 @@
   "accessibilityMode": 0,
   "autoPaste": 1,
   "stickyMode": 0,
-  "contextAwareModes": 1,
+  "contextAwareModes": 0,
   "currentMode": "standard",
   "showWidget": 0,
   "soundTheme": "subtle",
