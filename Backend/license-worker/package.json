@@ -1,0 +1,30 @@
+{
+  "name": "quicksay-license-worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "QuickSay license issuer — wraps the LemonSqueezy License API and mints offline-verifiable Ed25519 JWTs. Implements the T2.1 spec (docs/audit-campaign/specs/T2-production-systems-design.md) §2/§3/§4.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --env staging",
+    "deploy:staging": "wrangler deploy --env staging",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "keygen": "node scripts/generate-keypair.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.5.40",
+    "@cloudflare/workers-types": "^4.20241106.0",
+    "typescript": "^5.6.3",
+    "vitest": "2.1.9",
+    "wrangler": "^3.114.0"
+  },
+  "dependencies": {
+    "jose": "^5.9.6"
+  },
+  "overrides": {
+    "vite": {
+      "esbuild": "0.21.5"
+    }
+  }
+}
