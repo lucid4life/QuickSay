@@ -164,7 +164,7 @@ The session table's dependency columns encode the main graph. These are the fine
 | **T2.1 → {T2.2, T2.3, T2.5, M.1/M.3}** (post-design) | Contract / Merge-order | From the approved T2.1 spec §9: **(a)** T2.3 ⇄ T2.5 **share one `lib/ed25519.ahk` verifier** — whoever lands first exposes `VerifyEd25519(...)`, the other imports it (don't implement Ed25519 twice); **(b)** T2.2 **uses the T2.1-generated `qs-2026` keypair**, it does NOT generate its own (supersedes T2.2's Phase-2 wording); **(c)** M.1/M.3 installer must **create + preserve `%APPDATA%\QuickSay\`** and never wipe it (today's uninstaller `DelTree({app}\data)` would lose the trial-reset defense); **(d)** T2.2 adds `/trial/status` + `/trial/report` gate endpoints. |
 | **T2.2 ↔ T2.3** | Contract | Both must agree byte-for-byte on the JWT claim names defined in the T2.1 spec. T2.2's README restates the public key + claim schema as the canonical reference. |
 | **M.1 → M.3** | Environment flip | M.1 builds rc1 against the **staging** license worker (`license-staging.quicksay.app`). M.3 must `wrangler deploy --env production`, re-put prod secrets, and flip the app's endpoint to `license.quicksay.app` before the public build ships. |
-| **T2.7 → M.3** | Copy reconciliation | *If* telemetry ships, the website's "zero telemetry / 100% private" copy must be revisited at launch. If T2.7 is skipped, no action. |
+| **T2.7 → M.3** | Copy reconciliation | *If* telemetry ships, the website's "zero telemetry / 100% private" copy must be revisited at launch. If T2.7 is skipped, no action. **Staged changeset ready:** [`T2.7-website-copy-changeset.md`](T2.7-website-copy-changeset.md) — exact OLD→NEW edits for ~30 claims across ~25 files (audited 2026-06-05). Apply only on ship decision; do NOT apply early. Note: `faq.mdx:45` already over-claims "no crash reports" vs shipped T2.4 — fix that one regardless of the T2.7 decision. |
 
 ## 5. How to run a session
 
@@ -324,7 +324,7 @@ These can't be resolved from code/memory alone. Each is tagged with the session 
 | OD-1c | **Price-cutover mechanism** | NEW: $39→$74 flips at 500 orders. The app paywall must not hardcode the number. | T2.1 + T2.3 | Worker exposes `GET /pricing`, or the modal defers the number to the LemonSqueezy checkout page. |
 | OD-2 | **Trial length** | 14 days assumed everywhere. | T2.1, T2.3 | 14 days. |
 | OD-3 | **Paywall hard-block vs soft** | T2.3 recommends a blocking modal after expiry (app opens, recording disabled). | T2.3 | Blocking modal; app still opens for purchase/help/settings. |
-| OD-4 | **Ship telemetry (T2.7) before v2.0?** | Optional in the plan. Affects website "zero telemetry" copy. | T2.7, M.3 | Skip for v2.0; revisit in v2.1. Keep "100% private" claim true. |
+| OD-4 | **Ship telemetry (T2.7) before v2.0?** | Optional in the plan. Affects website "zero telemetry" copy. | T2.7, M.3 | Skip for v2.0; revisit in v2.1. Keep "100% private" claim true. **If shipping: apply [`T2.7-website-copy-changeset.md`](T2.7-website-copy-changeset.md) at M.3 before the public build.** |
 | OD-5 | **Crash reporting backend: Sentry vs self-hosted CF Worker** | Research recommends Sentry envelope POST (free tier). | T2.1, T2.4 | Sentry free tier; revisit if volume exceeds free quota. |
 
 **OD-1 is resolved** ($39 launch → $74 + financing). The remaining open items (OD-1b financing provider, OD-1c price-cutover mechanism, OD-2…OD-5) all have safe defaults and are addressed inside T2.1's design work. None blocks the start of the campaign.

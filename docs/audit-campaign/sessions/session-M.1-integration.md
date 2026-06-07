@@ -1,14 +1,14 @@
 # Session M.1 — Wire New Systems Into the Audited App → v2.0.0-rc1 (INTEGRATION)
 
-> **Model:** Opus 4.7 [1m]
+> **Model:** Opus 4.8 _(1M context is standard on 4.8 — no flag; you need it, every subsystem coexists in your head here)_
 > **Effort:** xhigh
-> **Switch commands:** `/model opus[1m]` then `/effort xhigh`
+> **Switch commands:** `/model claude-opus-4-8` then `/effort xhigh` _(4.8 defaults to `high` — you MUST set xhigh explicitly)_
 > **Branch:** `audit/M.1-integration`
-> **Parallel-safe with:** nothing — this is the convergence session; everything else must be merged to `main` first.
-> **Depends on:** ALL prior sessions — every Track 1 fix (T1.5/T1.6/T1.7), every Track 2 build (T2.2/T2.3/T2.4/T2.5/T2.6, + T2.7 if run), and the T1.6 `release.ps1 --check-sync` gate. Merge all of them to `main` before starting.
+> **Parallel-safe with:** nothing — this is the convergence session.
+> **Depends on:** ALL prior sessions are DONE (work-complete) — but they are **NOT merged to a single base.** This session's Phase 0 assembles them. Do not assume `main` is complete; it is not.
 > **Blocks:** M.2 (UAT runs against the rc1 this session produces).
 >
-> Before pasting this prompt: confirm `/model opus[1m]` and `/effort xhigh`. You need 1M context because every subsystem coexists in your head here, and `xhigh` because integration conflicts are where latent bugs hide. Confirm via the MASTER-PLAN Status Tracker that every dependency session is ✅ before you begin.
+> Before pasting this prompt: confirm `/model claude-opus-4-8` and `/effort xhigh` (4.8 defaults to `high`, so set it). `xhigh` because integration conflicts are where latent bugs hide. **Read Phase 0 first — your single biggest job is assembling 13 scattered branches onto one base, and there are real conflicts in `release.ps1` and `QuickSay.ahk`.**
 
 ---
 
@@ -22,7 +22,7 @@ QuickSay is a Windows speech-to-text dictation app (AutoHotkey v2 + WebView2) go
 - **Track 1** audited and hardened the existing app (core engine, UI, installer, onboarding) and fixed history retention + the clear-history race (T1.5), version drift (T1.6 — shipped `release.ps1 --check-sync` + a `VERSION` source of truth), and accessibility/multi-monitor/hotkey conflicts (T1.7).
 - **Track 2** built new production systems: the CF Worker license issuer (T2.2, on staging), the trial + paywall + LemonSqueezy activation flow (T2.3), crash reporting (T2.4), signed updates (T2.5), the transcription regression corpus (T2.6), and optionally telemetry (T2.7).
 
-Each track merged to `main` independently. They have NOT been exercised together. The known integration hotspots:
+**The sessions are done but NOT consolidated** — the work is scattered across ~13 branches and `main` holds only a fraction. Phase 0 (below) assembles them; this section is the *code-level* hotspots you'll hit once assembled. They have NOT been exercised together. The known integration hotspots:
 - **The paywall recording-gate (T2.3) must coexist with the T1.5 history/retention fix and the T1.7 hotkey/accessibility changes.** All three touch the recording entry path and `QuickSay.ahk` startup. A naive merge can double-gate recording or skip the trial check.
 - **The signed-update verification (T2.5) changes `CheckForUpdates()`**, which T1.6's version sync also touches (version strings + `version.json`). They must agree on the `version.json` schema.
 - **Crash reporting (T2.4) and telemetry (T2.7, if present) both add emit points and share a PII scrub discipline.** Confirm they don't double-report or leak.
@@ -55,11 +55,38 @@ This is integration glue. You may modify:
 - ❌ New features, refactors, or "while I'm here" cleanups. If you spot something, `spawn_task` it.
 - ❌ Changing any subsystem's contract from the T2.1 spec. If two pieces disagree, the spec is the referee — reconcile to the spec, don't invent a third behavior.
 
-### Phase 1 — Sync, confirm, map the seams
+### Phase 0 — Assemble the branches onto one base (DO THIS FIRST)
 
-1. `git pull origin main`. Confirm via the MASTER-PLAN Status Tracker that every dependency is ✅. If any required session is incomplete, STOP and report which — do not integrate against a half-built subsystem.
-2. Build the **integration seam map**: for each hotspot above, find the exact lines in `QuickSay.ahk` (and the lib files) where two sessions' work meets. List them. The four critical seams: (a) startup license/trial check ordering, (b) the per-recording gate, (c) `CheckForUpdates()` signed-manifest verification vs version sync, (d) crash + telemetry emit points.
-3. Present the seam map to the user before editing.
+The campaign's work is **not** consolidated. As of handoff, the actual topology is:
+
+| Location | Contains | Risk on merge |
+|---|---|---|
+| `origin/main` | early base (campaign plan, P0.x, T1.1/T1.2 audits) + **T1.6** (VERSION SSOT, `release.ps1 --check-sync`, pre-commit hook, #12) + **T1.7** (a11y, multi-monitor, hotkey-conflict — touches `QuickSay.ahk` + `gui/`, #13) + the T1.2-024 sound-dropdown fix (#14) | — (this is your starting base) |
+| `audit/T1.8-findings` | the big stacked line: **T1.5** (history/datadir), **T2.1** (spec), **T2.2** (`Backend/license-worker/`), **T2.3** (`lib/license.ahk`, `lib/ed25519.ahk`, `lib/paywall-ui.ahk`, paywall gate in `StartRecording()`), **T2.4** (`lib/crash-reporter.ahk`, `OnError`), **T2.5** (`lib/update-verify.ahk`, `release.ps1` signing), **T2.7** (telemetry, if shipped), **T1.8** (`lib/datadir.ahk`, `setup.iss`, config seed, `release.ps1` rollback). **Does NOT contain T1.6, T1.7, T2.6.** | **HIGH** — this is where most code lives |
+| `audit/T1.3-installer-release` | T1.3 findings doc (read-only audit — **docs only**, the fixes went into T1.8) | LOW (doc add) |
+| `audit/T1.4-onboarding-widget-sound-dict` | T1.4 findings doc (read-only audit — **docs only**) | LOW (doc add) |
+| `audit/T2.6-transcription-regression` | regression corpus under `Development/tests/transcription/` (additive) | LOW (additive) |
+
+Verify this topology yourself first (`git log --oneline --all --graph | head -80`, `git branch -a`) — branches may have advanced since handoff. Then assemble, in this order, onto `audit/M.1-integration` (branch it off the richest line, `audit/T1.8-findings`, then merge the rest in):
+
+1. **Branch `audit/M.1-integration` off `origin/audit/T1.8-findings`** (it has the most, lowest merge cost).
+2. **Merge `origin/main`** — brings T1.6 + T1.7 + the sound fix. **Expect conflicts in two files:**
+   - **`release.ps1`** — three-way: T1.6 (VERSION/`--check-sync`/pre-commit, on main) + T2.5 (STEP-6 Ed25519 signing) + T1.8 (rollback wrapping). All three must coexist: the pipeline bumps the VERSION SSOT, wraps STEPs in rollback, computes `installer_sha256` of the signed installer, then Ed25519-signs `version.json`, and `--check-sync` still gates. Reconcile by hand — keep ALL three behaviors. (Confirm whether T2.5/T1.8 already replicated T1.6's logic or diverged from it.)
+   - **`QuickSay.ahk`** — T1.7's a11y/hotkey edits (on main) vs the T1.8-line's startup + recording-path edits (T1.5 datadir/history, T2.3 paywall gate, T2.4 `OnError`, T1.8 `GetDataDir`). This is the same startup+recording seam as the hotspots below — resolve it here as part of the seam map, not twice.
+   - Likely smaller conflicts in `setup.iss` (T1.8 datadir/UninstallRun/seed vs any main change), `gui/settings.html` + `lib/settings-ui.ahk` (T1.7 a11y vs T2.3 License tab vs T2.4 Privacy toggle vs the merged Mechanical dropdown).
+3. **Merge `origin/audit/T2.6-transcription-regression`** (additive tests — should be clean).
+4. **Merge the T1.3 + T1.4 findings docs** (`origin/audit/T1.3-installer-release`, `origin/audit/T1.4-onboarding-widget-sound-dict`) — docs only, for a complete `findings/` set. If they carry stray non-doc changes, take only the `docs/` paths.
+5. **After assembly, confirm the tree is coherent before any feature wiring:** every `lib/*.ahk` the sessions created is present (`datadir, license, ed25519, paywall-ui, crash-reporter, update-verify`, + `telemetry` if T2.7 shipped); `Backend/license-worker/` is present; `release.ps1` has all three behaviors; `setup.iss` bundles the new files. If anything is missing or a merge went sideways, STOP and report — do not paper over a bad merge.
+
+**If the branch topology has drifted and a clean assembly isn't achievable, STOP and report what you found** — a wrong merge here corrupts everything downstream. Better to surface it than force it.
+
+Update the MASTER-PLAN Status Tracker note that the branches are now consolidated on `audit/M.1-integration`.
+
+### Phase 1 — Confirm, map the seams
+
+1. With the branches assembled (Phase 0), confirm via the MASTER-PLAN Status Tracker that every session is ✅ and its code is actually present in your integration branch (not just marked done). If any subsystem's files are missing, STOP — do not integrate against a half-present subsystem.
+2. Build the **integration seam map**: for each hotspot above, find the exact lines in `QuickSay.ahk` (and the lib files) where two sessions' work meets. List them. The four critical seams: (a) startup license/trial check ordering, (b) the per-recording gate, (c) `CheckForUpdates()` signed-manifest verification vs version sync, (d) crash + telemetry emit points. (The `QuickSay.ahk` merge in Phase 0 step 2 already surfaced most of these — carry that resolution forward.)
+3. Present the seam map to the user before further editing.
 
 ### Phase 2 — Resolve the seams, minimal glue
 
@@ -87,7 +114,7 @@ Follow the CLAUDE.md release workflow. **Azure signing pre-check first** — MFA
 2. Compile `QuickSay.ahk` → `QuickSay.exe` and `onboarding_ui.ahk` → setup binary per the build commands.
 3. Sign with Azure Trusted Signing (same cert for main + uninstaller — SmartScreen groups by cert hash).
 4. Build the Inno Setup installer. Confirm every `Source:` line resolves (the new files are bundled).
-5. Produce a **signed `version.json`** (Ed25519 per T2.5) for the rc — but do NOT publish rc1 to the public R2 path (rc1 is internal per the MASTER-PLAN glossary; M.2 tests it, M.3 ships the real 2.0.0).
+5. Produce a **signed `version.json`** (Ed25519 per T2.5) for the rc — but do NOT publish rc1 to the public R2 path (rc1 is internal per the MASTER-PLAN glossary; M.2 tests it, M.3 ships the real 2.0.0). **Signing key (T2.5 I-a):** `release.ps1` STEP 6 needs the Ed25519 private key via `QUICKSAY_ED25519_PRIVATE_KEY` (PEM env) or `QUICKSAY_ED25519_PRIVATE_KEY_PATH` — the signer fails closed without it. For rc1 you may use the local `~/.quicksay-keys` copy; but note the standing security gate: once that key is in the CF secret store + an offline backup, the local copy must be deleted and the release machine supplies it via env from then on. Flag for M.3: the first PUBLIC release shipping the T2.5 verifier must also publish a freshly-signed `version.json`, or upgraded apps fail-closed and see no updates.
 
 ### Phase 5 — Install + smoke on the dev box
 
@@ -102,6 +129,7 @@ Invoke `verification-before-completion`. On THIS machine (or a clean profile):
 
 ### Done When
 
+- [ ] **Phase 0 assembly complete:** all branches consolidated onto `audit/M.1-integration`; `release.ps1` carries ALL three behaviors (VERSION/`--check-sync` + rollback + Ed25519 signing); the `QuickSay.ahk` startup+recording seam (T1.7 ⋈ T1.5/T2.3/T2.4/T1.8) is resolved; every session's `lib/*.ahk` + `Backend/license-worker/` + `tests/transcription/` are present; T1.3/T1.4 findings docs merged.
 - [ ] Integration seam map produced and all four seams resolved with minimal, traceable glue.
 - [ ] `release.ps1 --check-sync` passes (version sync clean across the whole set including new files).
 - [ ] Transcription regression (T2.6) passes — no WER regression, hallucination filter intact.
