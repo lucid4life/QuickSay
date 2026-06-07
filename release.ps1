@@ -95,7 +95,12 @@ $websiteDir   = Join-Path $projectRoot "Website"
 $installerDir = Join-Path $devDir "installer"
 
 $ahk2exe  = "C:\Program Files\AutoHotkey\Compiler\Ahk2Exe.exe"
-$ahk2base = "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe"
+# Prefer the repo-local AutoHotkey64.exe as the Ahk2Exe /base. The Program Files
+# copy (same v2.0.19) fails as a base on this build machine with Ahk2Exe exit 52
+# ("Failed to compile"); the repo-local copy compiles cleanly. Fall back to the
+# Program Files path when the repo-local copy is absent. (M.1 build-env note.)
+$ahk2baseRepo = Join-Path $devDir "AutoHotkey64.exe"
+$ahk2base = if (Test-Path $ahk2baseRepo) { $ahk2baseRepo } else { "C:\Program Files\AutoHotkey\v2\AutoHotkey64.exe" }
 $iscc     = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 
 # Signing config
