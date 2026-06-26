@@ -24,14 +24,18 @@
         <button class="btn-primary" id="getLicenseBtn" type="button">Get my license</button>
 
         <button class="btn-link" id="haveKeyBtn" type="button" aria-expanded="false" aria-controls="activatePanel">
-            I already purchased — enter my license key
+            I already have a license or developer key
         </button>
 
         <div class="activate-panel" id="activatePanel">
-            <label class="activate-label" for="keyInput">License key</label>
+            <label class="activate-label" for="keyInput">License or developer key</label>
             <input class="key-input" id="keyInput" type="text" autocomplete="off" spellcheck="false"
                    placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" aria-describedby="msg">
             <button class="btn-activate" id="activateBtn" type="button">Activate QuickSay</button>
+            <div class="machine-id-row" id="machineIdRow" hidden>
+                <span class="machine-id-label">This machine's ID (for developer licenses)</span>
+                <code class="machine-id-value" id="machineIdValue" tabindex="0"></code>
+            </div>
         </div>
 
         <p class="msg info" id="msg" role="status" aria-live="polite"></p>
@@ -116,6 +120,14 @@
             }
         };
 
+        // data: { machineId: string } — shown in the activate panel so a developer license can be
+        // minted and bound to exactly this machine.
+        window.initMachineId = function (data) {
+            data = data || {};
+            const v = $("machineIdValue"), row = $("machineIdRow");
+            if (data.machineId && v && row) { v.textContent = data.machineId; row.hidden = false; }
+        };
+
         // ── JS → AHK wiring ──────────────────────────────────────────────────
         $("getLicenseBtn").addEventListener("click", () => post("openCheckout", {}));
 
@@ -132,7 +144,7 @@
             const btn = $("activateBtn");
             btn.disabled = true;
             btn.textContent = "Activating…";
-            setMsg("Contacting the license server…", "info");
+            setMsg("Verifying…", "info");
             post("activate", { key });
         }
         $("activateBtn").addEventListener("click", doActivate);

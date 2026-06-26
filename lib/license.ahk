@@ -429,12 +429,37 @@ _ActivateMessage(status, code) {
 ; Activate a license key → on success stores the JWT and returns ok. Returns the parsed result Map.
 ActivateLicense(licenseKey) {
     global LICENSE_WORKER_URL
-    body := Map("license_key", licenseKey, "machine_id", ComputeMachineId())
+    key := Trim(licenseKey)
+    ; Offline developer token: a qs-2026-signed JWT bound to THIS machine. Verify it locally and
+    ; store WITHOUT contacting the worker, so it works with no network / no LemonSqueezy. A normal
+    ; LemonSqueezy key (UUID-style, no dots) never matches _LooksLikeJwt, so the online happy path
+    ; below is left entirely unchanged for real buyers.
+    if (_LooksLikeJwt(key)) {
+        v := _VerifyJwtStatic(key)
+        if (v["valid"]) {
+            _StoreLicenseJwt(key, v["email"], v["exp"], "offline:dev")
+            return Map("ok", true, "jwt", key, "email", v["email"], "exp", v["exp"], "code", "", "message", "Activated offline — QuickSay is ready.")
+        }
+        return Map("ok", false, "jwt", "", "email", "", "exp", 0, "code", "invalid", "message", "That developer token isn't valid for this machine. Check the machine ID shown below, re-mint for it, and paste again.")
+    }
+    body := Map("license_key", key, "machine_id", ComputeMachineId())
     r := _LicHttp("POST", LICENSE_WORKER_URL "/activate", body)
     parsed := License_ParseActivateResponse(r["status"], r["body"])
     if (parsed["ok"])
         _StoreLicenseJwt(parsed["jwt"], parsed["email"], parsed["exp"], "activate:200")
     return parsed
+}
+
+; A self-signed offline token has exactly three non-empty dot-segments; a LemonSqueezy key has no
+; dots, so it never enters the offline branch above.
+_LooksLikeJwt(s) {
+    parts := StrSplit(s, ".")
+    if (parts.Length != 3)
+        return false
+    for seg in parts
+        if (seg = "")
+            return false
+    return true
 }
 _StoreLicenseJwt(jwt, email, exp, resultTag) {
     dat := License_ReadDat()
@@ -458,12 +483,25 @@ _ClearLicenseJwt(resultTag) {
     LicenseClearVerifyCache()
 }
 
+; Read the (untrusted) "plan" claim from a stored JWT — a local routing hint only; the trust
+; decision always comes from _VerifyJwtStatic. Used to exempt offline dev licenses from refresh.
+_GetJwtPlan(jwt) {
+    parts := StrSplit(jwt, ".")
+    if (parts.Length != 3)
+        return ""
+    pl := _DecodeJwtSeg(parts[2])
+    return _MapStr(pl, "plan")
+}
+
 ; Re-sign a fresh 14-day JWT (spec §2.3 /refresh). 403 → revoke locally (→ paywall).
 RefreshLicense() {
     global LICENSE_WORKER_URL
     dat := License_ReadDat()
     if (dat = "" || !(dat.Has("licenseJwt")) || !(dat["licenseJwt"] is String) || dat["licenseJwt"] = "")
         return Map("ok", false, "code", "no_license", "message", "No license to refresh.")
+    ; Offline developer licenses are never round-tripped to the worker — its 403 would wipe them.
+    if (_GetJwtPlan(dat["licenseJwt"]) = "developer")
+        return Map("ok", true, "code", "exempt", "message", "Developer license — refresh skipped.")
     body := Map("jwt", dat["licenseJwt"], "machine_id", ComputeMachineId())
     r := _LicHttp("POST", LICENSE_WORKER_URL "/refresh", body)
     if (r["status"] = 200) {

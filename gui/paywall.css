@@ -161,6 +161,29 @@ button:focus-visible { outline: 2px solid var(--accent-primary); outline-offset:
 .btn-activate:hover { filter: brightness(1.07); }
 .btn-activate:disabled { opacity: 0.55; cursor: progress; }
 
+/* Machine hardware ID — shown so a developer license can be minted/bound to this exact PC. */
+.machine-id-row {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+}
+.machine-id-label { font-size: 11.5px; color: var(--text-tertiary); }
+.machine-id-value {
+    font-family: 'Consolas', 'Cascadia Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 6px 8px;
+    user-select: all;
+    word-break: break-all;
+}
+.machine-id-value:focus { outline: none; border-color: var(--accent-primary); }
+
 .msg {
     font-size: 13px;
     line-height: 1.45;

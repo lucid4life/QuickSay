@@ -84,6 +84,7 @@ class PaywallUI {
                 case "ready":
                     this._PostToJs("setMode", Map("mode", this.mode))
                     this._PushPricing()
+                    this._PostToJs("initMachineId", Map("machineId", ComputeMachineId()))
                 case "openCheckout":
                     this._OpenCheckout()
                 case "activate":
