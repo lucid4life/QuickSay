@@ -1,14 +1,14 @@
 # Session M.3 — Launch v2.0.0 (THE LAUNCH)
 
 > **Model:** Sonnet 4.6
-> **Effort:** medium
-> **Switch commands:** `/model sonnet` then `/effort medium`
+> **Effort:** high
+> **Switch commands:** `/model sonnet` then `/effort high`
 > **Branch:** `audit/M.3-launch`
 > **Parallel-safe with:** nothing — this is the final, irreversible session.
 > **Depends on:** M.2 sign-off (the 14-item UAT must be PASS or explicitly waived in writing before you ship). Also M.1 (the release pipeline produced a clean rc).
 > **Blocks:** nothing — this is the end of the campaign.
 >
-> Before pasting this prompt: confirm `/model medium` is set… actually confirm `/model sonnet` and `/effort medium`. **This session ships a paid product to real customers. Stop and ask the user before any irreversible step** (publishing the GitHub release, deploying the website, flipping the price). Get the M.2 UAT sign-off in hand first.
+> Before pasting this prompt: confirm `/model sonnet` and `/effort high`. (Effort is `high`, not `medium`: this is a ~7-step irreversible launch sequence where the failure mode is skipping/botching a step — `high` buys careful multi-step execution; the work is procedural, not reasoning-deep, so Sonnet is right, not Opus.) **This session ships a paid product to real customers. Stop and ask the user before any irreversible step** (publishing the GitHub release, deploying the website, flipping the price). Get the M.2 UAT sign-off in hand first.
 
 ---
 
