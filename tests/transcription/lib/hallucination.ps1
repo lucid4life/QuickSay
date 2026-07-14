@@ -79,6 +79,10 @@ function Remove-TrailingArtifacts {
     # "Thank you" / "Goodbye" / "Bye" only after a sentence boundary
     $text = $text -ireplace '(?<=[.!?])\s*(Thank you|Thanks|Goodbye|Bye)\.?\s*$', ''
 
+    # E.2: one-word acknowledgment hallucinated right after a dictated question
+    # (mirrors QuickSay.ahk StripTrailingArtifacts — keep in sync)
+    $text = $text -ireplace '(?<=\?)\s*(Yes|Yeah|Yep|No|Nope|Sure|Okay|OK)[.!]?\s*$', ''
+
     return $text.Trim()
 }
 

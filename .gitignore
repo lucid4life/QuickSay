@@ -24,6 +24,12 @@ installer/output/
 lib/64bit/
 lib/*.dll
 
+# E.2 transcription lab — personal dictation content stays local, NEVER commit.
+# local-corpus holds probes derived from the user's real history; results echo
+# model outputs of those probes.
+tests/cleanup/local-corpus/
+tests/cleanup/results/
+
 # Private signing keys — NEVER commit (T2.5). The Ed25519 PRIVATE key that signs
 # license JWTs + version.json lives only in the CF secret store + an offline
 # backup. Only the PUBLIC key (raw-32 base64url) is baked into the app source.
