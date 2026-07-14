@@ -324,8 +324,8 @@ Update this section at the end of every session. Mark with: ⬜ pending · 🟨 
 | E.5 | rc2 rebuild + UAT refresh (gate re-arm) | Sonnet | high | last | `sessions/session-E.5-rc2-rebuild.md` |
 
 - ⬜ E.1 — Competitive teardown (pre-work DONE 2026-07-13: both apps already installed with active, previously-used accounts; onboarding capture downgraded to best-effort — no reinstall/fresh accounts)
-- ⬜ E.2 — Transcription quality lab (scope raised 2026-07-13 per user: FULL-history analysis — entire live + entire 1.6 GB legacy corpus, harmful-pattern catalog, bar = "perfect cleanup every time")
-- ⬜ E.3 — Bug sweep (needs 1–2 weeks of dogfood flags accumulated after E.2 — schedule accordingly)
+- ✅ E.2 — Transcription quality lab (DONE 2026-07-14 — full 1,321-entry corpus mined [1.6 GB legacy = 819 entries + mojibake blowup, solved]; "answers question"=LLM-side legacy bug already killed by Feb-14 guardrails + now regression-locked; "random yes"=Whisper-side, fixed in StripTrailingArtifacts; baseline 55%→~0–7% residual on worst-case corpus; prompts rewritten both copies + sanity guard + dictionary→Whisper biasing (live path) + flag-last-transcription dogfood; all suites green; findings: `findings/E.2-transcription-lab.md`, Dev branch `audit/E.2-transcription-lab`)
+- ⬜ E.3 — Bug sweep (needs 1–2 weeks of dogfood flags accumulated after E.2 — schedule accordingly; flags require the E.2 build installed — audio/raw/cleaned capture already live on 1.9.0-beta since 2026-07-14)
 - ⬜ E.4 — Visual polish
 - ⬜ E.5 — rc2 + UAT refresh → user runs UAT on fresh VM → M.3
 
