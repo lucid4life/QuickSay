@@ -36,6 +36,7 @@ try {
 #Include lib\history-core.ahk
 #Include lib\cleanup-guard.ahk
 #Include lib\artifact-filter.ahk
+#Include lib\whisper-bias.ahk
 #Include lib\dpapi.ahk
 #Include lib\http.ahk
 #Include lib\ed25519.ahk
@@ -1130,6 +1131,10 @@ TranscribeFile(*) {
     lang := langCodes.Has(langRaw) ? langCodes[langRaw] : langRaw
 
     ; 6.8: Increased timeout to 120s for large file uploads (was 60s)
+    ; E.2: NO dictionary bias prompt here — measured on T2.6, the prompt
+    ; degrades long-form transcription (long-2min WER 1.2% -> 6.5%). Biasing
+    ; applies to the short live-dictation path only; dictionary regexes still
+    ; correct this path after transcription.
     formFields := Map("model", sttModel, "language", lang)
     apiResult := HttpPostFileWithRetry(WhisperURL, GroqAPIKey, selectedFile, formFields, 120, dbg, "File transcription API")
 
@@ -3252,6 +3257,8 @@ StopAndProcess() {
 
     ; Use secure WinHTTP COM instead of curl (API key never on command line)
     formFields := Map("model", sttModel, "language", lang)
+    ; E.2: bias Whisper toward custom-dictionary spellings via the prompt param
+    AddWhisperBiasField(formFields)
     apiResult := HttpPostFileWithRetry(WhisperURL, GroqAPIKey, TempFile, formFields, 30, dbg, "STT API")
 
     ; Check for network errors (WinHTTP exception)
@@ -3331,7 +3338,10 @@ StopAndProcess() {
             RawText := StripTrailingArtifacts(RawText)
 
             ; Filter known Whisper hallucination patterns (Fix #61)
-            if IsWhisperHallucination(RawText) {
+            ; E.2: also treat a bias-prompt echo (glossary bleeding back on
+            ; silence) as no-speech.
+            if (IsWhisperHallucination(RawText)
+                || (formFields.Has("prompt") && IsBiasPromptEcho(RawText, formFields["prompt"]))) {
                 if (dbg)
                     FileAppend("Whisper hallucination filtered: " . RawText . "`n", GetDebugLogPath())
                 TrayTip("No speech detected. Make sure your microphone is working.", "QuickSay", 0x2)

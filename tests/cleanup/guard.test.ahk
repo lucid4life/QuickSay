@@ -11,8 +11,14 @@
 ;==============================================================================
 #Requires AutoHotkey v2.0
 #SingleInstance Off
+; whisper-bias.ahk reads globals Config/Dictionary; a host script that never
+; assigns them trips AHK's load-time unset-variable warning DIALOG (looks like
+; a hang under a hidden window). The app assigns both; tests must too.
+global Config := Map()
+global Dictionary := Map()
 #Include %A_ScriptDir%\..\..\lib\cleanup-guard.ahk
 #Include %A_ScriptDir%\..\..\lib\artifact-filter.ahk
+#Include %A_ScriptDir%\..\..\lib\whisper-bias.ahk
 
 global ResultFile := A_Args.Length >= 1 ? A_Args[1] : A_ScriptDir . "\results.txt"
 
@@ -161,6 +167,41 @@ T("strip-07 mid-question ack kept", () =>
 ; behavior shared with the PS port; asserted as-is.
 T("strip-08 outro artifact stripped", () =>
     StripEq("Update the config file. Thanks for watching!", "Update the config file"))
+
+; ---------------------------------------------------------------------------
+; BuildWhisperBiasPrompt — dictionary -> Whisper prompt biasing (E.2 Phase 3)
+; ---------------------------------------------------------------------------
+T("bias-01 empty dictionary yields empty prompt", () =>
+    [BuildWhisperBiasPrompt(Map()) = "", ""])
+
+T("bias-02 terms joined as natural sentence", () => (
+    (p := BuildWhisperBiasPrompt(Map("quick say", "QuickSay", "tail scale", "Tailscale")))
+    = "We were discussing QuickSay and Tailscale." ? [true] : [false, "got '" . p . "'"]))
+
+T("bias-03 duplicate written forms deduped", () => (
+    (p := BuildWhisperBiasPrompt(Map("quick say", "QuickSay", "quicksay", "quicksay")))
+    = "We were discussing QuickSay." ? [true] : [false, "got '" . p . "'"]))
+
+T("bias-04 three terms use oxford list", () => (
+    (p := BuildWhisperBiasPrompt(Map("a", "AlphaTermOne", "b", "BetaTermTwo", "c", "GammaTermThree")))
+    = "We were discussing AlphaTermOne, BetaTermTwo, and GammaTermThree." ? [true] : [false, "got '" . p . "'"]))
+
+T("bias-05 newlines and empties sanitized", () => (
+    (p := BuildWhisperBiasPrompt(Map("x", "Multi`nLine", "z", "Fine", "y", "  ")))
+    = "We were discussing Multi Line and Fine." ? [true] : [false, "got '" . p . "'"]))
+
+T("bias-06 over-budget drops first-enumerated terms", () => (
+    (p := BuildWhisperBiasPrompt(Map("a", "AlphaLongTermName", "b", "BetaTermTwo", "c", "GammaTermThree"), 55))
+    = "We were discussing BetaTermTwo and GammaTermThree." ? [true] : [false, "got '" . p . "'"]))
+
+T("echo-01 pure prompt echo detected", () =>
+    [IsBiasPromptEcho("We were discussing Tailscale, FastAPI, Groq, and OpenAI.", "We were discussing Tailscale, FastAPI, Groq, and OpenAI."), ""])
+
+T("echo-02 real speech with glossary terms not flagged", () =>
+    [!IsBiasPromptEcho("Set up Tailscale on my Linux computer tonight.", "We were discussing Tailscale, FastAPI, Groq, and OpenAI."), ""])
+
+T("echo-03 empty prompt never flags", () =>
+    [!IsBiasPromptEcho("Anything at all.", ""), ""])
 
 ; ---------------------------------------------------------------------------
 ; IsWhisperHallucination — regression (unchanged behavior)

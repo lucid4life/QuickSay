@@ -24,7 +24,10 @@ param(
     [switch]$CompareBaseline,
     [switch]$RefreshBaseline,
     [switch]$WerSelfTest,
-    [string]$BaselineFile  = ""
+    [string]$BaselineFile  = "",
+    # E.2: optional Whisper biasing prompt (mirrors AddWhisperBiasField in the
+    # app). Used to prove dictionary biasing does not distort normal speech.
+    [string]$BiasPrompt    = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -42,6 +45,7 @@ function Get-GroqApiKeyFromConfig {
     $candidates = @(
         (Join-Path $Dev "config.json"),             # dev working config (preferred)
         (Join-Path $Dev "data\config.json"),
+        "$env:APPDATA\QuickSay\config.json",        # installed app config (v1.9+)
         "$env:LOCALAPPDATA\Programs\QuickSay Beta\config.json"
     )
     foreach ($cfgPath in $candidates) {
@@ -88,11 +92,13 @@ function Get-QuickSayConfigValue([string]$key) {
 function Invoke-GroqWhisper([string]$Key, [string]$FilePath, [string]$Model, [string]$Lang) {
     $url     = "https://api.groq.com/openai/v1/audio/transcriptions"
     $retries = 0
+    $form    = @{ file = Get-Item $FilePath; model = $Model; language = $Lang }
+    if ($script:BiasPrompt -ne "") { $form["prompt"] = $script:BiasPrompt }
     while ($true) {
         try {
             $resp = Invoke-RestMethod -Uri $url -Method Post `
                         -Headers @{ Authorization = "Bearer $Key" } `
-                        -Form @{ file = Get-Item $FilePath; model = $Model; language = $Lang } `
+                        -Form $form `
                         -TimeoutSec 180
             $text = $resp.text
             if ($null -eq $text) { return "" }
