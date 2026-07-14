@@ -126,6 +126,22 @@ HistoryEntryCount(historyFile) {
     return ReadHistoryArray(historyFile).Length
 }
 
+; Mark the newest history entry as flagged (E.2 dogfood: "this transcription
+; was imperfect — capture it as a test case"). Fresh read -> mutate -> atomic
+; write, same invariant as every other mutation here. Caller holds the config
+; mutex. Returns the flagged entry's id, or "" when there is nothing to flag.
+FlagNewestHistoryEntry(historyFile) {
+    history := ReadHistoryArray(historyFile)
+    if (history.Length = 0)
+        return ""
+    entry := history[1]
+    if (Type(entry) != "Map")
+        return ""
+    entry["flagged"] := true
+    WriteHistoryArray(historyFile, history)
+    return entry.Has("id") ? entry["id"] : "(unidentified)"
+}
+
 ; Apply a delta (updates + deletes) to a config Map in place and return it. Used
 ; under the config mutex by the settings RMW handlers so a fresh-read config is
 ; modified and written back without clobbering keys another process wrote

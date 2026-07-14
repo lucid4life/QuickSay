@@ -307,6 +307,41 @@ Test_11d() {                                  ; deletes remove only requested ke
 }
 
 ; ---------------------------------------------------------------------------
+; FLAG NEWEST ENTRY (E.2 dogfood: imperfect transcription -> captured test case)
+; ---------------------------------------------------------------------------
+Test_14() {                                   ; flags exactly the newest entry, persisted
+    global WorkDir
+    hp := WorkDir . "\h14.json"
+    SeedHistory(hp, 3)
+    id := FlagNewestHistoryEntry(hp)
+    arr := ReadHistoryArray(hp)
+    ok := id = "e3"
+        && arr[1].Has("flagged") && arr[1]["flagged"]
+        && !arr[2].Has("flagged") && !arr[3].Has("flagged")
+    return [ok, "id=" . id . " newestFlagged=" . (arr[1].Has("flagged") ? "1" : "0")]
+}
+
+Test_14b() {                                  ; empty / missing history flags nothing
+    global WorkDir
+    hp := WorkDir . "\h14b.json"
+    if FileExist(hp)
+        FileDelete(hp)
+    id := FlagNewestHistoryEntry(hp)
+    return [id = "", "id='" . id . "'"]
+}
+
+Test_14c() {                                  ; other fields survive the flag rewrite intact
+    global WorkDir
+    hp := WorkDir . "\h14c.json"
+    SeedHistory(hp, 2)
+    FlagNewestHistoryEntry(hp)
+    arr := ReadHistoryArray(hp)
+    ok := arr.Length = 2 && arr[1]["rawText"] = "text2" && arr[1]["cleanedText"] = "text2"
+        && arr[2]["id"] = "e1" && arr[1]["timestamp"] = "2026-05-29 00:00:00"
+    return [ok, "len=" . arr.Length]
+}
+
+; ---------------------------------------------------------------------------
 ; run
 ; ---------------------------------------------------------------------------
 T("01_retention_add_under_cap_keeps_96",     Test_01)
@@ -326,6 +361,9 @@ T("12_entry_count_not_line_count",           Test_12)
 T("13_nonarray_file_preserved_not_lost",     Test_13)
 T("11c_merge_preserves_unrelated_keys",      Test_11c)
 T("11d_merge_deletes_requested_keys",        Test_11d)
+T("14_flag_newest_entry_persisted",          Test_14)
+T("14b_flag_empty_history_noop",             Test_14b)
+T("14c_flag_rewrite_preserves_fields",       Test_14c)
 
 FileAppend("__DONE__`n", ResultFile, "UTF-8")
 ExitApp(0)

@@ -555,8 +555,9 @@ SetupTray() {
     Tray.Add("🎭 Mode", modeMenu)
     Tray.Add()
 
-    ; Section 3: Transcribe File
+    ; Section 3: Transcribe File + dogfood flag
     Tray.Add("📂 Transcribe File...", TranscribeFile)
+    Tray.Add("⚑ Flag Last Transcription", FlagLastTranscription)
     Tray.Add()
 
     ; Section 4: Pause toggle
@@ -2104,6 +2105,26 @@ GetFriendlyAppName() {
 ; "Clear History" advanced HistoryGeneration since, the entry is dropped (the user
 ; wiped history mid-flight). Pass -1 (default) to disable the guard — used by the
 ; file-transcription path, which is not subject to the clear race.
+; E.2 dogfood affordance: mark the newest history entry "flagged": true so an
+; imperfect transcription becomes a captured test case (raw/cleaned/audio
+; triple when saveRecordings is on). Later sessions harvest flagged entries.
+FlagLastTranscription(*) {
+    global HistoryFile
+    flaggedId := ""
+    hMutex := AcquireConfigLock()
+    try {
+        flaggedId := FlagNewestHistoryEntry(HistoryFile)
+    } catch {
+        flaggedId := ""
+    } finally {
+        ReleaseConfigLock(hMutex)
+    }
+    if (flaggedId != "")
+        TrayTip("Last transcription flagged for review.", "QuickSay", 0x1)
+    else
+        TrayTip("No transcription to flag yet.", "QuickSay", 0x2)
+}
+
 SaveToHistory(rawText, cleanedText, durationMs, audioFile := "", scheduledGen := -1) {
     global HistoryFile, Config, ScriptDir, HistoryGeneration
 
