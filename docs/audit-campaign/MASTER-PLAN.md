@@ -329,6 +329,23 @@ Update this section at the end of every session. Mark with: ⬜ pending · 🟨 
 - ⬜ E.4 — Visual polish
 - ⬜ E.5 — rc2 + UAT refresh → user runs UAT on fresh VM → M.3
 
+### Phase 3b — F-series: competitive feature builds (added 2026-07-22)
+
+> **Origin:** competitive deep-dive 2026-07-22 (5 verified rival dossiers: Wispr Flow, Superwhisper, Aqua Voice, Dragon, Talon; plus 4 codebase/research recon passes; see memory `project_competitive_analysis` and the published intel artifact). **User decision 2026-07-22: F.2 and F.1 ship BEFORE launch** (voice edit is a launch headline); F.3 is the v2.1 post-launch auto-update beat; F.4 is a measurement spike, parallel-safe anytime. **Launch chain becomes: F.2 -> F.1 -> E.3 -> E.4 -> E.5 (rc2) -> UAT -> M.3.** Synergy: F.2/F.1 build time fills E.3's required 1-2 week dogfood-flag window. **Dev `main` consolidated 2026-07-22 at `3b8a44a`** (T1.4-through-E.2 stack fast-forwarded to main; app-line PRs merged/closed; compile-critical vendored libs now tracked): F/E sessions branch off `main`.
+> Verified facts the F-sessions rely on: Groq free tier (official, 2026-07-22) = Whisper 20 RPM / 2,000 RPD / 28,800 audio-sec per day, gpt-oss-20b 30 RPM / 1,000 RPD (heavy 60 min/day use = 12.5% of the audio cap; the real ceiling is 20 RPM bursts, hence F.2's friendly 429 handling). QuickSay already ships 25 dictation languages; F.2 adds auto-detect, not languages. Safe marketing wording: "Groq's free tier typically covers it", never "free forever".
+
+| ID | Session | Model | Effort | Parallel | Doc |
+|---|---|---|---|---|---|
+| F.2 | Competitive quick wins (language auto-detect, STT model picker, friendly 429s, prompt i18n) | Fable 5 | high | first; NOT ∥ F.1 | `sessions/session-F.2-quick-wins.md` |
+| F.1 | Voice Edit / Command Mode (select text, speak instruction, AI rewrites in place) | Fable 5 | xhigh | after F.2; NOT ∥ E.3/E.4 | `sessions/session-F.1-voice-edit.md` |
+| F.3 | Auto-learning dictionary + shareable stat card | Fable 5 | high | POST-LAUNCH (v2.1) | `sessions/session-F.3-auto-dictionary-statcard.md` |
+| F.4 | Offline transcription spike (whisper.cpp benchmark, go/no-go, NO app code) | Fable 5 | high | ∥ anything | `sessions/session-F.4-offline-spike.md` |
+
+- ⬜ F.2 — Quick wins (pre-launch, first)
+- ⬜ F.1 — Voice edit (pre-launch; E.3 sweep must cover its seams; E.5 UAT gains a voice-edit item)
+- ⬜ F.3 — Auto-dictionary + stat card (POST-LAUNCH v2.1; do not run before M.3)
+- ⬜ F.4 — Offline spike (anytime; informs a v2.x offline build, which stays out of v2.0 scope per campaign goal)
+
 ---
 
 ## 9a. Open decisions (need Adrian's input before the relevant session)
