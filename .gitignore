@@ -39,3 +39,9 @@ tests/cleanup/results/
 *-ed25519-private.pem
 .quicksay-keys/
 **/.quicksay-keys/
+
+# Local-only artifacts (2026-07-22 hygiene)
+my-dev-license-token.txt
+installer/
+*.bak
+.playwright-mcp/
