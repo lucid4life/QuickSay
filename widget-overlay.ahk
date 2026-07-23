@@ -9,7 +9,7 @@ class FloatingWidget {
     static width := 44
     static height := 44
     static isVisible := false
-    static currentStatus := "idle"  ; idle, recording, processing, error
+    static currentStatus := "idle"  ; idle, recording, editing, processing, error
     static pulsePhase := 0
     static posX := 0
     static posY := 0
@@ -190,8 +190,10 @@ class FloatingWidget {
         if (status = prevStatus)
             return
 
-        if (status = "recording") {
-            ; Start animation loop for pulsing glow
+        if (status = "recording" || status = "editing") {
+            ; Start animation loop for pulsing glow — F.1 Voice Edit's "editing"
+            ; state animates the same as "recording", just with a different
+            ; accent color (see DrawFrame).
             this.pulsePhase := 0
             if (this.timerFn)
                 SetTimer(this.timerFn, 33)
@@ -243,6 +245,18 @@ class FloatingWidget {
                 glowBrush := GDI.CreateSolidBrush((glowAlpha << 24) | 0x22d3c5)
                 GDI.FillEllipse(g, glowBrush, dotX - 4, dotY - 4, dotSize + 8, dotSize + 8)
                 GDI.DeleteBrush(glowBrush)
+            case "editing":
+                ; F.1 Voice Edit — same pulsing/glow animation as "recording",
+                ; but violet instead of teal so it reads as visually distinct
+                ; (listening for an edit instruction, not a dictation).
+                this.pulsePhase += 0.1
+                alpha := Round(180 + 75 * Sin(this.pulsePhase))
+                dotColor := (alpha << 24) | 0xa78bfa
+                ; Glow ring
+                glowAlpha := Round(40 + 30 * Sin(this.pulsePhase))
+                glowBrush := GDI.CreateSolidBrush((glowAlpha << 24) | 0xa78bfa)
+                GDI.FillEllipse(g, glowBrush, dotX - 4, dotY - 4, dotSize + 8, dotSize + 8)
+                GDI.DeleteBrush(glowBrush)
             case "processing":
                 dotColor := 0xFFfbbf24  ; yellow
             case "error":
@@ -265,7 +279,8 @@ class FloatingWidget {
             GDI.DrawLine(g, xPen, dotX + dotSize - xPad, dotY + xPad, dotX + xPad, dotY + dotSize - xPad)
             GDI.DeletePen(xPen)
         } else {
-            ; idle / recording — filled circle (recording already has glow ring)
+            ; idle / recording / editing — filled circle (recording and editing
+            ; already have a glow ring drawn above)
             dotBrush := GDI.CreateSolidBrush(dotColor)
             GDI.FillEllipse(g, dotBrush, dotX, dotY, dotSize, dotSize)
             GDI.DeleteBrush(dotBrush)
@@ -311,10 +326,12 @@ class FloatingWidget {
 
         if (this.wasClick) {
             ; Single click — toggle recording (focus stays on previous window)
-            global isRecording
-            if (isRecording)
-                StopAndProcess()
-            else
+            global isRecording, RecordingPurpose
+            if (isRecording) {
+                ; Don't let the widget click stop a Voice Edit recording.
+                if (RecordingPurpose != "voiceEdit")
+                    StopAndProcess()
+            } else
                 StartRecording()
         } else if (this.isDragging) {
             ; Drag ended — save position wherever the user placed it
@@ -387,6 +404,7 @@ class FloatingWidget {
             switch this.currentStatus {
                 case "idle": statusText := "QuickSay — Ready"
                 case "recording": statusText := "QuickSay — Recording..."
+                case "editing": statusText := "QuickSay — Listening for edit..."
                 case "processing": statusText := "QuickSay — Processing..."
                 case "error": statusText := "QuickSay — Error"
             }

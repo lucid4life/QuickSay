@@ -87,6 +87,20 @@
             height: 1px;
             background: var(--border-subtle);
         }
+
+        /* F.1 Phase 5: Voice Edit hotkey row — same indent as .custom-hotkey-controls
+           but always visible (no default/custom radio choice for this hotkey). */
+        .voice-edit-hotkey-controls {
+            display: block;
+            margin-left: 58px;
+            margin-top: 10px;
+        }
+        /* Greyed-out state when Voice Edit is toggled off — matches the
+           opacity + no-interaction treatment used by .achievement-card.locked. */
+        .voice-edit-hotkey-controls.ve-hotkey-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -237,6 +251,42 @@
                         <div class="toggle-label-primary">Toggle Mode</div>
                         <span class="sub-text">Tap hotkey to start, tap again to stop (instead of hold)</span>
                     </label>
+                </div>
+            </div>
+
+            <!-- VOICE EDIT (F.1) -->
+            <div class="section-divider">Voice Edit</div>
+            <div class="section">
+                <h3>Voice Edit</h3>
+
+                <!-- VOICE EDIT HOTKEY CONFLICT BANNER (shown when voiceEditHotkeyConflict is set in config) -->
+                <div id="voiceEditHotkeyConflictBanner" class="hotkey-conflict-banner" style="display:none;" role="alert">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div>
+                        <strong>Voice Edit hotkey may be in conflict</strong> — your shortcut didn't respond. Choose a different one below.
+                        <span id="voiceEditHotkeyConflictDetail" style="display:block; margin-top:4px; font-size:12px; color:var(--text-tertiary);"></span>
+                    </div>
+                </div>
+
+                <div class="toggle-item">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="voiceEditEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="voiceEditEnabled">
+                        <div class="toggle-label-primary">Voice Edit</div>
+                        <span class="sub-text">Select text anywhere, hold the Voice Edit hotkey, and say how to change it — QuickSay rewrites it in place.</span>
+                    </label>
+                </div>
+
+                <div id="voiceEditHotkeyRow" class="voice-edit-hotkey-controls">
+                    <div class="hotkey-display">
+                        <input type="text" id="voiceEditHotkeyDisplay" readonly placeholder="No hotkey set"
+                            style="width: 240px; margin-right: 10px;">
+                        <button class="btn btn-secondary-orange nowrap" id="btnChangeVoiceEditHotkey">Change</button>
+                        <button class="btn btn-secondary btn-sm nowrap" id="btnTestVoiceEditHotkey" style="margin-left: 6px;">Test</button>
+                    </div>
+                    <div class="status-text" id="voiceEditHotkeyMessage" role="status" aria-live="polite"></div>
                 </div>
             </div>
 
@@ -962,7 +1012,7 @@
     <!-- Hotkey Modal -->
     <div class="modal-overlay" id="modalHotkey">
         <div class="modal">
-            <h3>Change Hotkey</h3>
+            <h3 id="modalHotkeyTitle">Change Hotkey</h3>
             <!-- Phase 1: Capture -->
             <div id="hotkeyPhaseCapture">
                 <p>Press your desired key combination now...</p>
@@ -1080,6 +1130,12 @@
         var config = {};
         var dictionary = [];
         var tempHotkey = "";
+        // F.1 Phase 5: the capture modal is shared between the dictation hotkey and
+        // the Voice Edit hotkey. hotkeyCaptureTarget tracks which field is being set
+        // ('dictation' | 'voiceEdit'); activeHotkeyTestTarget does the same for the
+        // shared inline "Test" flow (hotkeyTestResult comes back on one channel).
+        var hotkeyCaptureTarget = "dictation";
+        var activeHotkeyTestTarget = "dictation";
         var changelogData = null;
         var apiKeyValidated = false;
         var originalApiKey = "";
@@ -1090,7 +1146,7 @@
         // ==================================================================
         (function() {
             var searchIndex = {
-                'general': ['api', 'key', 'groq', 'language', 'hotkey', 'startup', 'overlay', 'sound', 'sticky', 'preferences', 'behavior', 'dictation', 'export', 'import', 'backup', 'restore', 'auto-paste', 'paste', 'clipboard', 'widget', 'accessibility', 'data', 'management'],
+                'general': ['api', 'key', 'groq', 'language', 'hotkey', 'startup', 'overlay', 'sound', 'sticky', 'preferences', 'behavior', 'dictation', 'export', 'import', 'backup', 'restore', 'auto-paste', 'paste', 'clipboard', 'widget', 'accessibility', 'data', 'management', 'voice edit', 'rewrite'],
                 'audio': ['microphone', 'device', 'recording', 'quality', 'storage', 'audio', 'khz', 'save', 'sound', 'theme', 'subtle', 'click', 'crystal', 'neon', 'bloom', 'silent'],
                 'processing': ['llm', 'cleanup', 'fillers', 'punctuation', 'history', 'retention', 'debug', 'logging', 'processing', 'text', 'voice', 'commands', 'voice commands', 'context', 'auto-detect', 'app'],
                 'modes': ['mode', 'persona', 'prompt', 'email', 'code', 'casual', 'standard', 'custom'],
@@ -1115,7 +1171,8 @@
                 'context': 'contextAwareModes', 'auto-detect': 'contextAwareModes', 'app': 'contextAwareModes',
                 'llm': 'enableLLMCleanup', 'cleanup': 'enableLLMCleanup',
                 'fillers': 'autoRemoveFillers', 'punctuation': 'smartPunctuation',
-                'retention': 'historyRetention', 'debug': 'debugLogging', 'logging': 'debugLogging'
+                'retention': 'historyRetention', 'debug': 'debugLogging', 'logging': 'debugLogging',
+                'voice edit': 'voiceEditEnabled', 'rewrite': 'voiceEditEnabled'
             };
 
             var highlightTimeout = null;
@@ -1286,11 +1343,16 @@
                 }
             });
 
-            document.getElementById('btnChangeHotkey').onclick = function () { openModal('modalHotkey'); startHotkeyListen(); };
-            document.getElementById('btnCancelHotkey').onclick = function () { closeModal('modalHotkey'); stopHotkeyListen(); resetHotkeyModal(); };
+            document.getElementById('btnChangeHotkey').onclick = function () { hotkeyCaptureTarget = 'dictation'; openModal('modalHotkey'); startHotkeyListen(); };
+            document.getElementById('btnCancelHotkey').onclick = function () { closeModal('modalHotkey'); stopHotkeyListen(); resetHotkeyModal(); hotkeyCaptureTarget = 'dictation'; };
             document.getElementById('btnTestHotkey').onclick = startHotkeyTest;
             document.getElementById('btnConfirmHotkey').onclick = confirmHotkey;
             document.getElementById('btnTestCurrentHotkey').onclick = testCurrentHotkey;
+
+            // Voice Edit (F.1 Phase 5) — reuses the same capture modal/hook, targeted via hotkeyCaptureTarget
+            document.getElementById('btnChangeVoiceEditHotkey').onclick = function () { hotkeyCaptureTarget = 'voiceEdit'; openModal('modalHotkey'); startHotkeyListen(); };
+            document.getElementById('btnTestVoiceEditHotkey').onclick = testVoiceEditHotkey;
+            document.getElementById('voiceEditEnabled').addEventListener('change', updateVoiceEditRowState);
 
             document.getElementById('btnRefreshAudio').onclick = function () { postToAHK('getAudioDevices'); };
 
@@ -1737,6 +1799,28 @@
                 }
             }
 
+            // Voice Edit (F.1 Phase 5)
+            var veEnabled = (cfg.voiceEditEnabled !== undefined) ? toBool(cfg.voiceEditEnabled) : true;
+            document.getElementById('voiceEditEnabled').checked = veEnabled;
+            config.voiceEditHotkey = cfg.voiceEditHotkey || '^!Space';
+            setVal('voiceEditHotkeyDisplay', formatHotkey(config.voiceEditHotkey), false);
+            updateVoiceEditRowState();
+
+            // Voice Edit hotkey conflict banner — clone of the dictation one above
+            var veConflictBanner = document.getElementById('voiceEditHotkeyConflictBanner');
+            var veConflictDetail = document.getElementById('voiceEditHotkeyConflictDetail');
+            if (veConflictBanner) {
+                if (cfg.voiceEditHotkeyConflict) {
+                    veConflictBanner.style.display = 'flex';
+                    if (veConflictDetail && cfg.voiceEditHotkeyConflictMsg) {
+                        veConflictDetail.textContent = cfg.voiceEditHotkeyConflictMsg;
+                        veConflictDetail.style.display = 'block';
+                    }
+                } else {
+                    veConflictBanner.style.display = 'none';
+                }
+            }
+
             if (DEBUG) console.log('=== POPULATE FORM CALLED ===');
             if (DEBUG) console.log('Config received:', cfg);
         }
@@ -1777,6 +1861,38 @@
             config.accessibilityMode = getCheck('accessibilityMode');
             config.showWidget = getCheck('showWidget');
             config.autoPaste = getCheck('autoPaste');
+
+            // Voice Edit (F.1 Phase 5). config.voiceEditHotkey is maintained directly
+            // (set by confirmHotkey()), same pattern as config.hotkey — no input to
+            // read here, just a fallback plus the cross-validation safety net below.
+            config.voiceEditEnabled = getCheck('voiceEditEnabled');
+            if (!config.voiceEditHotkey) config.voiceEditHotkey = "^!Space";
+            if (config.hotkey && config.voiceEditHotkey.toLowerCase() === config.hotkey.toLowerCase()) {
+                // Block persisting this field only — revert to the last known-good
+                // value and surface the error inline. UX guard only: the tray process
+                // independently refuses to register a duplicate hotkey.
+                var dictHkLower = config.hotkey.toLowerCase();
+                var lastGoodVE = (window._lastSavedConfig && window._lastSavedConfig.voiceEditHotkey) || "^!Space";
+                // The "last known-good" value can itself collide (e.g. the user just
+                // changed the DICTATION hotkey to match the already-saved Voice Edit
+                // one) — fall back to the hardcoded default in that case too.
+                if (lastGoodVE.toLowerCase() === dictHkLower)
+                    lastGoodVE = "^!Space";
+                if (lastGoodVE.toLowerCase() === dictHkLower) {
+                    // Last resort (dictation hotkey IS the hardcoded default too):
+                    // disable Voice Edit rather than persist a colliding hotkey.
+                    config.voiceEditEnabled = false;
+                    document.getElementById('voiceEditEnabled').checked = false;
+                    updateVoiceEditRowState();
+                }
+                config.voiceEditHotkey = lastGoodVE;
+                setVal('voiceEditHotkeyDisplay', formatHotkey(lastGoodVE), false);
+                var veMsgEl2 = document.getElementById('voiceEditHotkeyMessage');
+                if (veMsgEl2) {
+                    veMsgEl2.className = 'status-text status-error';
+                    veMsgEl2.innerText = 'Voice Edit needs a different shortcut than dictation.';
+                }
+            }
 
             config.audioDevice = getVal('audioDevice');
             config.saveAudioRecordings = getCheck('saveAudioRecordings');
@@ -2185,6 +2301,8 @@
             tempHotkey = "";
             tempHotkeyDisplay = "";
             hotkeyTestPending = false;
+            var titleEl = document.getElementById('modalHotkeyTitle');
+            if (titleEl) titleEl.innerText = (hotkeyCaptureTarget === 'voiceEdit') ? 'Change Voice Edit Hotkey' : 'Change Hotkey';
             // Reset to capture phase
             document.getElementById('hotkeyPhaseCapture').style.display = '';
             document.getElementById('hotkeyPhaseTest').style.display = 'none';
@@ -2267,9 +2385,29 @@
 
         function confirmHotkey() {
             if (tempHotkey) {
-                config.hotkey = tempHotkey;
-                setVal('hotkeyDisplay', formatHotkey(config.hotkey), false);
-                showToast("Hotkey updated!", "success");
+                if (hotkeyCaptureTarget === 'voiceEdit') {
+                    // Cross-validation (UX only — the tray process independently
+                    // guards this at registration; this is not the security boundary).
+                    if (config.hotkey && tempHotkey.toLowerCase() === config.hotkey.toLowerCase()) {
+                        var veMsgEl = document.getElementById('voiceEditHotkeyMessage');
+                        if (veMsgEl) {
+                            veMsgEl.className = 'status-text status-error';
+                            veMsgEl.innerText = 'Voice Edit needs a different shortcut than dictation.';
+                        }
+                        // Let the user try again without leaving the modal
+                        stopHotkeyListen();
+                        resetHotkeyModal();
+                        startHotkeyListen();
+                        return;
+                    }
+                    config.voiceEditHotkey = tempHotkey;
+                    setVal('voiceEditHotkeyDisplay', formatHotkey(config.voiceEditHotkey), false);
+                    showToast("Voice Edit hotkey updated!", "success");
+                } else {
+                    config.hotkey = tempHotkey;
+                    setVal('hotkeyDisplay', formatHotkey(config.hotkey), false);
+                    showToast("Hotkey updated!", "success");
+                }
             }
             stopHotkeyListen();
             resetHotkeyModal();
@@ -2285,6 +2423,7 @@
                 showToast('No hotkey configured to test.', 'warning');
                 return;
             }
+            activeHotkeyTestTarget = 'dictation';
             var btn = document.getElementById('btnTestCurrentHotkey');
             var el = document.getElementById('hotkeyTestMessage');
             setButtonLoading(btn, true, 'Testing...');
@@ -2307,13 +2446,45 @@
             postToAHK('testHotkey', { hotkey: hk });
         }
 
+        // --- TEST VOICE EDIT HOTKEY (F.1 Phase 5 — mirrors testCurrentHotkey) ---
+        function testVoiceEditHotkey() {
+            var hk = config && config.voiceEditHotkey ? config.voiceEditHotkey : '';
+            if (!hk) {
+                showToast('No Voice Edit hotkey configured to test.', 'warning');
+                return;
+            }
+            activeHotkeyTestTarget = 'voiceEdit';
+            var btn = document.getElementById('btnTestVoiceEditHotkey');
+            var el = document.getElementById('voiceEditHotkeyMessage');
+            setButtonLoading(btn, true, 'Testing...');
+            el.className = 'status-text';
+            el.innerText = 'Press ' + formatHotkey(hk) + ' now... (5s)';
+
+            if (hotkeyTestTimer) clearInterval(hotkeyTestTimer);
+            var secondsLeft = 5;
+            hotkeyTestTimer = setInterval(function () {
+                secondsLeft--;
+                if (secondsLeft > 0) {
+                    el.innerText = 'Press ' + formatHotkey(hk) + ' now... (' + secondsLeft + 's)';
+                } else {
+                    clearInterval(hotkeyTestTimer);
+                    hotkeyTestTimer = null;
+                }
+            }, 1000);
+
+            postToAHK('testHotkey', { hotkey: hk });
+        }
+
+        // Shared result channel for both testCurrentHotkey() and testVoiceEditHotkey()
+        // — routed by activeHotkeyTestTarget since AHK replies on one message name.
         window.hotkeyTestResult = function (data) {
             if (hotkeyTestTimer) {
                 clearInterval(hotkeyTestTimer);
                 hotkeyTestTimer = null;
             }
-            var btn = document.getElementById('btnTestCurrentHotkey');
-            var el = document.getElementById('hotkeyTestMessage');
+            var isVoiceEdit = (activeHotkeyTestTarget === 'voiceEdit');
+            var btn = document.getElementById(isVoiceEdit ? 'btnTestVoiceEditHotkey' : 'btnTestCurrentHotkey');
+            var el = document.getElementById(isVoiceEdit ? 'voiceEditHotkeyMessage' : 'hotkeyTestMessage');
             setButtonLoading(btn, false);
 
             if (data && data.success) {
@@ -2324,6 +2495,13 @@
                 el.innerText = data && data.message ? data.message : 'This hotkey may conflict with another application.';
             }
         };
+
+        // --- VOICE EDIT ROW ENABLE/DISABLE STATE (F.1 Phase 5) ---
+        function updateVoiceEditRowState() {
+            var enabled = getCheck('voiceEditEnabled');
+            var row = document.getElementById('voiceEditHotkeyRow');
+            if (row) row.classList.toggle('ve-hotkey-disabled', !enabled);
+        }
 
         // --- UTILS ---
         function getVal(id) {
@@ -2557,8 +2735,16 @@
                 html += '</div>';
                 html += '<div class="history-text">' + escapeHtml(txt) + '</div>';
 
+                // F.1: Voice Edit entries carry the spoken instruction; show it and
+                // relabel the expanded original (which is the pre-edit selection,
+                // not a raw transcript).
+                var isEdit = !!item.instruction;
+                if (isEdit) {
+                    html += '<div class="sub-text" style="margin-top:2px;">✎ Voice Edit: “' + escapeHtml(item.instruction) + '”</div>';
+                }
+
                 html += '<div id="hist-expand-' + idx + '" class="history-expand">';
-                html += '<div class="history-expand-label">Raw Transcript</div>';
+                html += '<div class="history-expand-label">' + (isEdit ? 'Original selection' : 'Raw Transcript') + '</div>';
                 html += '<div class="history-raw-text">' + escapeHtml(item.rawText || "") + '</div>';
                 if (item.audioFile) {
                     html += '<div class="history-audio-file"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' + escapeHtml(item.audioFile) + '</div>';
@@ -2649,6 +2835,7 @@
                 if (query) {
                     var matches = (item.cleanedText && item.cleanedText.toLowerCase().indexOf(query) !== -1) ||
                         (item.rawText && item.rawText.toLowerCase().indexOf(query) !== -1) ||
+                        (item.instruction && item.instruction.toLowerCase().indexOf(query) !== -1) ||
                         (item.appContext && item.appContext.toLowerCase().indexOf(query) !== -1);
                     if (!matches) return false;
                 }
