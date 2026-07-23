@@ -341,7 +341,7 @@ Update this section at the end of every session. Mark with: ⬜ pending · 🟨 
 | F.3 | Auto-learning dictionary + shareable stat card | Fable 5 | high | POST-LAUNCH (v2.1) | `sessions/session-F.3-auto-dictionary-statcard.md` |
 | F.4 | Offline transcription spike (whisper.cpp benchmark, go/no-go, NO app code) | Fable 5 | high | ∥ anything | `sessions/session-F.4-offline-spike.md` |
 
-- ⬜ F.2 — Quick wins (pre-launch, first)
+- ✅ F.2 — Quick wins (2026-07-22; all suites + T2.6/E.2 harnesses green, prompt wording user-approved; findings: `findings/F.2-quick-wins.md`; code PR from `feature/F.2-quick-wins`)
 - ⬜ F.1 — Voice edit (pre-launch; E.3 sweep must cover its seams; E.5 UAT gains a voice-edit item)
 - ⬜ F.3 — Auto-dictionary + stat card (POST-LAUNCH v2.1; do not run before M.3)
 - ⬜ F.4 — Offline spike (anytime; informs a v2.x offline build, which stays out of v2.0 scope per campaign goal)
