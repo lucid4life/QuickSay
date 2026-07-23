@@ -172,6 +172,20 @@ try {
     Add-SourceAssertion 'S4_registervoiceedithotkey_no_hotkeymode_reference' $false "extraction failed: $($_.Exception.Message)"
 }
 
+# S5 — HandleVoiceEditResult records the edit to history with kind "voiceEdit"
+# and the spoken instruction, and only on the success path (after PasteReplacement).
+try {
+    $handleBody2 = Get-AhkFunctionBody -Lines ($mainSrc -split "`r?`n") -Name 'HandleVoiceEditResult'
+    $idxPaste2 = $handleBody2.IndexOf('PasteReplacement(')
+    $idxSave   = $handleBody2.IndexOf('SaveToHistory(')
+    $hasVoiceEditKind = ($handleBody2 -match 'SaveToHistory\([^\r\n]*"voiceEdit"')
+    $s5Ok = ($idxPaste2 -ge 0) -and ($idxSave -gt $idxPaste2) -and $hasVoiceEditKind
+    $s5Detail = if ($s5Ok) { '' } else { "idxPaste=$idxPaste2 idxSave=$idxSave voiceEditKind=$hasVoiceEditKind" }
+    Add-SourceAssertion 'S5_handlevoiceeditresult_saves_history_with_instruction' $s5Ok $s5Detail
+} catch {
+    Add-SourceAssertion 'S5_handlevoiceeditresult_saves_history_with_instruction' $false "extraction failed: $($_.Exception.Message)"
+}
+
 # --- Report --------------------------------------------------------------------
 Write-Host ""
 Write-Host "F.1 Voice Edit regression (Phase 6)" -ForegroundColor Cyan

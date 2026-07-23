@@ -2130,7 +2130,11 @@ FlagLastTranscription(*) {
         TrayTip("No transcription to flag yet.", "QuickSay", 0x2)
 }
 
-SaveToHistory(rawText, cleanedText, durationMs, audioFile := "", scheduledGen := -1) {
+; kind: "dictation" (default) or "voiceEdit". For a Voice Edit, rawText is the
+; ORIGINAL selection, cleanedText is the rewritten result, and instruction is
+; what the user spoke — stored so the history view can show "what it heard when
+; something comes out unexpected" (F.1 enhancement, matches Wispr/Aqua).
+SaveToHistory(rawText, cleanedText, durationMs, audioFile := "", scheduledGen := -1, kind := "dictation", instruction := "") {
     global HistoryFile, Config, ScriptDir, HistoryGeneration
 
     if !Config.Has("history_enabled") || !Config["history_enabled"]
@@ -2158,6 +2162,14 @@ SaveToHistory(rawText, cleanedText, durationMs, audioFile := "", scheduledGen :=
             "rawText", rawText,
             "timestamp", timestamp,
             "wordCount", wordCount)
+
+        ; F.1: tag Voice Edit entries so the history view can label them and show
+        ; the spoken instruction. Omitted entirely for normal dictation so the
+        ; existing schema is unchanged for those entries.
+        if (kind = "voiceEdit") {
+            entry["kind"] := "voiceEdit"
+            entry["instruction"] := instruction
+        }
 
         maxHistory := Config.Has("history_retention") ? Config["history_retention"] : 100
 
@@ -3166,7 +3178,7 @@ BuildVoiceEditPrompt(instruction, selectedText) {
 ; NOTHING is pasted (never paste the raw spoken instruction as if it were the
 ; edit result).
 HandleVoiceEditResult(instruction, selectedText, recordDuration, dbg) {
-    global Config
+    global Config, RecordingGeneration
 
     if (selectedText = "") {
         TrayTip("Voice Edit lost track of your selection. Please select the text and try again.", "QuickSay", 0x2)
@@ -3281,6 +3293,13 @@ HandleVoiceEditResult(instruction, selectedText, recordDuration, dbg) {
     UpdateWidgetStatus("idle")
     UpdateStatusDisplay(1)
     UpdateTrayTooltip("Idle")
+
+    ; F.1: record the edit in history (original selection, result, and the spoken
+    ; instruction) so the user can review what was changed and what QuickSay heard.
+    ; Deferred off the critical path and generation-guarded, mirroring the
+    ; dictation history write.
+    _orig := selectedText, _res := ResultText, _instr := instruction, _dur := recordDuration, _gen := RecordingGeneration
+    SetTimer(() => SaveToHistory(_orig, _res, _dur, "", _gen, "voiceEdit", _instr), -1)
 
     ; T2.7 telemetry: SKIPPED for voice_edit_completed. lib/telemetry.ahk
     ; enforces an event allowlist (TELEMETRY_EVENTS) backed by
