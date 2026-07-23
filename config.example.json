@@ -6,6 +6,8 @@
   "audioDevice": "Default",
   "hotkey": "^LWin",
   "hotkeyMode": "hold",
+  "voiceEditEnabled": true,
+  "voiceEditHotkey": "^!Space",
   "playSounds": 1,
   "showOverlay": 1,
   "enableLLMCleanup": 1,

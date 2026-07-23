@@ -311,10 +311,12 @@ class FloatingWidget {
 
         if (this.wasClick) {
             ; Single click — toggle recording (focus stays on previous window)
-            global isRecording
-            if (isRecording)
-                StopAndProcess()
-            else
+            global isRecording, RecordingPurpose
+            if (isRecording) {
+                ; Don't let the widget click stop a Voice Edit recording.
+                if (RecordingPurpose != "voiceEdit")
+                    StopAndProcess()
+            } else
                 StartRecording()
         } else if (this.isDragging) {
             ; Drag ended — save position wherever the user placed it

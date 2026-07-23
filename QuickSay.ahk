@@ -151,9 +151,16 @@ global g_LicenseState := Map("state", "INSTALLED", "daysRemaining", 0, "email", 
 global g_TrialCountdownShown := false
 global StartTime := 0
 global CurrentHotkey := ""
+global CurrentVoiceEditHotkey := ""
 global FFmpegPID := 0
 global LastTranscription := ""
 global LastTranscriptionTime := 0
+
+; F.1 Voice Edit state. RecordingPurpose distinguishes a plain dictation from a
+; Voice Edit recording; "dictate" | "voiceEdit". Consumed (read-and-reset) by
+; StopAndProcess in Phase 3 — Phases 1+2 just set/reset it correctly.
+global RecordingPurpose := "dictate"
+global VoiceEditSelectedText := ""
 
 ; Tray tooltip state
 global todayWordCount := 0
@@ -294,6 +301,7 @@ ConfigureCrashReporter()
 
 ; --- REGISTER HOTKEY FROM CONFIG ---
 RegisterHotkey()
+RegisterVoiceEditHotkey()  ; F.1 Voice Edit
 
 ; --- REGISTER HOTKEY EARLY, DEFER HEAVY INIT ---
 if Config.Has("accessibility_mode") && Config["accessibility_mode"]
@@ -977,6 +985,7 @@ ReloadConfig(*) {
     LoadActivePrompt()
     ConfigureCrashReporter()      ; pick up a crash-reporting toggle change from settings
     RegisterHotkey()
+    RegisterVoiceEditHotkey()     ; F.1 Voice Edit
     SetupTray()
 
     ; Update widget visibility
@@ -1566,6 +1575,8 @@ GetDefaultConfig() {
     cfg["last_update_check"] := ""
     cfg["crash_reporting_enabled"] := false   ; T2.4 — opt-in, default OFF
     cfg["crash_reporting_prompted"] := false  ; T2.4 — first-run modal not yet answered
+    cfg["voice_edit_enabled"] := true      ; F.1 Voice Edit
+    cfg["voice_edit_hotkey"] := "^!Space"  ; F.1 Voice Edit
     return cfg
 }
 
@@ -1885,7 +1896,8 @@ ParseConfig(jsonText) {
         "recording_quality",  ["recordingQuality", "recording_quality", "medium"],
         "sound_theme",        ["soundTheme", "sound_theme", "default"],
         "currentMode",        ["currentMode", "", "standard"],
-        "last_update_check",  ["lastUpdateCheck", "last_update_check", ""]
+        "last_update_check",  ["lastUpdateCheck", "last_update_check", ""],
+        "voice_edit_hotkey",  ["voiceEditHotkey", "voice_edit_hotkey", "^!Space"]
     )
     for outKey, spec in stringKeys {
         camel := spec[1]
@@ -1929,7 +1941,8 @@ ParseConfig(jsonText) {
         "tour_completed",      ["tourCompleted", "tour_completed", false],
         ; T2.4 crash reporting — opt-in, default OFF; nothing sends before consent
         "crash_reporting_enabled",  ["crashReportingEnabled", "crash_reporting_enabled", false],
-        "crash_reporting_prompted", ["crashReportingPrompted", "crash_reporting_prompted", false]
+        "crash_reporting_prompted", ["crashReportingPrompted", "crash_reporting_prompted", false],
+        "voice_edit_enabled",       ["voiceEditEnabled", "voice_edit_enabled", true]
     )
     for outKey, spec in boolKeys {
         camel := spec[1]
@@ -2716,15 +2729,19 @@ TryStartMCICapture(dbg, logContext := "") {
 ;  DYNAMIC HOTKEY REGISTRATION
 ; ==============================================================================
 
+; Windows system shortcuts known to conflict with custom hotkeys.
+; These combos are either reserved by Windows or very commonly claimed by system software.
+; The default ^LWin (Ctrl+Win) is NOT in this list — it's generally free and is QuickSay's default.
+; Factored into a function (rather than a top-level global) so it's always available
+; regardless of auto-execute ordering — RegisterHotkey() is called early at startup.
+WindowsReservedHotkeys() {
+    return ["#l", "#d", "#e", "#r", "#s", "#Tab", "#^Left", "#^Right", "#^Up", "#^Down", "^Esc", "!F4"]
+}
+
 RegisterHotkey() {
     global Config, CurrentHotkey, ScriptDir
 
-    ; Windows system shortcuts known to conflict with custom hotkeys.
-    ; These combos are either reserved by Windows or very commonly claimed by system software.
-    ; The default ^LWin (Ctrl+Win) is NOT in this list — it's generally free and is QuickSay's default.
-    ; Defined as a local (not a top-level global) so it's always available regardless of
-    ; auto-execute ordering — RegisterHotkey() is called early at startup.
-    windowsReserved := ["#l", "#d", "#e", "#r", "#s", "#Tab", "#^Left", "#^Right", "#^Up", "#^Down", "^Esc", "!F4"]
+    windowsReserved := WindowsReservedHotkeys()
 
     newHotkey := Config.Has("hotkey") ? Config["hotkey"] : "^LWin"
     if (newHotkey == "" || newHotkey == "none")
@@ -2778,12 +2795,14 @@ RegisterHotkey() {
     }
 }
 
-; Persist or clear the hotkeyConflict flag in config.json so the settings UI can show a banner.
-SetHotkeyConflictFlag(hasConflict, msg := "") {
+; Persist or clear a hotkey-conflict flag pair in config.json so the settings UI can
+; show a banner. Shared by the dictation hotkey (SetHotkeyConflictFlag) and the F.1
+; Voice Edit hotkey (SetVoiceEditHotkeyConflictFlag) — same shape, different keys.
+_SetHotkeyConflictFlagPair(flagKey, msgKey, hasConflict, msg := "") {
     global Config, ScriptDir
     try {
-        Config["hotkeyConflict"] := hasConflict
-        Config["hotkeyConflictMsg"] := msg
+        Config[flagKey] := hasConflict
+        Config[msgKey] := msg
 
         configPath := GetDataDir() . "\config.json"
         if !FileExist(configPath)
@@ -2795,14 +2814,14 @@ SetHotkeyConflictFlag(hasConflict, msg := "") {
             if (Type(cfg) != "Map")
                 return
             if (hasConflict) {
-                cfg["hotkeyConflict"] := true
-                cfg["hotkeyConflictMsg"] := msg
+                cfg[flagKey] := true
+                cfg[msgKey] := msg
             } else {
                 ; Map.Delete throws in AHK v2 if the key is absent — guard each.
-                if cfg.Has("hotkeyConflict")
-                    cfg.Delete("hotkeyConflict")
-                if cfg.Has("hotkeyConflictMsg")
-                    cfg.Delete("hotkeyConflictMsg")
+                if cfg.Has(flagKey)
+                    cfg.Delete(flagKey)
+                if cfg.Has(msgKey)
+                    cfg.Delete(msgKey)
             }
             AtomicWriteFile(configPath, JSON.Stringify(cfg, "  "))
         } finally {
@@ -2811,17 +2830,96 @@ SetHotkeyConflictFlag(hasConflict, msg := "") {
     }
 }
 
+SetHotkeyConflictFlag(hasConflict, msg := "") {
+    _SetHotkeyConflictFlagPair("hotkeyConflict", "hotkeyConflictMsg", hasConflict, msg)
+}
+
+; F.1 Voice Edit — mirrors SetHotkeyConflictFlag for the Voice Edit hotkey's own
+; conflict banner, kept independent of the dictation hotkey's flag.
+SetVoiceEditHotkeyConflictFlag(hasConflict, msg := "") {
+    _SetHotkeyConflictFlagPair("voiceEditHotkeyConflict", "voiceEditHotkeyConflictMsg", hasConflict, msg)
+}
+
+; ==============================================================================
+;  F.1 VOICE EDIT — HOTKEY REGISTRATION
+; ==============================================================================
+
+RegisterVoiceEditHotkey() {
+    global Config, CurrentVoiceEditHotkey, CurrentHotkey
+
+    dbg := Config.Has("debug_logging") && Config["debug_logging"]
+
+    enabled := Config.Has("voice_edit_enabled") ? Config["voice_edit_enabled"] : true
+    newHotkey := Config.Has("voice_edit_hotkey") ? Config["voice_edit_hotkey"] : "^!Space"
+
+    if (!enabled || newHotkey == "" || newHotkey == "none") {
+        if (CurrentVoiceEditHotkey != "") {
+            try Hotkey(CurrentVoiceEditHotkey, "Off")
+            CurrentVoiceEditHotkey := ""
+        }
+        SetVoiceEditHotkeyConflictFlag(false)
+        return
+    }
+
+    if (newHotkey == CurrentVoiceEditHotkey)
+        return
+
+    ; Turn off the old registration up front: every path below either registers
+    ; the new hotkey fresh or leaves Voice Edit unregistered (with a banner), so
+    ; CurrentVoiceEditHotkey always reflects what is actually registered.
+    if (CurrentVoiceEditHotkey != "") {
+        try Hotkey(CurrentVoiceEditHotkey, "Off")
+        CurrentVoiceEditHotkey := ""
+    }
+
+    ; Reserved Windows shortcut check — same list the dictation hotkey uses.
+    lowerHotkey := StrLower(newHotkey)
+    for reserved in WindowsReservedHotkeys() {
+        if (StrLower(reserved) == lowerHotkey) {
+            warnMsg := newHotkey . " is a Windows system shortcut and may not respond reliably. Open Settings to choose a different Voice Edit shortcut."
+            TrayTip(warnMsg, "QuickSay — Voice Edit Hotkey Warning", 0x2)
+            SetVoiceEditHotkeyConflictFlag(true, warnMsg)
+            return
+        }
+    }
+
+    ; Cross-hotkey conflict — Voice Edit can't share the dictation hotkey.
+    dictationHotkey := CurrentHotkey != "" ? CurrentHotkey : "^LWin"
+    if (StrLower(newHotkey) == StrLower(dictationHotkey)) {
+        conflictMsg := "Your Voice Edit hotkey is the same as your dictation hotkey. Open Settings to choose a different shortcut for Voice Edit."
+        SetVoiceEditHotkeyConflictFlag(true, conflictMsg)
+        return
+    }
+
+    try {
+        Hotkey(newHotkey, OnVoiceEditHotkeyPressed)
+        CurrentVoiceEditHotkey := newHotkey
+        SetVoiceEditHotkeyConflictFlag(false)
+        if (dbg)
+            FileAppend("Voice Edit hotkey registered: " . newHotkey . "`n", GetDebugLogPath())
+    } catch as err {
+        if (dbg)
+            try FileAppend("Voice Edit hotkey FAILED: " . err.Message . "`n", GetDebugLogPath())
+        ; Do NOT fall back to another key — leave Voice Edit unregistered.
+        errMsg := "Your Voice Edit hotkey couldn't be registered — another app may be using it. Open Settings to pick a different shortcut."
+        SetVoiceEditHotkeyConflictFlag(true, errMsg)
+    }
+}
+
 OnCustomHotkeyPressed(ThisHotkey) {
-    global isRecording, StartTime, ScriptDir, CurrentHotkey, Config, isPaused
+    global isRecording, StartTime, ScriptDir, CurrentHotkey, Config, isPaused, RecordingPurpose
 
     ; If paused, ignore all hotkey presses
     if (isPaused)
         return
 
     if (Config.Has("sticky_mode") && Config["sticky_mode"]) {
-        if (isRecording)
+        if (isRecording) {
+            ; Don't let the dictation hotkey stop a Voice Edit recording.
+            if (RecordingPurpose = "voiceEdit")
+                return
             StopAndProcess()
-        else
+        } else
             StartRecording()
     } else {
         if (isRecording)
@@ -2846,7 +2944,7 @@ OnCustomHotkeyPressed(ThisHotkey) {
 ; DEFAULT HOTKEY: Hardcoded LCtrl & LWin combo
 LCtrl & LWin::
 {
-    global CurrentHotkey, isRecording, Config, isPaused
+    global CurrentHotkey, isRecording, Config, isPaused, RecordingPurpose
     if (CurrentHotkey != "^LWin")
         return
 
@@ -2855,9 +2953,12 @@ LCtrl & LWin::
         return
 
     if (Config.Has("sticky_mode") && Config["sticky_mode"]) {
-        if (isRecording)
+        if (isRecording) {
+            ; Don't let the dictation hotkey stop a Voice Edit recording.
+            if (RecordingPurpose = "voiceEdit")
+                return
             StopAndProcess()
-        else
+        } else
             StartRecording()
     } else {
         StartRecording()
@@ -2866,7 +2967,7 @@ LCtrl & LWin::
 
 LCtrl & LWin Up::
 {
-    global CurrentHotkey, Config, isPaused
+    global CurrentHotkey, Config, isPaused, RecordingPurpose
     if (CurrentHotkey != "^LWin")
         return
 
@@ -2877,6 +2978,10 @@ LCtrl & LWin Up::
     if (Config.Has("sticky_mode") && Config["sticky_mode"])
         return
 
+    ; Don't let a dictation key-up stop a Voice Edit recording.
+    if (RecordingPurpose = "voiceEdit")
+        return
+
     StopAndProcess()
 }
 
@@ -2884,6 +2989,113 @@ LCtrl & LWin Up::
 ^+d::LearnFromSelection()
 
 #HotIf  ; Reset context — no more conditional hotkeys
+
+; ==============================================================================
+;  F.1 VOICE EDIT — SELECTION CAPTURE + HOTKEY HANDLER
+; ==============================================================================
+
+; Grabs the current text selection via the clipboard (same clipboard-dance
+; template as LearnFromSelection). Returns Map("status", s, "text", t) where
+; status is one of: "ok" | "empty" | "terminal" | "elevated" | "toolong" | "cliperror".
+CaptureSelectedText() {
+    ; Never send ^c to a terminal — it's SIGINT there, not copy.
+    if (IsTerminalWindow())
+        return Map("status", "terminal", "text", "")
+
+    ; Send() would be silently blocked reaching an elevated window from our
+    ; non-elevated process anyway.
+    if (IsWindowElevated() && !IsCurrentProcessElevated())
+        return Map("status", "elevated", "text", "")
+
+    capturedText := ""
+    try {
+        savedClip := ClipboardAll()
+        try {
+            A_Clipboard := ""
+            Send("^c")
+            ClipWait(0.5, 1)
+            capturedText := A_Clipboard
+        } finally {
+            ; Restore MUST always run, regardless of how the try block above exits.
+            A_Clipboard := savedClip
+            savedClip := ""
+        }
+    } catch {
+        return Map("status", "cliperror", "text", "")
+    }
+
+    if (capturedText == "")
+        return Map("status", "empty", "text", "")
+
+    if (StrLen(capturedText) > 20000)
+        return Map("status", "toolong", "text", "")
+
+    return Map("status", "ok", "text", capturedText)
+}
+
+; Hold-to-talk ONLY. Sticky/toggle semantics are deliberately unsupported in v1:
+; without a key-up boundary the captured selection would go stale and the
+; cross-hotkey states would multiply. Do not branch on sticky_mode here.
+OnVoiceEditHotkeyPressed(ThisHotkey) {
+    global isRecording, isProcessing, isPaused, CurrentVoiceEditHotkey, RecordingPurpose, VoiceEditSelectedText
+
+    if (isPaused)
+        return
+
+    ; Cross-hotkey guard — dictation may be mid-flight.
+    if (isRecording || isProcessing)
+        return
+
+    ; MUST run before selection capture — PaywallUI steals focus and would
+    ; destroy the selection if we captured it after showing the paywall.
+    if (!RequireLicenseForRecording())
+        return
+
+    sel := CaptureSelectedText()
+    if (sel["status"] != "ok") {
+        switch sel["status"] {
+            case "empty":
+                TrayTip("Nothing selected. Highlight the text you want to change, then hold the Voice Edit hotkey and speak.", "QuickSay", 0x2)
+            case "terminal":
+                TrayTip("Voice Edit can't grab text from terminal windows. It works in editors, browsers, and documents.", "QuickSay", 0x2)
+            case "elevated":
+                TrayTip("That window is running as administrator, so QuickSay can't edit text in it.", "QuickSay", 0x2)
+            case "toolong":
+                TrayTip("That's a lot of text! Voice Edit works best on smaller selections — try selecting under a few thousand words.", "QuickSay", 0x2)
+            case "cliperror":
+                TrayTip("Couldn't read the selection — another app may be using the clipboard. Please try again.", "QuickSay", 0x2)
+        }
+        return
+    }
+
+    ; Re-check after the capture: Send/ClipWait above are yield points where a
+    ; dictation recording could have started; without this, that dictation would
+    ; be mislabeled as a Voice Edit. No yield points remain between this check
+    ; and StartRecording(), so the purpose can't be corrupted after it.
+    if (isRecording || isProcessing)
+        return
+
+    VoiceEditSelectedText := sel["text"]
+    RecordingPurpose := "voiceEdit"
+    StartRecording()
+
+    if (!isRecording) {
+        ; Mic missing / license blocked / MCI failure — nothing is recording, reset state.
+        VoiceEditSelectedText := ""
+        RecordingPurpose := "dictate"
+        return
+    }
+
+    ; NOTE: in Phases 1+2, StopAndProcess doesn't branch on RecordingPurpose yet —
+    ; after transcription it will type the result as a normal dictation. That's
+    ; expected mid-build; Phase 3 adds the branch that consumes VoiceEditSelectedText.
+    waitKey := RegExReplace(CurrentVoiceEditHotkey, "[\^!+#]", "")
+    if (waitKey == "")
+        waitKey := "Space"
+
+    KeyWait(waitKey, "T300")  ; 5-minute timeout prevents indefinite thread blocking
+    StopAndProcess()
+}
 
 LearnFromSelection() {
     global LastTranscription, LastTranscriptionTime, ScriptDir
@@ -3470,20 +3682,7 @@ StopAndProcess() {
                         FileAppend("Clipboard backup saved, size: " . clipBackupSize . " bytes`n", GetDebugLogPath())
 
                     ; Detect terminal/console windows — Ctrl+C sends SIGINT
-                    isTerminal := false
-                    try {
-                        activeClass := WinGetClass("A")
-                        activeProcName := WinGetProcessName("A")
-                        if (activeClass = "CASCADIA_HOSTING_WINDOW_CLASS"
-                            || activeClass = "ConsoleWindowClass"
-                            || activeClass = "VirtualConsoleClass"
-                            || activeClass = "mintty"
-                            || InStr(activeProcName, "WindowsTerminal")
-                            || InStr(activeProcName, "cmd.exe")
-                            || InStr(activeProcName, "powershell")
-                            || InStr(activeProcName, "pwsh"))
-                            isTerminal := true
-                    }
+                    isTerminal := IsTerminalWindow()
 
                     A_Clipboard := FinalText
                     if !ClipWait(0.1) {
@@ -3899,6 +4098,32 @@ CheckForUpdates(silent := false) {
 ;  WHISPER HALLUCINATION DETECTION — moved to lib/artifact-filter.ahk (E.2)
 ; ==============================================================================
 
+
+; ==============================================================================
+;  TERMINAL WINDOW DETECTION
+; ==============================================================================
+
+; Detect terminal/console windows — Ctrl+C sends SIGINT there, not "copy", so
+; nothing should ever auto-send ^c to one. Factored out of the paste path
+; (StopAndProcess) so Voice Edit's selection capture (CaptureSelectedText) can
+; share the same detection. Returns false on error, same as the original inline block.
+IsTerminalWindow() {
+    isTerminal := false
+    try {
+        activeClass := WinGetClass("A")
+        activeProcName := WinGetProcessName("A")
+        if (activeClass = "CASCADIA_HOSTING_WINDOW_CLASS"
+            || activeClass = "ConsoleWindowClass"
+            || activeClass = "VirtualConsoleClass"
+            || activeClass = "mintty"
+            || InStr(activeProcName, "WindowsTerminal")
+            || InStr(activeProcName, "cmd.exe")
+            || InStr(activeProcName, "powershell")
+            || InStr(activeProcName, "pwsh"))
+            isTerminal := true
+    }
+    return isTerminal
+}
 
 ; ==============================================================================
 ;  ELEVATED WINDOW DETECTION
