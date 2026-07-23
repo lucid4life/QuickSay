@@ -1903,6 +1903,11 @@ ParseConfig(jsonText) {
     if (result["llm_model"] = "llama-3.3-70b-versatile")
         result["llm_model"] := "openai/gpt-oss-20b"
 
+    ; Hard allow-list for sttModel — Groq offers exactly two STT models; any
+    ; unknown/free-text value falls back to the fast, recommended default.
+    if (result["stt_model"] != "whisper-large-v3-turbo" && result["stt_model"] != "whisper-large-v3")
+        result["stt_model"] := "whisper-large-v3-turbo"
+
     ; --- Boolean keys (camelCase → snake_case) ---
     boolKeys := Map(
         "llm_cleanup",         ["enableLLMCleanup", "llm_cleanup", true],

@@ -348,6 +348,16 @@
                 <span class="sub-text mt-sm">The language QuickSay listens for when you dictate.</span>
             </div>
 
+            <div class="section">
+                <h3>Transcription Model</h3>
+                <label for="sttModel">Transcription model</label>
+                <select id="sttModel" aria-label="Transcription model" style="width: 280px;">
+                    <option value="whisper-large-v3-turbo">Fast (recommended)</option>
+                    <option value="whisper-large-v3">Max accuracy</option>
+                </select>
+                <span class="sub-text mt-sm">Fast is quicker and works great for most dictation. Max accuracy is slower but more precise on tricky audio.</span>
+            </div>
+
             <!-- DATA & STORAGE -->
             <div class="section-divider">Data &amp; Storage</div>
             <div class="section">
@@ -1617,6 +1627,11 @@
                 document.getElementById('language').value = cfg.language;
             }
 
+            // Transcription model
+            if (cfg.sttModel) {
+                document.getElementById('sttModel').value = cfg.sttModel;
+            }
+
             // Hotkey
             if (cfg.hotkey) {
                 var hkText = formatHotkey(cfg.hotkey);
@@ -1754,6 +1769,7 @@
             }
 
             config.language = getVal('language');
+            config.sttModel = getVal('sttModel');
             config.launchAtStartup = getCheck('launchAtStartup');
             config.showOverlay = getCheck('showOverlay');
             config.playSounds = getCheck('playSounds');
