@@ -688,7 +688,9 @@ class OnboardingUI {
 
             if (apiResult["status"] != 200) {
                 errorDetail := "API error (HTTP " apiResult["status"] ")"
-                if RegExMatch(apiResult["body"], '"message":\s*"([^"]+)"', &errMatch)
+                if (apiResult["status"] = 429)
+                    errorDetail := FormatRateLimitMessage(apiResult["retryAfter"])
+                else if RegExMatch(apiResult["body"], '"message":\s*"([^"]+)"', &errMatch)
                     errorDetail := errMatch[1]
                 this.SendTranscriptionError(errorDetail)
                 return

@@ -1163,7 +1163,7 @@ TranscribeFile(*) {
         if (apiResult["status"] = 401) || InStr(errorDetail, "Invalid API Key") || InStr(errorDetail, "invalid_api_key")
             errorDetail := "Invalid API key. Check your Groq API key in Settings."
         else if (apiResult["status"] = 429) || InStr(errorDetail, "rate_limit")
-            errorDetail := "Rate limit exceeded. Please wait a moment and try again."
+            errorDetail := FormatRateLimitMessage(apiResult["retryAfter"])
         else if (apiResult["status"] = 503) || (apiResult["status"] = 500)
             errorDetail := "Groq API is temporarily unavailable. Try again shortly."
 
@@ -1235,7 +1235,7 @@ TranscribeFile(*) {
 
                 ; File transcription uses longer timeout — larger audio files produce longer transcripts
                 GroqLLMURL := "https://api.groq.com/openai/v1/chat/completions"
-                llmResult := HttpPostJson(GroqLLMURL, GroqAPIKey, GroqPayload, 30)
+                llmResult := HttpPostJsonWithRetry429(GroqLLMURL, GroqAPIKey, GroqPayload, 30, dbg, "File transcription LLM cleanup")
 
                 if (llmResult["error"] != "" && dbg)
                     try FileAppend("[" A_Now "] File transcription LLM error: " . llmResult["error"] . "`n", GetDebugLogPath())
@@ -3304,7 +3304,7 @@ StopAndProcess() {
         if (apiResult["status"] = 401) || InStr(errorDetail, "Invalid API Key") || InStr(errorDetail, "invalid_api_key")
             errorDetail := "Invalid API key. Check your Groq API key in Settings."
         else if (apiResult["status"] = 429) || InStr(errorDetail, "rate_limit")
-            errorDetail := "Rate limit exceeded. Please wait a moment and try again."
+            errorDetail := FormatRateLimitMessage(apiResult["retryAfter"])
         else if (apiResult["status"] = 503) || (apiResult["status"] = 500)
             errorDetail := "Groq API is temporarily unavailable. Try again shortly."
 
@@ -3391,7 +3391,7 @@ StopAndProcess() {
 
                     ; Use secure WinHTTP COM instead of curl (API key never on command line)
                     GroqLLMURL := "https://api.groq.com/openai/v1/chat/completions"
-                    llmResult := HttpPostJson(GroqLLMURL, GroqAPIKey, GroqPayload, 8)
+                    llmResult := HttpPostJsonWithRetry429(GroqLLMURL, GroqAPIKey, GroqPayload, 8, dbg, "LLM cleanup")
 
                     if (llmResult["error"] != "" && dbg)
                         FileAppend("LLM network error: " . llmResult["error"] . "`n", GetDebugLogPath())
@@ -3650,7 +3650,7 @@ ReleaseConfigLock(hMutex) {
 ; Secure JSON POST via WinHTTP COM (for LLM chat completions API)
 ; Returns Map with "status" (int), "body" (string), "error" (string)
 HttpPostJson(url, apiKey, jsonBody, timeoutSec := 8) {
-    result := Map("status", 0, "body", "", "error", "")
+    result := Map("status", 0, "body", "", "error", "", "retryAfter", "")
     static reqStream := ComObject("ADODB.Stream")
 
     try {
@@ -3677,10 +3677,41 @@ HttpPostJson(url, apiKey, jsonBody, timeoutSec := 8) {
         result["status"] := http.Status
         ; Decode response as UTF-8 to prevent mojibake on Unicode characters
         result["body"] := Utf8Decode(http.ResponseBody)
+        if (result["status"] = 429)
+            try result["retryAfter"] := http.GetResponseHeader("Retry-After")
     } catch as err {
         result["error"] := err.Message
     }
 
+    return result
+}
+
+; HttpPostJson with ONE retry on 429 — LLM cleanup call ONLY, never Whisper.
+; Only retries when Groq's retry-after is short enough to be worth a wait
+; (<=15s); otherwise skips the retry, surfaces the friendly rate-limit
+; message, and lets the caller fall back to the raw transcript.
+HttpPostJsonWithRetry429(url, apiKey, jsonBody, timeoutSec, dbg := false, logLabel := "LLM API") {
+    result := HttpPostJson(url, apiKey, jsonBody, timeoutSec)
+    if (result["status"] != 429)
+        return result
+
+    retryAfterN := 0
+    if (result["retryAfter"] != "" && IsInteger(result["retryAfter"]))
+        retryAfterN := Integer(result["retryAfter"])
+
+    if (retryAfterN > 0 && retryAfterN <= 15) {
+        if (dbg)
+            try FileAppend("[" A_Now "] " . logLabel . " returned 429, retrying after " . retryAfterN . "s`n", GetDebugLogPath())
+        Sleep(retryAfterN * 1000)
+        result := HttpPostJson(url, apiKey, jsonBody, timeoutSec)
+    } else {
+        ; Retry-after missing or too long to wait on for a "nice to have"
+        ; cleanup pass — skip it, tell the user why cleanup was skipped,
+        ; and let the caller fall back to the raw transcript.
+        TrayTip(FormatRateLimitMessage(result["retryAfter"]), "QuickSay", 0x2)
+        if (dbg)
+            try FileAppend("[" A_Now "] " . logLabel . " returned 429, skipping retry (no/long retry-after)`n", GetDebugLogPath())
+    }
     return result
 }
 
