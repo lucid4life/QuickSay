@@ -25,6 +25,7 @@ DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.Voi
 #Include %A_ScriptDir%\lib\JSON.ahk
 #Include %A_ScriptDir%\lib\dpapi.ahk
 #Include %A_ScriptDir%\lib\http.ahk
+#Include %A_ScriptDir%\lib\languages.ahk
 
 ; Check if launched from QuickSay tray (parent is waiting via RunWait)
 global LaunchedFromTray := false
@@ -673,15 +674,11 @@ class OnboardingUI {
 
             ; Read STT model and language from cached config
             sttModel := cfg.Has("sttModel") ? cfg["sttModel"] : "whisper-large-v3-turbo"
-            lang := "en"
-            if cfg.Has("language") {
-                langRaw := cfg["language"]
-                langCodes := Map("English", "en", "Spanish", "es", "French", "fr", "German", "de", "Japanese", "ja", "Chinese", "zh", "Korean", "ko")
-                lang := langCodes.Has(langRaw) ? langCodes[langRaw] : langRaw
-            }
+            langRaw := cfg.Has("language") ? cfg["language"] : "en"
 
             ; Build multipart form data and POST to Groq
-            formFields := Map("model", sttModel, "language", lang)
+            formFields := Map("model", sttModel)
+            AddLanguageField(formFields, langRaw)
             apiResult := HttpPostFile(whisperURL, apiKey, recFile, formFields)
 
             if (apiResult["error"] != "") {

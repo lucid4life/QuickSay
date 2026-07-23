@@ -39,6 +39,7 @@ try {
 #Include lib\whisper-bias.ahk
 #Include lib\dpapi.ahk
 #Include lib\http.ahk
+#Include lib\languages.ahk
 #Include lib\ed25519.ahk
 #Include lib\update-verify.ahk
 #Include lib\license.ahk
@@ -504,16 +505,12 @@ SetupTray() {
     global languageMenu
     languageMenu := Menu()
     currentLang := Config.Has("language") ? Config["language"] : "en"
-    languages := Map(
-        "en", "English", "es", "Spanish", "fr", "French", "de", "German",
-        "pt", "Portuguese", "zh", "Chinese", "ja", "Japanese", "ko", "Korean",
-        "ar", "Arabic", "hi", "Hindi", "it", "Italian", "nl", "Dutch",
-        "ru", "Russian", "pl", "Polish", "tr", "Turkish", "vi", "Vietnamese",
-        "th", "Thai", "id", "Indonesian", "sv", "Swedish", "da", "Danish",
-        "no", "Norwegian", "fi", "Finnish", "cs", "Czech", "ro", "Romanian",
-        "uk", "Ukrainian"
-    )
-    for code, name in languages {
+    languageMenu.Add("Auto-detect", SelectLanguage.Bind("auto"))
+    if (currentLang = "auto")
+        languageMenu.Check("Auto-detect")
+    for pair in GetLanguageList() {
+        code := pair[1]
+        name := pair[2]
         languageMenu.Add(name, SelectLanguage.Bind(code))
         if (code = currentLang)
             languageMenu.Check(name)
@@ -1127,16 +1124,14 @@ TranscribeFile(*) {
     WhisperURL := "https://api.groq.com/openai/v1/audio/transcriptions"
     sttModel := Config.Has("stt_model") ? Config["stt_model"] : "whisper-large-v3-turbo"
     langRaw := Config.Has("language") ? Config["language"] : "en"
-    ; NOTE: Similar language name-to-code mapping exists in StopRecording() — keep in sync
-    langCodes := Map("English", "en", "Spanish", "es", "French", "fr", "German", "de", "Japanese", "ja", "Chinese", "zh", "Korean", "ko")
-    lang := langCodes.Has(langRaw) ? langCodes[langRaw] : langRaw
 
     ; 6.8: Increased timeout to 120s for large file uploads (was 60s)
     ; E.2: NO dictionary bias prompt here — measured on T2.6, the prompt
     ; degrades long-form transcription (long-2min WER 1.2% -> 6.5%). Biasing
     ; applies to the short live-dictation path only; dictionary regexes still
     ; correct this path after transcription.
-    formFields := Map("model", sttModel, "language", lang)
+    formFields := Map("model", sttModel)
+    AddLanguageField(formFields, langRaw)
     apiResult := HttpPostFileWithRetry(WhisperURL, GroqAPIKey, selectedFile, formFields, 120, dbg, "File transcription API")
 
     if (apiResult["error"] != "") {
@@ -1377,16 +1372,8 @@ SelectLanguage(langCode, *) {
     Config["language"] := langCode
     SaveConfigToggle("language", langCode)
     SetupTray()
-    languages := Map(
-        "en", "English", "es", "Spanish", "fr", "French", "de", "German",
-        "pt", "Portuguese", "zh", "Chinese", "ja", "Japanese", "ko", "Korean",
-        "ar", "Arabic", "hi", "Hindi", "it", "Italian", "nl", "Dutch",
-        "ru", "Russian", "pl", "Polish", "tr", "Turkish", "vi", "Vietnamese",
-        "th", "Thai", "id", "Indonesian", "sv", "Swedish", "da", "Danish",
-        "no", "Norwegian", "fi", "Finnish", "cs", "Czech", "ro", "Romanian",
-        "uk", "Ukrainian"
-    )
-    langName := languages.Has(langCode) ? languages[langCode] : langCode
+    langNames := GetLanguageCodeToName()
+    langName := (langCode = "auto") ? "Auto-detect" : (langNames.Has(langCode) ? langNames[langCode] : langCode)
     TrayTip("Language: " . langName, "QuickSay", 1)
     UpdateTrayTooltip("Idle")
 }
@@ -3258,17 +3245,6 @@ StopAndProcess() {
     sttModel := Config.Has("stt_model") ? Config["stt_model"] : "whisper-large-v3-turbo"
 
     langRaw := Config.Has("language") ? Config["language"] : "en"
-    ; NOTE: Similar language name-to-code mapping exists in TranscribeFile() — keep in sync
-    langCodes := Map(
-        "English", "en",
-        "Spanish", "es",
-        "French", "fr",
-        "German", "de",
-        "Japanese", "ja",
-        "Chinese", "zh",
-        "Korean", "ko"
-    )
-    lang := langCodes.Has(langRaw) ? langCodes[langRaw] : langRaw
 
     ; Debug: log key length only (not prefix — security risk)
     if (dbg)
@@ -3277,7 +3253,8 @@ StopAndProcess() {
     cleanResponseFile := ScriptDir . "\clean_response.txt"
 
     ; Use secure WinHTTP COM instead of curl (API key never on command line)
-    formFields := Map("model", sttModel, "language", lang)
+    formFields := Map("model", sttModel)
+    AddLanguageField(formFields, langRaw)
     ; E.2: bias Whisper toward custom-dictionary spellings via the prompt param
     AddWhisperBiasField(formFields)
     apiResult := HttpPostFileWithRetry(WhisperURL, GroqAPIKey, TempFile, formFields, 30, dbg, "STT API")
