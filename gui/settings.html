@@ -318,6 +318,7 @@
                 <h3>Dictation Language</h3>
                 <label for="language">Language</label>
                 <select id="language" aria-label="Dictation language" style="width: 280px;">
+                    <option value="auto">Auto-detect</option>
                     <option value="en">English</option>
                     <option value="es">Spanish (Espa&#241;ol)</option>
                     <option value="fr">French (Fran&#231;ais)</option>
@@ -345,6 +346,16 @@
                     <option value="uk">Ukrainian (&#1059;&#1082;&#1088;&#1072;&#1111;&#1085;&#1089;&#1100;&#1082;&#1072;)</option>
                 </select>
                 <span class="sub-text mt-sm">The language QuickSay listens for when you dictate.</span>
+            </div>
+
+            <div class="section">
+                <h3>Transcription Model</h3>
+                <label for="sttModel">Transcription model</label>
+                <select id="sttModel" aria-label="Transcription model" style="width: 280px;">
+                    <option value="whisper-large-v3-turbo">Fast (recommended)</option>
+                    <option value="whisper-large-v3">Max accuracy</option>
+                </select>
+                <span class="sub-text mt-sm">Fast is quicker and works great for most dictation. Max accuracy is slower but more precise on tricky audio.</span>
             </div>
 
             <!-- DATA & STORAGE -->
@@ -1616,6 +1627,11 @@
                 document.getElementById('language').value = cfg.language;
             }
 
+            // Transcription model
+            if (cfg.sttModel) {
+                document.getElementById('sttModel').value = cfg.sttModel;
+            }
+
             // Hotkey
             if (cfg.hotkey) {
                 var hkText = formatHotkey(cfg.hotkey);
@@ -1753,6 +1769,7 @@
             }
 
             config.language = getVal('language');
+            config.sttModel = getVal('sttModel');
             config.launchAtStartup = getCheck('launchAtStartup');
             config.showOverlay = getCheck('showOverlay');
             config.playSounds = getCheck('playSounds');

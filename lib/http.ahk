@@ -18,9 +18,10 @@ WriteTextToStream(targetStream, text) {
 }
 
 ; Secure multipart file upload via WinHTTP COM (for Whisper STT API)
-; Returns Map with "status" (int), "body" (string), "error" (string)
+; Returns Map with "status" (int), "body" (string), "error" (string),
+; "retryAfter" (string — the Retry-After header value in seconds, "" if absent/non-429)
 HttpPostFile(url, apiKey, filePath, formFields, timeoutSec := 30) {
-    result := Map("status", 0, "body", "", "error", "")
+    result := Map("status", 0, "body", "", "error", "", "retryAfter", "")
 
     body := ""
     fileStream := ""
@@ -74,6 +75,8 @@ HttpPostFile(url, apiKey, filePath, formFields, timeoutSec := 30) {
         result["status"] := http.Status
         ; Decode response as UTF-8 to prevent mojibake on Unicode characters
         result["body"] := Utf8Decode(http.ResponseBody)
+        if (result["status"] = 429)
+            try result["retryAfter"] := http.GetResponseHeader("Retry-After")
     } catch as err {
         result["error"] := err.Message
         ; Close ADODB.Stream objects on error
@@ -84,6 +87,17 @@ HttpPostFile(url, apiKey, filePath, formFields, timeoutSec := 30) {
     }
 
     return result
+}
+
+; Build the friendly Groq rate-limit message. retryAfterRaw is the raw
+; Retry-After header value (string, seconds) or "" when absent/unknown.
+FormatRateLimitMessage(retryAfterRaw) {
+    n := 0
+    if (retryAfterRaw != "" && IsInteger(retryAfterRaw))
+        n := Integer(retryAfterRaw)
+    if (n > 0)
+        return "Groq's free-tier speed limit reached. Wait " . n . " seconds and try again."
+    return "Groq's free-tier speed limit reached. Wait a few seconds and try again."
 }
 
 ; Decode raw response bytes as UTF-8 (WinHTTP ResponseText can use wrong codepage)
