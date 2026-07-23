@@ -952,6 +952,15 @@ class SettingsUI {
         if !cfg.Has("hotkey")
             cfg["hotkey"] := "^LWin"
 
+        ; F.1 Phase 5: Voice Edit defaults — mirrors the hotkey default above so a
+        ; config.json predating this feature still populates sane values in the UI.
+        ; voiceEditHotkeyConflict/voiceEditHotkeyConflictMsg (if present) are written
+        ; directly by the tray process and pass through untouched.
+        if !cfg.Has("voiceEditEnabled")
+            cfg["voiceEditEnabled"] := true
+        if !cfg.Has("voiceEditHotkey")
+            cfg["voiceEditHotkey"] := "^!Space"
+
         ; Decrypt API key for display in Settings UI
         if (cfg.Has("groqApiKey")) {
             rawKey := cfg["groqApiKey"]
