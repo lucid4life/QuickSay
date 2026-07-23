@@ -1,96 +1,297 @@
-<#
-.SYNOPSIS
-    Download real STT regression corpus (LibriSpeech + whisper-hallucinations).
+# fetch-corpus.ps1 — Download and prepare the T2.6 transcription corpus
+#
+# Usage:
+#   .\fetch-corpus.ps1                  # full download (~346 MB one-time, cached)
+#   .\fetch-corpus.ps1 -SkipDownload    # skip download if tarball already present
+#   .\fetch-corpus.ps1 -CacheDir <path> # override cache dir (default: $env:TEMP\qs-corpus)
+#
+# What it does:
+#   1. Downloads LibriSpeech test-clean.tar.gz to $CacheDir (cached; never re-downloads)
+#   2. Extracts the two chapter directories we need: 1089/134686 and 1221/135766 and 3570/5694
+#   3. Converts FLAC → 16kHz mono WAV using bundled ffmpeg.exe
+#   4. Reads the official .trans.txt files and populates expected_text in expected.json
+#   5. Builds long-2min.wav (10 clips concatenated) and multi-speaker.wav (2 speakers interleaved)
+#
+# After running: all corpus/*.wav files are in place; expected.json has no null expected_text
+# entries; run-stt-regression.ps1 will execute end-to-end.
 
-.DESCRIPTION
-    Replaces synthetic placeholder clips with:
-      - 8 LibriSpeech test-clean clips with verified transcripts
-      - 3-5 silence/noise clips from sachaarbonel/whisper-hallucinations (HuggingFace)
-
-    After running this script, re-run run-stt-regression.ps1 with GROQ_API_KEY
-    set to measure the actual WER baseline and observe real hallucination outputs.
-
-    T2.6 (transcription regression corpus session) will expand this to the full
-    corpus (50+ hallucination clips, 20+ baseline clips, Common Voice accents set).
-
-.NOTES
-    LibriSpeech test-clean: https://www.openslr.org/12
-    HuggingFace dataset: https://huggingface.co/datasets/sachaarbonel/whisper-hallucinations
-#>
-[CmdletBinding(SupportsShouldProcess)]
 param(
-    [switch]$BaselineOnly,
-    [switch]$HallucinationOnly
+    [switch]$SkipDownload,
+    [string]$CacheDir = (Join-Path $env:TEMP "qs-corpus")
 )
 
-$ErrorActionPreference = 'Stop'
-$ScriptDir = $PSScriptRoot
-$BaselineDir = Join-Path $ScriptDir "audio\baseline"
-$HallDir     = Join-Path $ScriptDir "audio\hallucination"
+$ErrorActionPreference = "Stop"
+$Here  = $PSScriptRoot
+$Dev   = Split-Path (Split-Path $Here -Parent) -Parent
+$Ffmpeg = Join-Path $Dev "ffmpeg.exe"
 
-Write-Host "QuickSay P0.2 — STT Corpus Fetcher" -ForegroundColor Cyan
-Write-Host "This script downloads the real LibriSpeech and whisper-hallucination clips."
-Write-Host "It requires internet access and may take several minutes.`n"
+if (!(Test-Path $Ffmpeg)) { throw "ffmpeg.exe not found at $Ffmpeg" }
 
-# ---------------------------------------------------------------------------
-# Baseline: LibriSpeech test-clean subset
-# ---------------------------------------------------------------------------
-if (-not $HallucinationOnly) {
-    Write-Host "=== Downloading LibriSpeech test-clean clips ===" -ForegroundColor Cyan
+function Write-Step($msg) { Write-Host "`n==> $msg" -ForegroundColor Cyan }
+function Write-Ok($msg)   { Write-Host "    OK  $msg" -ForegroundColor Green }
+function Write-Warn($msg) { Write-Host "    WARN $msg" -ForegroundColor Yellow }
 
-    # LibriSpeech test-clean is available as a tarball (~346MB for the full set).
-    # We download just a tiny subset via the OpenSLR direct-link format.
-    # The full test-clean index: https://www.openslr.org/resources/12/test-clean.tar.gz
-    #
-    # For P0.2 we use the 8-speaker subset listed below. Each line is:
-    #   speaker_id chapter_id utterance_id expected_transcript
-    #
-    # These are from the LibriSpeech test-clean set and have verified transcripts.
+# ── Paths ──────────────────────────────────────────────────────────────────────
+$Tarball   = Join-Path $CacheDir "test-clean.tar.gz"
+$ExtractDir= Join-Path $CacheDir "librispeech-extract"
+$CleanDir  = Join-Path $Here "corpus\clean"
+$AccentsDir= Join-Path $Here "corpus\accents"
+$EdgeDir   = Join-Path $Here "corpus\edge"
 
-    $libriSpeechClips = @(
-        @{
-            url = "https://www.openslr.org/resources/12/test-clean/1089/134686/1089-134686-0001.flac"
-            file = "librispeech-1089-134686-0001.wav"
-            transcript = "HE HOPED THERE WOULD BE STEW FOR DINNER TURNIPS AND CARROTS AND BRUISED POTATOES AND FAT MUTTON PIECES TO BE LADLED OUT IN THICK PEPPERED FLOUR FATTENED SAUCE"
-        }
-        @{
-            url = "https://www.openslr.org/resources/12/test-clean/1284/1181/1284-1181-0002.flac"
-            file = "librispeech-1284-1181-0002.wav"
-            transcript = "THE PAPERS LAY ON THE TABLE UNREAD BUT SHE DID NOT GO TO THEM"
-        }
-    )
+New-Item -ItemType Directory -Force $CacheDir, $CleanDir, $AccentsDir, $EdgeDir | Out-Null
 
-    Write-Host "Note: Direct FLAC download from OpenSLR requires the full tarball in practice." -ForegroundColor Yellow
-    Write-Host "Falling back to generating clearly-labelled synthetic placeholders." -ForegroundColor Yellow
-    Write-Host "To get real LibriSpeech clips:"
-    Write-Host "  1. Download test-clean.tar.gz from https://www.openslr.org/12"
-    Write-Host "  2. Extract and pick 8-12 speaker/chapter/utterance FLAC files"
-    Write-Host "  3. Convert to WAV: ffmpeg -i input.flac -ar 16000 -ac 1 output.wav"
-    Write-Host "  4. Add entries to expected.json with the .trans.txt ground-truth transcripts"
-    Write-Host "  5. Remove synthetic=true from those entries`n"
-
-    # The synthetic placeholders already exist — nothing more to do for baseline until
-    # a real LibriSpeech download is performed manually.
-    Write-Host "Synthetic baseline placeholders already in place. No action needed until manual fetch." -ForegroundColor Green
+# ── 1. Download tarball ────────────────────────────────────────────────────────
+Write-Step "LibriSpeech test-clean.tar.gz"
+if (Test-Path $Tarball) {
+    Write-Ok "Already cached: $Tarball"
+} elseif ($SkipDownload) {
+    throw "Tarball not in cache and -SkipDownload set. Run without -SkipDownload first."
+} else {
+    $url = "https://www.openslr.org/resources/12/test-clean.tar.gz"
+    Write-Host "    Downloading ~346 MB from openslr.org ..." -ForegroundColor Yellow
+    Write-Host "    (one-time; subsequent runs use the cache)" -ForegroundColor Gray
+    $wc = New-Object System.Net.WebClient
+    $wc.DownloadFile($url, $Tarball)
+    Write-Ok "Downloaded to $Tarball"
 }
 
-# ---------------------------------------------------------------------------
-# Hallucination: sachaarbonel/whisper-hallucinations (HuggingFace)
-# ---------------------------------------------------------------------------
-if (-not $BaselineOnly) {
-    Write-Host "=== Downloading whisper-hallucinations clips ===" -ForegroundColor Cyan
-    Write-Host "Dataset: https://huggingface.co/datasets/sachaarbonel/whisper-hallucinations"
+# ── 2. Extract needed chapters ─────────────────────────────────────────────────
+Write-Step "Extracting chapters from tarball"
+New-Item -ItemType Directory -Force $ExtractDir | Out-Null
 
-    # HuggingFace datasets require either the HF CLI or API token for download.
-    # The dataset contains 7,890 known-bad inputs.
-    Write-Host ""
-    Write-Host "To download real whisper-hallucination clips:" -ForegroundColor Yellow
-    Write-Host "  1. Install Python + huggingface_hub: pip install huggingface_hub datasets"
-    Write-Host "  2. Run: python -c `"from datasets import load_dataset; ds = load_dataset('sachaarbonel/whisper-hallucinations', split='train'); ds.select(range(5)).save_to_disk('hf-clips')`""
-    Write-Host "  3. Convert the audio column WAVs to 16kHz mono and copy to audio\hallucination\"
-    Write-Host "  4. Update expected.json: set synthetic=false for those entries`n"
+# The speakers/chapters we need
+$chapters = @(
+    @{ speaker="1089"; chapter="134686" },
+    @{ speaker="1221"; chapter="135766" },
+    @{ speaker="3570"; chapter="5694"   }
+)
 
-    Write-Host "Synthetic hallucination placeholders already in place. No action needed until manual fetch." -ForegroundColor Green
+$alreadyExtracted = $chapters | Where-Object { Test-Path (Join-Path $ExtractDir "LibriSpeech\test-clean\$($_.speaker)\$($_.chapter)") }
+if ($alreadyExtracted.Count -eq $chapters.Count) {
+    Write-Ok "All chapters already extracted"
+} else {
+    Write-Host "    Extracting via Python tarfile (Windows tar lacks --wildcards) ..." -ForegroundColor Gray
+    # Build a proper Python list literal — one quoted string per chapter, comma-separated
+    $prefixList = ($chapters | ForEach-Object { "'LibriSpeech/test-clean/$($_.speaker)/$($_.chapter)/'" }) -join ", "
+    $pyScript = @"
+import tarfile, sys
+tarball, outdir = sys.argv[1], sys.argv[2]
+prefixes = [$prefixList]
+with tarfile.open(tarball, 'r:gz') as tf:
+    count = 0
+    for m in tf.getmembers():
+        if any(m.name.startswith(p) for p in prefixes):
+            tf.extract(m, outdir, set_attrs=False)
+            count += 1
+    print(f'Extracted {count} members')
+"@
+    $result = python -c $pyScript "$Tarball" "$ExtractDir" 2>&1
+    Write-Host "    $result" -ForegroundColor Gray
+    foreach ($ch in $chapters) {
+        $spk = $ch.speaker; $chap = $ch.chapter
+        $outDir = Join-Path $ExtractDir "LibriSpeech\test-clean\$spk\$chap"
+        if (Test-Path $outDir) { Write-Ok "Extracted $spk/$chap" }
+        else { Write-Warn "Chapter $spk/$chap not found in tarball (skipping)" }
+    }
 }
 
-Write-Host "`nfetch-corpus.ps1 complete. Re-run run-stt-regression.ps1 with real clips + GROQ_API_KEY." -ForegroundColor Cyan
+# ── 3. Convert FLAC → 16kHz mono WAV ──────────────────────────────────────────
+Write-Step "Converting FLAC → WAV"
+
+function Convert-Flac([string]$src, [string]$dst) {
+    if (Test-Path $dst) { return }
+    & $Ffmpeg -i $src -ar 16000 -ac 1 -acodec pcm_s16le $dst -y 2>&1 | Out-Null
+    if (!(Test-Path $dst)) { throw "ffmpeg failed converting $src" }
+}
+
+# speaker 1089 → clean bucket (utterances 0000-0009)
+for ($i = 0; $i -le 9; $i++) {
+    $id = "1089-134686-{0:D4}" -f $i
+    $flac = Join-Path $ExtractDir "LibriSpeech\test-clean\1089\134686\$id.flac"
+    $wav  = Join-Path $CleanDir "$id.wav"
+    if (Test-Path $flac) {
+        Convert-Flac $flac $wav
+        Write-Ok "$id.wav"
+    } else {
+        Write-Warn "$id.flac not found (utterance may not exist in chapter)"
+    }
+}
+
+# speaker 1221 → accents bucket (utterances 0000-0002)
+for ($i = 0; $i -le 2; $i++) {
+    $id = "1221-135766-{0:D4}" -f $i
+    $flac = Join-Path $ExtractDir "LibriSpeech\test-clean\1221\135766\$id.flac"
+    $wav  = Join-Path $AccentsDir "$id.wav"
+    if (Test-Path $flac) {
+        Convert-Flac $flac $wav
+        Write-Ok "$id.wav"
+    } else {
+        Write-Warn "$id.flac not found"
+    }
+}
+
+# speaker 3570 → accents bucket (utterances 0000-0001)
+for ($i = 0; $i -le 1; $i++) {
+    $id = "3570-5694-{0:D4}" -f $i
+    $flac = Join-Path $ExtractDir "LibriSpeech\test-clean\3570\5694\$id.flac"
+    $wav  = Join-Path $AccentsDir "$id.wav"
+    if (Test-Path $flac) {
+        Convert-Flac $flac $wav
+        Write-Ok "$id.wav"
+    } else {
+        Write-Warn "$id.flac not found"
+    }
+}
+
+# ── 4. Build long-2min.wav (>2 min continuous clip) ──────────────────────────
+# Concatenate ALL utterances of chapter 1089/134686 (≈276s) so the clip exceeds
+# 2 minutes — this is the no-truncation / timeout edge case (spec edge case #4).
+# The ordered utterance IDs used here also drive the long-2min expected_text below.
+$longChapterDir = Join-Path $ExtractDir "LibriSpeech\test-clean\1089\134686"
+$script:LongUtteranceIds = @()
+if (Test-Path $longChapterDir) {
+    $script:LongUtteranceIds = Get-ChildItem (Join-Path $longChapterDir "*.flac") |
+        Sort-Object Name |
+        ForEach-Object { [IO.Path]::GetFileNameWithoutExtension($_.Name) }
+}
+
+Write-Step "Building long-2min.wav"
+$longDst = Join-Path $EdgeDir "long-2min.wav"
+if (!(Test-Path $longDst)) {
+    # Concat directly from the FLAC sources (all utterances in the chapter)
+    $flacs = $script:LongUtteranceIds | ForEach-Object { Join-Path $longChapterDir "$_.flac" } |
+             Where-Object { Test-Path $_ }
+    if ($flacs.Count -lt 15) { throw "Not enough clips to build a >2min long clip (got $($flacs.Count))" }
+
+    $listFile = Join-Path $env:TEMP "qs-concat.txt"
+    ($flacs | ForEach-Object { "file '$_'" }) | Set-Content $listFile -Encoding UTF8
+    & $Ffmpeg -f concat -safe 0 -i $listFile -ar 16000 -ac 1 -acodec pcm_s16le $longDst -y 2>&1 | Out-Null
+    Remove-Item $listFile -Force -ErrorAction SilentlyContinue
+    if (!(Test-Path $longDst)) { throw "ffmpeg failed building long-2min.wav" }
+
+    # Verify the clip actually exceeds 2 minutes
+    $durLine = & $Ffmpeg -i $longDst 2>&1 | Select-String "Duration: (\d+):(\d+):([\d.]+)"
+    if ($durLine -match "Duration: (\d+):(\d+):([\d.]+)") {
+        $secs = [int]$matches[1]*3600 + [int]$matches[2]*60 + [double]$matches[3]
+        if ($secs -lt 120) { throw "long-2min.wav is only ${secs}s — must exceed 120s" }
+        Write-Ok "long-2min.wav created ($([Math]::Round($secs,1))s, $($flacs.Count) utterances)"
+    } else {
+        Write-Warn "long-2min.wav created but duration could not be verified"
+    }
+} else {
+    Write-Ok "long-2min.wav already exists"
+}
+
+# ── 5. Build multi-speaker.wav (two speakers interleaved) ─────────────────────
+Write-Step "Building multi-speaker.wav"
+$multiDst = Join-Path $EdgeDir "multi-speaker.wav"
+if (!(Test-Path $multiDst)) {
+    # Interleave by concatenating alternating utterances from two speakers
+    $seg1 = Join-Path $CleanDir  "1089-134686-0000.wav"
+    $seg2 = Join-Path $AccentsDir "1221-135766-0000.wav"
+    $seg3 = Join-Path $CleanDir  "1089-134686-0001.wav"
+    $seg4 = Join-Path $AccentsDir "1221-135766-0001.wav"
+    $seg5 = Join-Path $CleanDir  "1089-134686-0002.wav"
+    $seg6 = Join-Path $AccentsDir "1221-135766-0002.wav"
+
+    $available = @($seg1,$seg2,$seg3,$seg4,$seg5,$seg6) | Where-Object { Test-Path $_ }
+    if ($available.Count -lt 2) { throw "Not enough clips to build multi-speaker.wav" }
+
+    $listFile = Join-Path $env:TEMP "qs-multi.txt"
+    ($available | ForEach-Object { "file '$_'" }) | Set-Content $listFile -Encoding UTF8
+    & $Ffmpeg -f concat -safe 0 -i $listFile -ar 16000 -ac 1 -acodec pcm_s16le $multiDst -y 2>&1 | Out-Null
+    Remove-Item $listFile -Force -ErrorAction SilentlyContinue
+    if (!(Test-Path $multiDst)) { throw "ffmpeg failed building multi-speaker.wav" }
+    Write-Ok "multi-speaker.wav created"
+} else {
+    Write-Ok "multi-speaker.wav already exists"
+}
+
+# ── 6. Populate expected.json from official .trans.txt files ──────────────────
+Write-Step "Populating expected.json with official transcripts"
+$expectedPath = Join-Path $Here "expected.json"
+$expected = Get-Content $expectedPath -Raw | ConvertFrom-Json
+
+$transcripts = @{}
+
+# Parse trans.txt for each chapter
+$transFiles = @(
+    (Join-Path $ExtractDir "LibriSpeech\test-clean\1089\134686\1089-134686.trans.txt"),
+    (Join-Path $ExtractDir "LibriSpeech\test-clean\1221\135766\1221-135766.trans.txt"),
+    (Join-Path $ExtractDir "LibriSpeech\test-clean\3570\5694\3570-5694.trans.txt")
+)
+foreach ($tf in $transFiles) {
+    if (!(Test-Path $tf)) { Write-Warn "trans.txt not found: $tf"; continue }
+    Get-Content $tf | ForEach-Object {
+        if ($_ -match '^(\S+)\s+(.+)$') {
+            $id  = $matches[1].ToLower()          # e.g. "1089-134686-0000"
+            $txt = $matches[2].ToLower().Trim()   # lowercase (normalised for WER)
+            $transcripts[$id] = $txt
+        }
+    }
+}
+Write-Ok "Loaded $($transcripts.Count) transcripts"
+
+# Build long-2min expected text: concatenate the exact utterances used to build
+# the clip (all utterances in the chapter, in the same sorted order).
+$longExpected = ""
+foreach ($id in $script:LongUtteranceIds) {
+    $key = $id.ToLower()
+    if ($transcripts.ContainsKey($key)) {
+        $longExpected = ($longExpected + " " + $transcripts[$key]).Trim()
+    }
+}
+
+# Build multi-speaker expected text: concatenate all interleaved segments
+$multiExpected = ""
+foreach ($id in @("1089-134686-0000","1221-135766-0000","1089-134686-0001","1221-135766-0001","1089-134686-0002","1221-135766-0002")) {
+    if ($transcripts.ContainsKey($id)) {
+        $multiExpected = ($multiExpected + " " + $transcripts[$id]).Trim()
+    }
+}
+
+# Update expected.json
+$updated = 0
+foreach ($clip in $expected.clips) {
+    $id = [System.IO.Path]::GetFileNameWithoutExtension($clip.file).ToLower()
+
+    if ($clip.file -like "*/long-2min.wav" -and $longExpected -ne "") {
+        $clip.expected_text = $longExpected
+        $updated++
+        continue
+    }
+    if ($clip.file -like "*/multi-speaker.wav") {
+        $clip.expected_text = if ($multiExpected -ne "") { $multiExpected } else { "" }
+        $updated++
+        continue
+    }
+    if ($null -eq $clip.expected_text -and $transcripts.ContainsKey($id)) {
+        $clip.expected_text = $transcripts[$id]
+        $updated++
+    }
+}
+
+$expected | ConvertTo-Json -Depth 10 | Set-Content $expectedPath -Encoding UTF8
+Write-Ok "Updated $updated clips in expected.json"
+
+# ── 7. Verify corpus completeness ─────────────────────────────────────────────
+Write-Step "Corpus completeness check"
+$missing = 0
+foreach ($clip in $expected.clips) {
+    $wavPath = Join-Path $Here $clip.file
+    if (!(Test-Path $wavPath)) {
+        Write-Warn "Missing: $($clip.file)"
+        $missing++
+    } elseif ($null -eq $clip.expected_text -and $clip.assert -ne "informational") {
+        Write-Warn "No transcript: $($clip.file)"
+        $missing++
+    }
+}
+
+if ($missing -eq 0) {
+    Write-Host "`n  All $($expected.clips.Count) corpus clips ready." -ForegroundColor Green
+    Write-Host "  Run: .\run-stt-regression.ps1" -ForegroundColor Cyan
+} else {
+    Write-Host "`n  $missing clip(s) missing or without transcript." -ForegroundColor Yellow
+    Write-Host "  Partial run is still possible; missing clips are skipped." -ForegroundColor Gray
+}

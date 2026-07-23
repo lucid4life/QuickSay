@@ -17,6 +17,9 @@
             0%, 30% { box-shadow: 0 0 0 2px var(--accent-primary), 0 0 12px rgba(34, 211, 197, 0.3); }
             100% { box-shadow: none; }
         }
+        @media (prefers-reduced-motion: reduce) {
+            .search-highlight { animation: none !important; }
+        }
 
         /* F74/F75/F80: Dark theme for native controls */
         select, select option {
@@ -71,7 +74,8 @@
             align-items: center;
             gap: 12px;
             margin: 28px 0 8px;
-            color: var(--text-quaternary);
+            /* WCAG AA: readable section headers — tertiary (5.73:1 on bg-base), not decorative quaternary */
+            color: var(--text-tertiary);
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
@@ -87,6 +91,8 @@
 </head>
 
 <body>
+
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
 
     <!-- SIDEBAR -->
     <nav class="sidebar" role="navigation" aria-label="Settings navigation">
@@ -129,6 +135,10 @@
         </button>
 
         <div class="sidebar-section-label">App</div>
+        <button class="tab-btn" data-tab="license">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            License
+        </button>
         <button class="tab-btn" data-tab="about">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             About
@@ -144,11 +154,20 @@
     </nav>
 
     <!-- MAIN CONTENT -->
-    <main class="main-content" role="main" aria-label="Settings content">
+    <main id="main-content" class="main-content" role="main" aria-label="Settings content">
 
         <!-- GENERAL TAB -->
         <div id="general" class="tab-content active">
             <h2>General Settings</h2>
+
+            <!-- HOTKEY CONFLICT BANNER (shown when hotkeyConflict is set in config) -->
+            <div id="hotkeyConflictBanner" class="hotkey-conflict-banner" style="display:none;" role="alert">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div>
+                    <strong>Hotkey may be in conflict</strong> — your shortcut didn't respond. Open <em>Settings → General → Hotkey</em> below to choose a different one.
+                    <span id="hotkeyConflictDetail" style="display:block; margin-top:4px; font-size:12px; color:var(--text-tertiary);"></span>
+                </div>
+            </div>
 
             <!-- API KEY -->
             <div class="section">
@@ -157,11 +176,11 @@
                 <div class="flex-row gap-sm">
                     <div class="password-wrapper flex-1">
                         <input type="password" id="groqApiKey" placeholder="gsk_...">
-                        <span class="toggle-password" id="btnTogglePass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                        <button type="button" class="toggle-password" id="btnTogglePass" aria-label="Show password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                     </div>
                     <button class="btn btn-primary btn-sm nowrap flex-shrink-0" id="btnTestApi">Test</button>
                 </div>
-                <div class="status-text" id="apiStatusMessage"></div>
+                <div class="status-text" id="apiStatusMessage" role="status" aria-live="polite"></div>
             </div>
 
             <!-- HOTKEY -->
@@ -204,7 +223,7 @@
                             <button class="btn btn-secondary-orange nowrap" id="btnChangeHotkey">Change</button>
                             <button class="btn btn-secondary btn-sm nowrap" id="btnTestCurrentHotkey" style="margin-left: 6px;">Test</button>
                         </div>
-                        <div class="status-text" id="hotkeyTestMessage"></div>
+                        <div class="status-text" id="hotkeyTestMessage" role="status" aria-live="polite"></div>
                     </div>
                 </div>
 
@@ -297,8 +316,9 @@
             <div class="section-divider">Language</div>
             <div class="section">
                 <h3>Dictation Language</h3>
-                <label>Language</label>
-                <select id="language" style="width: 280px;">
+                <label for="language">Language</label>
+                <select id="language" aria-label="Dictation language" style="width: 280px;">
+                    <option value="auto">Auto-detect</option>
                     <option value="en">English</option>
                     <option value="es">Spanish (Espa&#241;ol)</option>
                     <option value="fr">French (Fran&#231;ais)</option>
@@ -326,6 +346,16 @@
                     <option value="uk">Ukrainian (&#1059;&#1082;&#1088;&#1072;&#1111;&#1085;&#1089;&#1100;&#1082;&#1072;)</option>
                 </select>
                 <span class="sub-text mt-sm">The language QuickSay listens for when you dictate.</span>
+            </div>
+
+            <div class="section">
+                <h3>Transcription Model</h3>
+                <label for="sttModel">Transcription model</label>
+                <select id="sttModel" aria-label="Transcription model" style="width: 280px;">
+                    <option value="whisper-large-v3-turbo">Fast (recommended)</option>
+                    <option value="whisper-large-v3">Max accuracy</option>
+                </select>
+                <span class="sub-text mt-sm">Fast is quicker and works great for most dictation. Max accuracy is slower but more precise on tricky audio.</span>
             </div>
 
             <!-- DATA & STORAGE -->
@@ -409,6 +439,7 @@
                         <option value="crystal">Crystal</option>
                         <option value="neon">Neon</option>
                         <option value="bloom">Bloom</option>
+                        <option value="mechanical">Mechanical</option>
                         <option value="silent">Silent</option>
                     </select>
                     <button class="btn btn-secondary" onclick="previewSound()" title="Preview current theme">
@@ -538,6 +569,39 @@
                     <label for="debugLogging">Enable debug logging</label>
                 </div>
                 <button class="btn btn-secondary mt-md" id="btnViewLogs">View Logs Folder</button>
+            </div>
+
+            <div class="section">
+                <h3>Privacy</h3>
+                <div class="toggle-item">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="crashReportingEnabled">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="crashReportingEnabled">Send anonymous crash reports <span class="sub-text" style="display:inline; margin:0;">No transcripts, audio, or personal info — just what went wrong, to help fix bugs</span></label>
+                </div>
+                <div class="toggle-item" style="margin-top:10px;">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="telemetryEnabled">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="telemetryEnabled">Help improve QuickSay — send anonymous usage stats
+                        <span class="sub-text" style="display:inline; margin:0;">Off by default. No transcripts, audio, personal info, or API keys ever sent.</span>
+                    </label>
+                </div>
+                <div id="telemetryDisclosure" style="display:none; margin-top:10px; padding:10px 12px; background:var(--bg-elevated,#1e1e1e); border-radius:8px; border:1px solid var(--border-subtle);">
+                    <p style="margin:0 0 6px; font-size:12px; color:var(--text-secondary); font-weight:600;">What's collected (aggregate &amp; anonymous only):</p>
+                    <ul style="margin:0; padding-left:18px; font-size:12px; color:var(--text-tertiary); line-height:1.7;">
+                        <li><strong>app_started</strong> — app version, Windows version bucket</li>
+                        <li><strong>recording_completed</strong> — duration bucket (&lt;5s / 5-15s / 15-60s / &gt;60s), AI cleanup on/off, preset mode name</li>
+                        <li><strong>settings_changed</strong> — which setting was changed (name only, never the value)</li>
+                        <li><strong>update_check / update_installed</strong> — version numbers</li>
+                    </ul>
+                    <p style="margin:6px 0 0; font-size:11px; color:var(--text-quaternary);">Never sent: transcript text, audio, API keys, license info, email, username, file paths. Install ID is a random UUID — regenerated when you disable and re-enable.</p>
+                </div>
+                <div style="margin-top:6px;">
+                    <button class="btn btn-link" id="btnTelemetryDetails" onclick="toggleTelemetryDisclosure()" style="font-size:12px; color:var(--accent-primary); background:none; border:none; padding:0; cursor:pointer; text-decoration:underline;">What's collected?</button>
+                </div>
             </div>
 
             <div class="section" id="voiceCommandsSection">
@@ -712,7 +776,7 @@
                     <img src="assets/logo_128.png" alt="QuickSay">
                     <div>
                         <div class="about-app-name">QuickSay</div>
-                        <div class="about-app-version">Beta v1.8.1</div>
+                        <div class="about-app-version">Beta v2.0.0</div>
                         <div class="about-app-desc">Voice-to-text for Windows</div>
                         <div class="about-app-desc" style="color:var(--text-quaternary);font-style:italic;margin-top:2px;">Speak. QuickSay types.</div>
                     </div>
@@ -756,29 +820,29 @@
             <div class="section">
                 <h3>Legal</h3>
                 <div class="flex-col gap-md">
-                    <div class="legal-link-row" onclick="showLegalDoc('privacy')">
-                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                    <div class="legal-link-row" role="button" tabindex="0" onclick="showLegalDoc('privacy')" onkeydown="if(event.key==='Enter'||event.key===' '){showLegalDoc('privacy');event.preventDefault()}" aria-label="Privacy Policy">
+                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
                         <div class="flex-1">
                             <div class="legal-title">Privacy Policy</div>
                             <span class="sub-text">How QuickSay handles your data</span>
                         </div>
-                        <span class="legal-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                        <span class="legal-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
-                    <div class="legal-link-row" onclick="showLegalDoc('terms')">
-                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                    <div class="legal-link-row" role="button" tabindex="0" onclick="showLegalDoc('terms')" onkeydown="if(event.key==='Enter'||event.key===' '){showLegalDoc('terms');event.preventDefault()}" aria-label="Terms of Service">
+                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
                         <div class="flex-1">
                             <div class="legal-title">Terms of Service</div>
                             <span class="sub-text">Usage terms and conditions</span>
                         </div>
-                        <span class="legal-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                        <span class="legal-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
-                    <div class="legal-link-row" onclick="showLegalDoc('licenses')">
-                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                    <div class="legal-link-row" role="button" tabindex="0" onclick="showLegalDoc('licenses')" onkeydown="if(event.key==='Enter'||event.key===' '){showLegalDoc('licenses');event.preventDefault()}" aria-label="Open Source Licenses">
+                        <div class="legal-icon-container"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
                         <div class="flex-1">
                             <div class="legal-title">Open Source Licenses</div>
                             <span class="sub-text">Third-party component licenses</span>
                         </div>
-                        <span class="legal-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+                        <span class="legal-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
                     </div>
                 </div>
             </div>
@@ -834,6 +898,54 @@
                         Replay guided tour
                     </a>
                 </div>
+            </div>
+        </div>
+
+        <!-- LICENSE TAB (T2.3) -->
+        <div id="license" class="tab-content">
+            <h2>License</h2>
+
+            <!-- Status (populated at runtime by AHK → setLicenseState) -->
+            <div class="section">
+                <h3>Status</h3>
+                <div id="licenseStatusBox" aria-live="polite">
+                    <p class="support-text" id="licenseStatusText">Checking your license…</p>
+                </div>
+            </div>
+
+            <!-- Purchase / unlock. Price is fetched from the license worker at runtime
+                 (GET /pricing) and is NEVER hardcoded — it flips $39 → $74 server-side. -->
+            <div class="section" id="licensePurchaseSection">
+                <h3>Unlock QuickSay</h3>
+                <p class="support-text">One-time payment. No subscription. Lifetime updates.</p>
+                <p class="support-text" id="licensePriceLine" style="color:var(--accent-primary); font-weight:600; margin-top:4px;"></p>
+                <div class="flex-row gap-md" style="margin-top:12px;">
+                    <button class="btn btn-primary" id="btnGetLicense" onclick="postToAHK('licenseGetCheckout')">Get my license</button>
+                </div>
+            </div>
+
+            <!-- Activate an existing key -->
+            <div class="section">
+                <h3>Already purchased?</h3>
+                <p class="support-text">Paste the license key from your purchase email.</p>
+                <div class="flex-col gap-md" style="margin-top:10px; max-width:520px;">
+                    <input type="text" id="licenseKeyInput" autocomplete="off" spellcheck="false"
+                           placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" aria-label="License key"
+                           style="font-family:'Consolas',monospace; letter-spacing:0.5px; width:100%;">
+                    <div class="flex-row gap-md">
+                        <button class="btn btn-secondary-orange" id="btnActivateLicense" onclick="activateLicenseFromSettings()">Activate QuickSay</button>
+                    </div>
+                    <p class="support-text" id="licenseActivateMsg" role="status" aria-live="polite" style="min-height:16px;"></p>
+                </div>
+            </div>
+
+            <!-- Footer micro links -->
+            <div class="section">
+                <p class="sub-text">
+                    <a href="#" onclick="postToAHK('openUrl','https://quicksay.app/terms');return false;">Terms</a> ·
+                    <a href="#" onclick="postToAHK('openUrl','https://quicksay.app/refund');return false;">Refund policy</a> ·
+                    <a href="#" onclick="postToAHK('openUrl','https://quicksay.app/support');return false;">support@quicksay.app</a>
+                </p>
             </div>
         </div>
     </main> <!-- closes .main-content -->
@@ -1271,13 +1383,14 @@
             // Hide footer on tabs that have their own save mechanisms or are non-editable
             var footer = document.querySelector('.footer');
             if (footer) {
-                var hideFooterTabs = ['view-history', 'view-statistics', 'about', 'modes', 'dictionary'];
+                var hideFooterTabs = ['view-history', 'view-statistics', 'about', 'modes', 'dictionary', 'license'];
                 footer.style.display = hideFooterTabs.indexOf(tabId) !== -1 ? 'none' : '';
             }
 
             // Lazy Load
             if (tabId === 'audio') postToAHK('getAudioDevices');
             if (tabId === 'modes') postToAHK('loadModes');
+            if (tabId === 'license') postToAHK('loadLicenseState');
 
             if (tabId === 'dictionary') {
                 postToAHK('loadDictionary');
@@ -1326,6 +1439,80 @@
             } catch (e) {
                 console.error('postToAHK ERROR:', e);
             }
+        }
+
+        // --- LICENSE (T2.3) ---
+        // data: { state, daysRemaining, email, price:{available,tier,price,currency,ordersRemaining,financingAvailable} }
+        window.setLicenseState = function (data) {
+            data = data || {};
+            var st = data.state || 'INSTALLED';
+            var txt = document.getElementById('licenseStatusText');
+            var purchase = document.getElementById('licensePurchaseSection');
+            var priceLine = document.getElementById('licensePriceLine');
+            var msg = '';
+            var showPurchase = true;
+            if (st === 'LICENSED') {
+                msg = '✓ Licensed' + (data.email ? ' to ' + data.email : '') + '. Thank you!';
+                showPurchase = false;
+            } else if (st === 'GRACE_PERIOD') {
+                msg = '✓ Licensed' + (data.email ? ' to ' + data.email : '') + '. Re-validating in the background.';
+                showPurchase = false;
+            } else if (st === 'RE_VALIDATION_NEEDED') {
+                msg = 'Your license needs to re-validate online. Connect to the internet, then try recording again.';
+            } else if (st === 'TRIAL_ACTIVE') {
+                var d = data.daysRemaining || 0;
+                msg = 'Free trial — ' + d + ' day' + (d === 1 ? '' : 's') + ' remaining.';
+            } else if (st === 'TRIAL_EXPIRED' || st === 'PAYWALL_BLOCKING') {
+                msg = 'Your free trial has ended. Unlock QuickSay below to keep dictating.';
+            } else if (st === 'LICENSE_REVOKED') {
+                msg = 'We couldn’t verify your license. Re-activate below, or get a new one.';
+            } else {
+                msg = 'Starting your free trial…';
+            }
+            if (txt) txt.textContent = msg;
+            if (purchase) purchase.style.display = showPurchase ? '' : 'none';
+
+            if (priceLine) {
+                var p = data.price || {};
+                if (!p.available) {
+                    priceLine.textContent = 'See the current price at checkout.';
+                } else {
+                    var sym = (p.currency === 'USD' || !p.currency) ? '$' : '';
+                    var line = sym + p.price + ' ' + (p.currency || 'USD') + ' · one-time, lifetime';
+                    if (p.tier === 'launch' && typeof p.ordersRemaining === 'number' && p.ordersRemaining > 0)
+                        line += '  (launch price — ' + p.ordersRemaining + ' left)';
+                    else if (p.financingAvailable)
+                        line += '  (pay-over-time at checkout)';
+                    priceLine.textContent = line;
+                }
+            }
+        };
+
+        // data: { success, message }
+        window.setLicenseActivationResult = function (data) {
+            data = data || {};
+            var btn = document.getElementById('btnActivateLicense');
+            var m = document.getElementById('licenseActivateMsg');
+            if (btn) { btn.disabled = false; btn.textContent = 'Activate QuickSay'; }
+            if (m) {
+                m.textContent = data.message || (data.success ? 'Activated!' : 'Activation failed.');
+                m.style.color = data.success ? 'var(--success)' : 'var(--error)';
+            }
+            if (data.success) postToAHK('loadLicenseState');   // refresh status display
+        };
+
+        function activateLicenseFromSettings() {
+            var input = document.getElementById('licenseKeyInput');
+            var key = (input && input.value ? input.value : '').trim();
+            var m = document.getElementById('licenseActivateMsg');
+            if (!key) {
+                if (m) { m.textContent = 'Please paste your license key first.'; m.style.color = 'var(--error)'; }
+                return;
+            }
+            var btn = document.getElementById('btnActivateLicense');
+            if (btn) { btn.disabled = true; btn.textContent = 'Activating…'; }
+            if (m) { m.textContent = 'Contacting the license server…'; m.style.color = 'var(--text-tertiary)'; }
+            postToAHK('licenseActivate', { key: key });
         }
 
         // --- RECEIVERS ---
@@ -1440,6 +1627,11 @@
                 document.getElementById('language').value = cfg.language;
             }
 
+            // Transcription model
+            if (cfg.sttModel) {
+                document.getElementById('sttModel').value = cfg.sttModel;
+            }
+
             // Hotkey
             if (cfg.hotkey) {
                 var hkText = formatHotkey(cfg.hotkey);
@@ -1525,6 +1717,26 @@
             // Processing - Debug
             document.getElementById('debugLogging').checked = toBool(cfg.debugLogging);
 
+            // Privacy - crash reporting + telemetry (both opt-in, both default OFF)
+            document.getElementById('crashReportingEnabled').checked = toBool(cfg.crashReportingEnabled);
+            document.getElementById('telemetryEnabled').checked = toBool(cfg.telemetryEnabled);
+            window._lastSavedConfig = Object.assign({}, cfg);  // snapshot for opt-out detection
+
+            // Hotkey conflict banner
+            var conflictBanner = document.getElementById('hotkeyConflictBanner');
+            var conflictDetail = document.getElementById('hotkeyConflictDetail');
+            if (conflictBanner) {
+                if (cfg.hotkeyConflict) {
+                    conflictBanner.style.display = 'flex';
+                    if (conflictDetail && cfg.hotkeyConflictMsg) {
+                        conflictDetail.textContent = cfg.hotkeyConflictMsg;
+                        conflictDetail.style.display = 'block';
+                    }
+                } else {
+                    conflictBanner.style.display = 'none';
+                }
+            }
+
             if (DEBUG) console.log('=== POPULATE FORM CALLED ===');
             if (DEBUG) console.log('Config received:', cfg);
         }
@@ -1557,6 +1769,7 @@
             }
 
             config.language = getVal('language');
+            config.sttModel = getVal('sttModel');
             config.launchAtStartup = getCheck('launchAtStartup');
             config.showOverlay = getCheck('showOverlay');
             config.playSounds = getCheck('playSounds');
@@ -1585,6 +1798,20 @@
             var retentionVal = parseInt(getVal('historyRetention')) || 0;
             config.historyRetention = [0, 100, 500].indexOf(retentionVal) !== -1 ? retentionVal : 0;
             config.debugLogging = getCheck('debugLogging');
+
+            // Privacy - crash reporting. Setting the toggle in Settings is itself an
+            // explicit answer to the consent question, so mark it prompted when ON.
+            config.crashReportingEnabled = getCheck('crashReportingEnabled');
+            if (config.crashReportingEnabled) config.crashReportingPrompted = true;
+
+            // Privacy - telemetry (T2.7, opt-in, off by default).
+            // When turning OFF, clear the install ID so re-enabling gets a fresh UUID
+            // (timeline break — as promised in the disclosure).
+            var prevTelEnabled = window._lastSavedConfig ? !!window._lastSavedConfig.telemetryEnabled : false;
+            config.telemetryEnabled = getCheck('telemetryEnabled');
+            if (prevTelEnabled && !config.telemetryEnabled) {
+                config.telemetryInstallId = '';  // AHK side will also call RegenerateInstallId
+            }
 
             // Ensure hotkey is always present (safety net)
             if (!config.hotkey) config.hotkey = "^LWin";
@@ -1703,7 +1930,7 @@
                 html += '<div class="dict-col-spoken" onclick="startInlineEdit(' + i + ',\'spoken\',this)">' + escapeHtml(item.spoken) + '</div>';
                 html += '<div class="dict-col-arrow">\u2192</div>';
                 html += '<div class="dict-col-written" onclick="startInlineEdit(' + i + ',\'written\',this)">' + escapeHtml(item.written) + '</div>';
-                html += '<div class="dict-col-action"><span class="delete-icon" onclick="deleteDictItem(' + i + ')">\u2715</span></div>';
+                html += '<div class="dict-col-action"><button type="button" class="delete-icon" onclick="deleteDictItem(' + i + ')" aria-label="Delete entry for ' + escapeHtml(item.spoken) + '">\u2715</button></div>';
 
                 row.innerHTML = html;
                 list.appendChild(row);
@@ -2127,9 +2354,11 @@
             var btn = document.getElementById('btnTogglePass');
             if (el.type == "password") {
                 el.type = "text";
+                btn.setAttribute('aria-label', 'Hide password');
                 btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
             } else {
                 el.type = "password";
+                btn.setAttribute('aria-label', 'Show password');
                 btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
             }
         }
@@ -3184,6 +3413,16 @@
         }
 
         // Voice Commands toggle
+        // Telemetry "What's collected?" disclosure toggle (T2.7)
+        function toggleTelemetryDisclosure() {
+            var disc = document.getElementById('telemetryDisclosure');
+            var btn  = document.getElementById('btnTelemetryDetails');
+            if (!disc) return;
+            var showing = disc.style.display !== 'none';
+            disc.style.display = showing ? 'none' : '';
+            if (btn) btn.textContent = showing ? "What's collected?" : "Hide details";
+        }
+
         function toggleVoiceCommands() {
             var content = document.getElementById('voiceCmdContent');
             var icon = document.getElementById('voiceCmdToggleIcon');

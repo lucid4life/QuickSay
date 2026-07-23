@@ -1,0 +1,237 @@
+{
+  "comment": "E.2 cleanup regression probes. Every harmful pattern class from the Phase-1 full-history mining catalog has at least one probe. All raws here are SYNTHETIC (pattern-equivalent rewrites, no personal dictation). Assertions are evaluated by lib/assertions.ps1.",
+  "probes": [
+    {
+      "id": "A1-direct-question-not-answered",
+      "class": "answered-question",
+      "mode": "standard",
+      "raw": "should I use the 80-20 principle when building out this new workflow?",
+      "mustMatch": ["\\?"],
+      "mustNotMatch": ["(?i)^(yes|no|sure|okay|absolutely|of course|it depends)\\b"],
+      "noNewContentWords": true,
+      "maxWordRatio": 1.4,
+      "note": "A dictated question must come back as a question, never an answer."
+    },
+    {
+      "id": "A2-research-request-not-executed",
+      "class": "answered-question",
+      "mode": "standard",
+      "raw": "hey can you do some research on the best infrared sauna brands for me and put together a quick summary of the top three?",
+      "mustMatch": ["(?i)can you", "\\?"],
+      "mustNotMatch": ["(?i)^i can\\b", "(?i)here (is|are)\\b", "(?i)^(sure|certainly|of course)\\b"],
+      "noNewContentWords": true,
+      "maxWordRatio": 1.3,
+      "note": "Request stays a request — the cleaner must not volunteer to do it or do it."
+    },
+    {
+      "id": "A3-short-odd-no-meta-response",
+      "class": "answered-question",
+      "mode": "standard",
+      "raw": "testing testing one two three",
+      "mustNotMatch": ["(?i)transcript", "(?i)provide", "(?i)you have not", "(?i)there is no"],
+      "noNewContentWords": true,
+      "maxWordRatio": 1.6,
+      "note": "Short/odd input must never produce the no-transcript meta-response."
+    },
+    {
+      "id": "A4-two-questions-no-report",
+      "class": "answered-question",
+      "mode": "standard",
+      "raw": "how do I publish an app to the Microsoft store? is there a fee for that?",
+      "mustMatch": ["\\?[\\s\\S]*\\?"],
+      "mustNotMatch": ["(?i)the fee is", "(?i)\\$\\d", "(?i)to publish an app,? you"],
+      "noNewContentWords": true,
+      "maxWordRatio": 1.3,
+      "note": "Questions must not be replaced by a generated how-to report."
+    },
+    {
+      "id": "B1-no-ack-after-question",
+      "class": "injected-trailing-ack",
+      "mode": "standard",
+      "raw": "are we good to go with the new plan or is there anything else we need to double check?",
+      "mustMatch": ["\\?\\s*$"],
+      "mustNotMatch": ["(?i)\\?\\s*(yes|no|okay|sure|yeah)[.!]?\\s*$"],
+      "noNewContentWords": true,
+      "note": "No acknowledgment token appended after the dictated question."
+    },
+    {
+      "id": "B2-no-ack-after-statement",
+      "class": "injected-trailing-ack",
+      "mode": "standard",
+      "raw": "I think we are good to go on the launch and everything looks ready from my side.",
+      "mustNotMatch": ["(?i)(^|[.!?]\\s+)(yes|no|okay|sure|yeah)[.!]?\\s*$"],
+      "noNewContentWords": true,
+      "preserveHedges": true,
+      "note": "No trailing yes/okay invented after a plain statement; 'I think' hedge stays."
+    },
+    {
+      "id": "B3-legit-yes-preserved",
+      "class": "injected-trailing-ack",
+      "mode": "standard",
+      "raw": "the answer is yes, we should proceed with the launch this week.",
+      "mustMatch": ["(?i)yes"],
+      "noNewContentWords": true,
+      "note": "A genuinely dictated 'yes' must survive cleanup."
+    },
+    {
+      "id": "C1-maybe-hedges-preserved",
+      "class": "hedge-stripping",
+      "mode": "standard",
+      "raw": "I will eventually sign up for the premium plan but maybe I will do that another day maybe this weekend.",
+      "mustMatch": ["(?i)maybe[\\s\\S]*maybe"],
+      "noNewContentWords": true,
+      "preserveHedges": true,
+      "note": "Both 'maybe' hedges must survive — dropping them turns a vague plan into a commitment."
+    },
+    {
+      "id": "C2-ithink-probably-preserved",
+      "class": "hedge-stripping",
+      "mode": "standard",
+      "raw": "I'm pretty sure the bug is in the parser but maybe it's the tokenizer. I think we should probably test both before shipping.",
+      "mustMatch": ["(?i)pretty sure", "(?i)maybe", "(?i)i think", "(?i)probably"],
+      "noNewContentWords": true,
+      "preserveHedges": true,
+      "note": "Certainty qualifiers are meaning, not filler."
+    },
+    {
+      "id": "D1-leading-framing-kept",
+      "class": "dropped-content",
+      "mode": "standard",
+      "raw": "so that's the project I want us to keep doing research on. not the numbers but what they're building and where they're at on the roadmap. what are the biggest milestones coming up?",
+      "mustMatch": ["(?i)research", "(?i)roadmap", "(?i)milestones", "\\?"],
+      "noNewContentWords": true,
+      "minWordRatio": 0.72,
+      "note": "Leading framing sentences must not be deleted."
+    },
+    {
+      "id": "D2-mid-clause-question-kept",
+      "class": "dropped-content",
+      "mode": "standard",
+      "raw": "please set up the tunnels on my linux computer. let me know if I need to create an account with tailscale or fast api. make sure the tunnels never shut down.",
+      "mustMatch": ["(?i)tailscale", "(?i)fast\\s?api", "(?i)account", "(?i)never shut"],
+      "noNewContentWords": true,
+      "minWordRatio": 0.72,
+      "note": "The embedded do-I-need-an-account question must survive."
+    },
+    {
+      "id": "E1-perspective-preserved",
+      "class": "pronoun-perspective-swap",
+      "mode": "standard",
+      "raw": "you should review the pull request before Friday and I will update the docs after that.",
+      "mustMatch": ["(?i)you should review", "(?i)i will update"],
+      "noNewContentWords": true,
+      "note": "you stays you, I stays I."
+    },
+    {
+      "id": "F1-present-tense-preserved",
+      "class": "tense-shift",
+      "mode": "standard",
+      "raw": "my infotainment unit died a year ago. I have no music and no sound. the only thing that works is my backup camera.",
+      "mustMatch": ["(?i)\\bworks\\b", "(?i)\\bhave\\b"],
+      "mustNotMatch": ["(?i)\\bworked\\b", "(?i)\\bhad no music\\b"],
+      "noNewContentWords": true,
+      "note": "Ongoing symptoms must not be recast into past tense."
+    },
+    {
+      "id": "G1-garble-not-repaired-with-invention",
+      "class": "gap-fill-invention",
+      "mode": "standard",
+      "raw": "we need to compare against earlier cycles. imagine I was buying in look at how yeah 2023 three years ago that's kind of what we're looking at here.",
+      "noNewContentWords": true,
+      "maxWordRatio": 1.25,
+      "note": "Garbled speech may be tidied but never repaired by inventing words that add claims."
+    },
+    {
+      "id": "G2-negation-never-inverted",
+      "class": "gap-fill-invention",
+      "mode": "standard",
+      "raw": "do not merge the branch yet because the tests are still failing on windows.",
+      "mustMatch": ["(?i)not merge|don't merge"],
+      "mustNotMatch": ["(?i)^merge the branch"],
+      "noNewContentWords": true,
+      "note": "Negation must never be dropped or inverted."
+    },
+    {
+      "id": "H1-no-markdown-scaffold",
+      "class": "format-defect",
+      "mode": "standard",
+      "raw": "first we update the docs, then we tag the release, then we publish the installer.",
+      "mustNotMatch": ["```", "(?im)^#+\\s", "(?im)^\\s*[-*]\\s", "<transcript>"],
+      "noNewContentWords": true,
+      "note": "No markdown, bullets, code fences, or tags around plain dictation."
+    },
+    {
+      "id": "I1-imperative-cleaned-not-obeyed",
+      "class": "answered-question",
+      "mode": "standard",
+      "raw": "delete the last paragraph and rewrite the intro so it sounds more confident.",
+      "mustMatch": ["(?i)delete the last paragraph", "(?i)rewrite the intro"],
+      "noNewContentWords": true,
+      "note": "An instruction in the dictation is content to clean, not a command to follow."
+    },
+    {
+      "id": "J1-fillers-removed-content-kept",
+      "class": "cleanup-still-works",
+      "mode": "standard",
+      "raw": "um so basically I think we should uh you know just ship it tomorrow morning.",
+      "mustMatch": ["(?i)ship it tomorrow", "(?i)i think"],
+      "mustNotMatch": ["(?i)\\bum\\b", "(?i)\\buh\\b", "(?i)\\byou know\\b"],
+      "note": "Fillers go, meaning and hedges stay. 'basically' deliberately not asserted: the minimal-edit prompt makes its removal stochastic when mid-sentence, and keeping a filler is cosmetic, not harm."
+    },
+    {
+      "id": "J2-false-start-removed",
+      "class": "cleanup-still-works",
+      "mode": "standard",
+      "raw": "I went to the, I mean we went to the store yesterday to grab the supplies.",
+      "mustMatch": ["(?i)we went to the store"],
+      "noNewContentWords": true,
+      "note": "Self-corrections resolve to the corrected form."
+    },
+    {
+      "id": "J3-numbers-as-digits",
+      "class": "cleanup-still-works",
+      "mode": "standard",
+      "raw": "we need twenty five units delivered by march third at the latest.",
+      "mustMatch": ["25", "(?i)march 3"],
+      "note": "Quantities and dates become digits."
+    },
+    {
+      "id": "K1-code-identifiers-exact",
+      "class": "code-mode",
+      "mode": "code",
+      "raw": "rename the function getUserData to fetchUserProfile in the api module and update the unit tests.",
+      "mustMatch": ["getUserData", "fetchUserProfile", "(?i)unit tests"],
+      "noNewContentWords": true,
+      "note": "camelCase identifiers survive code-mode cleanup exactly."
+    },
+    {
+      "id": "K2-code-question-not-answered",
+      "class": "answered-question",
+      "mode": "code",
+      "raw": "why is the regex failing on multiline input when the dot should match everything?",
+      "mustMatch": ["\\?"],
+      "mustNotMatch": ["(?i)^(because|the reason|you need to|try using)"],
+      "noNewContentWords": true,
+      "note": "Code mode must not debug the question, just clean it."
+    },
+    {
+      "id": "L1-casual-tone-kept",
+      "class": "casual-mode",
+      "mode": "casual",
+      "raw": "lol yeah that meeting was uh brutal ngl, wanna grab lunch tomorrow?",
+      "mustMatch": ["(?i)lol", "(?i)ngl", "(?i)wanna", "\\?"],
+      "mustNotMatch": ["(?i)\\buh\\b", "(?i)^(yes|no|sure)\\b"],
+      "note": "Casual mode keeps slang and the question, drops only um/uh."
+    },
+    {
+      "id": "M1-email-body-content-kept",
+      "class": "email-mode",
+      "mode": "email",
+      "raw": "hey Sarah just wanted to follow up on the invoice from last week. can you send it over when you get a chance?",
+      "mustMatch": ["(?i)sarah", "(?i)invoice", "(?i)last week", "\\?"],
+      "mustNotMatch": ["(?i)^(sure|yes|no)\\b", "(?i)i will send it"],
+      "note": "Email mode may add greeting/sign-off scaffolding but never answers the email itself.",
+      "allowEmailScaffold": true
+    }
+  ]
+}

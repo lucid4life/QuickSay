@@ -63,6 +63,28 @@ Key config fields: `groqApiKey`, `sttModel`, `llmModel`, `hotkey`, `hotkeyMode` 
 
 Context-aware mode switching (`GetContextModeId()`) auto-selects a mode based on the foreground window process name (e.g., `code.exe` → Code mode, `OUTLOOK.EXE` → Email mode).
 
+## Signed Auto-Updates (T2.5)
+
+`CheckForUpdates()` fetches `https://quicksay.app/version.json` and **must cryptographically verify it before trusting any field**. `version.json` is Ed25519-signed (key `qs-2026`); unsigned / tampered / wrong-key / unknown-`keyId` manifests are **rejected and the app fails closed** (no update offered). There is no regex fallback — an unverifiable manifest never drives an update decision.
+
+**Signed schema** (additive; old apps ignore the new fields):
+```json
+{ "version": "...", "download_url": "...", "changelog": ["..."],
+  "installer_sha256": "<hex>", "released_at": "<ISO-8601 UTC>",
+  "keyId": "qs-2026", "signature": "<base64url Ed25519 over the canonical payload>" }
+```
+
+**Canonicalization (signer ≡ verifier, byte-for-byte — see `docs/audit-campaign/findings/T2.5-threat-model.md` §3.2):** the signed payload is a JSON object with exactly `{changelog, download_url, installer_sha256, keyId, released_at, version}`, keys sorted lexicographically, compact separators, minimal RFC 8259 escaping (no `/` escaping, raw UTF-8 — matches Node `JSON.stringify`). `changelog` order preserved.
+
+**Pieces:**
+- `lib/update-verify.ahk` — `VerifyUpdateManifest()` + `UpdateManifest_Canonical()`; trust anchor `TRUSTED_UPDATE_KEYS["qs-2026"]` (raw-32 base64url public key). Uses the shared `lib/ed25519.ahk` verifier.
+- `scripts/version-canonical.mjs` — shared canonicalizer used by BOTH the signer and the test fixture generator.
+- `scripts/sign-version-json.mjs` — release-side Ed25519 signer (Node). Reads the **private** key from `QUICKSAY_ED25519_PRIVATE_KEY` (PEM) / `QUICKSAY_ED25519_PRIVATE_KEY_PATH` / `~/.quicksay-keys/qs-2026-ed25519-private.pem`. **Fails loudly if absent** — `release.ps1` aborts (no unsigned release).
+- `release.ps1` STEP 6 — computes `installer_sha256` of the final code-signed installer, then invokes the signer.
+- `tests/update/` — `run-tests.ps1` (fixtures + 11 unit tests + real signer↔verifier round-trip).
+
+**Keys:** ONE Ed25519 key (`qs-2026`) signs both license JWTs and `version.json`. **Private key: CF secret + offline backup, NEVER in git** (`.gitignore` blocks `*.pem` / `.quicksay-keys/`). **Public key: committed + compiled into the app** (the trust anchor). Rotation = add a new `keyId` to `TRUSTED_UPDATE_KEYS`, ship it, then switch the signer (non-breaking via the multi-key map). `installer_sha256` is **signed but not yet enforced** in v2.0 (the app opens `download_url` in a browser); M.1 closes this by downloading + hash-checking the installer.
+
 ## File Map
 
 | File | Role |
@@ -70,6 +92,10 @@ Context-aware mode switching (`GetContextModeId()`) auto-selects a mode based on
 | `QuickSay.ahk` | Main engine: tray icon, hotkey, recording loop, transcription, typing |
 | `lib/settings-ui.ahk` | `SettingsUI` class + `GetDefaultModes()` (shared by both processes) |
 | `lib/http.ahk` | `HttpPostFile()` multipart POST and `Utf8Decode()` — used by both processes |
+| `lib/ed25519.ahk` | Shared pure-AHK Ed25519 verifier (`VerifyEd25519`) — license JWTs (T2.3) + updates (T2.5) |
+| `lib/update-verify.ahk` | `VerifyUpdateManifest()` — verifies the signed `version.json` (T2.5, fail-closed) |
+| `scripts/version-canonical.mjs` | Shared `version.json` canonicalizer (signer + test fixtures) |
+| `scripts/sign-version-json.mjs` | Release-side Ed25519 signer for `version.json` (key from secret, fails loudly) |
 | `settings_ui.ahk` | Thin launcher that calls `SettingsUI.Show()` |
 | `onboarding_ui.ahk` | First-run wizard (WebView2) |
 | `widget-overlay.ahk` | Floating recording widget |

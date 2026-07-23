@@ -1,8 +1,8 @@
 ;@Ahk2Exe-SetCompanyName QuickSay
-;@Ahk2Exe-SetDescription QuickSay Beta v1.8 Settings
-;@Ahk2Exe-SetFileVersion 1.8.1.0
-;@Ahk2Exe-SetProductName QuickSay Beta v1.8
-;@Ahk2Exe-SetProductVersion 1.8.1.0
+;@Ahk2Exe-SetDescription QuickSay Beta v2.0 Settings
+;@Ahk2Exe-SetFileVersion 2.0.0.0
+;@Ahk2Exe-SetProductName QuickSay Beta v2.0
+;@Ahk2Exe-SetProductVersion 2.0.0.0
 ;@Ahk2Exe-SetCopyright Copyright (c) 2024-2026 QuickSay
 ;@Ahk2Exe-SetOrigFilename QuickSay-Settings.exe
 ;@Ahk2Exe-SetMainIcon gui\assets\icon.ico
@@ -13,21 +13,29 @@
 
 ; --- SET APP IDENTITY FOR WINDOWS TASKBAR ---
 ; Ensures this process groups with the main launcher (same AppUserModelID)
-DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.1.8")
+DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.2.0")
 
 ; ==============================================================================
-; QuickSay Beta v1.8 Settings UI (WebView2)
+; QuickSay Beta v2.0 Settings UI (WebView2)
 ; Uses shared SettingsUI class from lib/settings-ui.ahk
 ; ==============================================================================
 
+#Include %A_ScriptDir%\lib\datadir.ahk
 #Include %A_ScriptDir%\lib\WebView2.ahk
 #Include %A_ScriptDir%\lib\JSON.ahk
 #Include %A_ScriptDir%\lib\dpapi.ahk
+#Include %A_ScriptDir%\lib\ed25519.ahk
+#Include %A_ScriptDir%\lib\license.ahk
+#Include %A_ScriptDir%\lib\telemetry.ahk
 #Include %A_ScriptDir%\lib\settings-ui.ahk
 
 ; ==============================================================================
 ; STARTUP
 ; ==============================================================================
+; T1.8 / T1.3-023: ensure the data root exists (migrate/seed if first to run)
+; before the settings UI reads or writes config.
+try BootstrapDataDir()
+
 try {
     try {
         SettingsUI.Show()

@@ -1,1 +1,20 @@
+# Option B (download-on-demand): audio clips are NOT committed to git.
+# Run fetch-corpus.ps1 to populate these directories before running the suite.
+
+# LibriSpeech clips (downloaded ~346 MB one-time, cached in $TEMP)
+corpus/clean/
+corpus/accents/
+
+# Edge clips that require the LibriSpeech download
+corpus/edge/long-2min.wav
+corpus/edge/multi-speaker.wav
+
+# Results are transient — one report per run; do not commit them
 results/
+
+# Keep:
+#   corpus/edge/silence.wav       (generated, tiny)
+#   corpus/edge/noise.wav         (generated, tiny)
+#   corpus/edge/short-utterance.wav  (SAPI generated, tiny)
+#   expected.json                 (ground truth)
+#   baseline/baseline-v2.0.json   (committed reference snapshot)

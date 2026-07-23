@@ -1,0 +1,30 @@
+AutoHotkey v2 Runtime License Notice
+
+AutoHotkey is free software released under the GNU General Public License
+version 2.0 (GPL v2.0).
+
+IMPORTANT CLARIFICATION FOR QUICKSAY USERS:
+-------------------------------------------
+
+As explicitly stated in the AutoHotkey documentation and licensing FAQ:
+
+  "Scripts written in AutoHotkey are NOT considered derivative works of
+   AutoHotkey and are NOT covered by the GPL. You are free to distribute
+   your scripts under any license you choose."
+
+This means:
+- QuickSay's script files (.ahk) are licensed under the MIT License
+- The AutoHotkey runtime (AutoHotkey64.exe) bundled with QuickSay is GPL v2.0
+- You can use QuickSay commercially without GPL obligations on your usage
+
+The GPL v2.0 license applies ONLY to the AutoHotkey interpreter itself, not
+to scripts written in AutoHotkey or applications built with it.
+
+For the complete GPL v2.0 license text, visit:
+https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+
+For AutoHotkey licensing details and clarifications:
+https://www.autohotkey.com/docs/v2/license.htm
+
+AutoHotkey Source Code:
+https://github.com/AutoHotkey/AutoHotkey

@@ -1,9 +1,9 @@
-; QuickSay Beta v1.8 Installer Script for Inno Setup
-; Beta v1.8 Release — Visual overhaul + installer branding
+; QuickSay Beta v2.0 Installer Script for Inno Setup
+; Beta v2.0 Release — Visual overhaul + installer branding
 
 #define MyAppName "QuickSay Beta"
-#define MyAppVersion "1.8.1"
-#define MyAppVerName "QuickSay Beta v1.8"
+#define MyAppVersion "2.0.0"
+#define MyAppVerName "QuickSay Beta v2.0"
 #define MyAppPublisher "QuickSay"
 #define MyAppURL "https://quicksay.app"
 #define MyAppExeName "QuickSay.exe"
@@ -21,7 +21,7 @@ DefaultDirName={autopf}\QuickSay Beta
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=installer
-OutputBaseFilename=QuickSay_Beta_v1.8_Setup
+OutputBaseFilename=QuickSay_Beta_v2.0_Setup
 SetupIconFile=gui\assets\icon.ico
 LicenseFile=docs\LICENSE_AGREEMENT.rtf
 Compression=lzma
@@ -42,7 +42,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Messages]
 WelcomeLabel1=Welcome to QuickSay
-WelcomeLabel2=QuickSay turns your voice into text — anywhere on Windows.%n%nThis will install QuickSay Beta v1.8 on your computer. You'll need a free Groq API key to get started.
+WelcomeLabel2=QuickSay turns your voice into text — anywhere on Windows.%n%nThis will install QuickSay Beta v2.0 on your computer. You'll need a free Groq API key to get started.
 FinishedHeadingLabel=You're all set.
 FinishedLabel=QuickSay Beta is ready to go. Launch it to complete a quick mic check and start dictating.
 ClickFinish=Click Finish to begin.
@@ -68,9 +68,15 @@ Source: "ffmpeg.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; === FALLBACK SCRIPTS ===
 Source: "onboarding_ui.ahk"; DestDir: "{app}"; Flags: ignoreversion
 
-; === USER CONFIG (preserve on upgrade) ===
-Source: "config.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
-Source: "dictionary.json"; DestDir: "{app}"; Flags: onlyifdoesntexist
+; === CONFIG SEED TEMPLATE (clean defaults — NO secrets) ===
+; T1.8 / T1.3-001: the installer must NOT ship the developer's live config.json —
+; it carries a DPAPI-encrypted API key + personal prefs and (via launchAtStartup=1)
+; silently armed autorun on every fresh install. Ship the pristine
+; config.example.json as a read-only template instead; on first run the app seeds
+; %APPDATA%\QuickSay\config.json from it (SeedConfigIfMissing in QuickSay.ahk).
+; User config + dictionary now live under %APPDATA%\QuickSay\ (T1.3-023) and are
+; preserved across upgrades by the app's migrate-or-seed logic, not the installer.
+Source: "config.example.json"; DestDir: "{app}"; Flags: ignoreversion
 
 ; === APP DATA (changelog for What's New feature) ===
 Source: "data\changelog.json"; DestDir: "{app}\data"; Flags: ignoreversion
@@ -103,8 +109,14 @@ Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "redist\MicrosoftEdgeWebview2Setup.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Dirs]
-Name: "{app}\data"; Permissions: users-modify
-Name: "{app}\data\audio"; Permissions: users-modify
+; T1.8 / T1.3-023: user data now lives under %APPDATA%\QuickSay\ (co-located with
+; license.dat). Pre-create the tree so first run is clean. uninsneveruninstall +
+; the keep-prompt (CurUninstallStepChanged) own its removal — and license.dat is
+; always preserved so an uninstall/reinstall can never reset a trial.
+Name: "{userappdata}\QuickSay"; Flags: uninsneveruninstall
+Name: "{userappdata}\QuickSay\data"; Flags: uninsneveruninstall
+Name: "{userappdata}\QuickSay\data\audio"; Flags: uninsneveruninstall
+Name: "{userappdata}\QuickSay\data\logs"; Flags: uninsneveruninstall
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\gui\assets\icon.ico"
@@ -116,6 +128,16 @@ Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: st
 ; Otherwise launch main app
 Filename: "{app}\QuickSay-Setup.exe"; Description: "Run mic check and setup"; Flags: nowait postinstall skipifsilent; Check: not OnboardingAlreadyDone
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch QuickSay"; Flags: nowait postinstall skipifsilent unchecked; Check: OnboardingAlreadyDone
+
+[UninstallRun]
+; T1.8 / T1.3-025: the APP (settings process) registers autorun via the value
+; HKCU\Software\Microsoft\Windows\CurrentVersion\Run\QuickSay -> "{app}\QuickSay.exe".
+; The installer owns a *different* startup mechanism ({userstartup} shortcut), so
+; it never knew about this Run value — leaving it behind after uninstall pointing
+; at a now-deleted exe (a ghost autorun / login error). Delete it on uninstall.
+; (We intentionally do NOT delete it on normal app exit — when launchAtStartup is
+;  on, the value is supposed to persist across reboots.)
+Filename: "{cmd}"; Parameters: "/c reg delete ""HKCU\Software\Microsoft\Windows\CurrentVersion\Run"" /v QuickSay /f"; Flags: runhidden; RunOnceId: "DelRunKey"
 
 [UninstallDelete]
 ; Clean up runtime/temp files (NOT user data)
@@ -135,7 +157,11 @@ Type: files; Name: "{app}\data\onboarding_done"
 // Check if onboarding was already completed (marker file exists)
 function OnboardingAlreadyDone(): Boolean;
 begin
-  Result := FileExists(ExpandConstant('{app}\data\onboarding_done'));
+  // T1.8 / T1.3-023: the marker now lives under %APPDATA%\QuickSay\ for new
+  // installs; also honor the legacy {app} location so upgrades from a pre-2.0
+  // build do not re-run onboarding (the app migrates the marker on first launch).
+  Result := FileExists(ExpandConstant('{userappdata}\QuickSay\data\onboarding_done'))
+         or FileExists(ExpandConstant('{app}\data\onboarding_done'));
 end;
 
 // Close running QuickSay processes before install/uninstall
@@ -204,18 +230,27 @@ begin
   Result := True;
 end;
 
-// Preserve user data on uninstall — ask before removing config/history
+// Preserve user data on uninstall — ask before removing config/history.
+// T1.8 / T1.3-023: user data lives under %APPDATA%\QuickSay\ now, and the
+// trial/license file (license.dat) is ALWAYS preserved — deleting it would let a
+// trial be reset via uninstall/reinstall, defeating the anti-abuse design.
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  dataRoot: string;
 begin
   if CurUninstallStep = usPostUninstall then
   begin
+    dataRoot := ExpandConstant('{userappdata}\QuickSay');
     if MsgBox('Do you want to keep your QuickSay settings and history?' #13#10 +
-              '(config.json, dictionary, history, recordings)',
+              '(config.json, dictionary, history, recordings)' #13#10#13#10 +
+              'Your license / trial is always kept.',
               mbConfirmation, MB_YESNO) = IDNO then
     begin
-      DelTree(ExpandConstant('{app}\data'), True, True, True);
-      DeleteFile(ExpandConstant('{app}\config.json'));
-      DeleteFile(ExpandConstant('{app}\dictionary.json'));
+      // Remove user content only. license.dat sits directly under the data root
+      // (NOT under \data) and is intentionally left untouched here.
+      DelTree(dataRoot + '\data', True, True, True);
+      DeleteFile(dataRoot + '\config.json');
+      DeleteFile(dataRoot + '\dictionary.json');
     end;
   end;
 end;

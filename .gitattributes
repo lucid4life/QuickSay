@@ -1,0 +1,4 @@
+# Git hooks and shell scripts must keep LF endings or they break under `sh`
+# (a CRLF shebang line makes the hook fail to execute). T1.6.
+.githooks/** text eol=lf
+*.sh text eol=lf

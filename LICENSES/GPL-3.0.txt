@@ -1,0 +1,57 @@
+FFmpeg License Notice
+
+FFmpeg is free software licensed under the GNU General Public License
+version 3.0 (GPL v3.0) or later, with additional permissions.
+
+QuickSay bundles FFmpeg (ffmpeg.exe) from gyan.dev "essentials" build.
+This binary is used solely for audio recording and format conversion.
+
+GPL v3.0 COMPLIANCE
+-------------------
+
+As required by GPL v3.0:
+
+1. SOURCE CODE AVAILABILITY
+   FFmpeg source code is freely available at:
+   https://ffmpeg.org/download.html
+   https://github.com/FFmpeg/FFmpeg
+
+   The specific build used (gyan.dev essentials) source:
+   https://www.gyan.dev/ffmpeg/builds/
+
+2. LICENSE TEXT
+   The complete GPL v3.0 license text is available at:
+   https://www.gnu.org/licenses/gpl-3.0.txt
+
+3. NO MODIFICATIONS
+   QuickSay uses the unmodified pre-built FFmpeg binary.
+   No changes have been made to the FFmpeg source code.
+
+4. SEPARATE WORK
+   FFmpeg is distributed as a separate executable (ffmpeg.exe).
+   QuickSay invokes FFmpeg as an external process via command line.
+   QuickSay itself is licensed under the MIT License.
+
+SUMMARY OF GPL v3.0 TERMS
+-------------------------
+
+The GPL v3.0 grants you the following freedoms:
+- Freedom to run FFmpeg for any purpose
+- Freedom to study how FFmpeg works and modify it
+- Freedom to redistribute copies of FFmpeg
+- Freedom to distribute modified versions of FFmpeg
+
+When redistributing FFmpeg (modified or unmodified), you must:
+- Include the GPL v3.0 license text or a reference to it
+- Make source code available or provide written offer for it
+- Preserve all copyright notices
+- State any modifications made (none in QuickSay's case)
+
+CONTACT
+-------
+
+For questions about FFmpeg licensing:
+https://ffmpeg.org/legal.html
+
+For questions about QuickSay:
+https://github.com/lucid4life/QuickSay

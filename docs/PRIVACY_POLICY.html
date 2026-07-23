@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Privacy Policy - QuickSay</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #FF6B35;
+            border-bottom: 3px solid #FF6B35;
+            padding-bottom: 12px;
+            margin-bottom: 8px;
+        }
+        h2 {
+            color: #444;
+            margin-top: 32px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        h3 {
+            color: #555;
+            margin-top: 24px;
+        }
+        .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .highlight {
+            background: #fff8f5;
+            border-left: 4px solid #FF6B35;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        ul {
+            padding-left: 24px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        a {
+            color: #FF6B35;
+        }
+    </style>
+</head>
+<body>
+    <h1>QuickSay Privacy Policy</h1>
+    <p class="meta"><strong>Last Updated:</strong> February 2026 | <strong>Version:</strong> 1.0</p>
+
+    <h2>Overview</h2>
+    <p>QuickSay is a voice-to-text application that runs locally on your Windows computer. We are committed to protecting your privacy and being transparent about how your data is handled.</p>
+
+    <div class="highlight">
+        <strong>Key Point:</strong> QuickSay developers do not operate any servers and do not collect any of your data. All data is stored locally on your computer or processed through third-party services (Groq API) using your own API key.
+    </div>
+
+    <h2>Data Collection Summary</h2>
+    <table>
+        <tr>
+            <th>Data Type</th>
+            <th>Stored Locally</th>
+            <th>Sent to Cloud</th>
+            <th>Purpose</th>
+        </tr>
+        <tr>
+            <td>Audio recordings</td>
+            <td>Temporary only</td>
+            <td>Yes (to Groq)</td>
+            <td>Speech-to-text conversion</td>
+        </tr>
+        <tr>
+            <td>Transcription text</td>
+            <td>Yes (if History enabled)</td>
+            <td>No</td>
+            <td>History feature</td>
+        </tr>
+        <tr>
+            <td>Groq API key</td>
+            <td>Yes (encrypted)</td>
+            <td>Yes (for authentication)</td>
+            <td>API access</td>
+        </tr>
+        <tr>
+            <td>Usage statistics</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>Personal statistics display</td>
+        </tr>
+        <tr>
+            <td>Custom dictionary</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>Spelling corrections</td>
+        </tr>
+    </table>
+
+    <h2>Detailed Data Handling</h2>
+
+    <h3>1. Audio Recordings</h3>
+    <ul>
+        <li><strong>Capture:</strong> When you activate QuickSay, audio is recorded from your selected microphone</li>
+        <li><strong>Local Storage:</strong> Audio is temporarily saved during processing, then deleted</li>
+        <li><strong>Cloud Transmission:</strong> Audio is sent to Groq's servers for transcription via their API</li>
+        <li><strong>Retention:</strong> Groq's data retention is governed by their privacy policy</li>
+    </ul>
+
+    <h3>2. Groq API Integration</h3>
+    <ul>
+        <li><strong>Your API Key:</strong> Stored locally on your computer, encrypted using Windows Data Protection API (DPAPI)</li>
+        <li><strong>Transmission:</strong> Your API key is sent with each transcription request to authenticate with Groq</li>
+        <li><strong>Groq's Processing:</strong> Audio is processed by Groq's Whisper model. Refer to <a href="https://groq.com/privacy-policy/" target="_blank">Groq's Privacy Policy</a> for their data handling practices</li>
+    </ul>
+
+    <h3>3. Local Data Storage</h3>
+    <p>All of the following data is stored ONLY on your local computer:</p>
+    <ul>
+        <li><strong>Transcription History:</strong> <code>data\history.json</code></li>
+        <li><strong>Usage Statistics:</strong> <code>data\statistics.json</code></li>
+        <li><strong>Custom Dictionary:</strong> <code>dictionary.json</code></li>
+        <li><strong>Settings:</strong> <code>config.json</code></li>
+    </ul>
+
+    <h3>4. What We Do NOT Collect</h3>
+    <ul>
+        <li>We do not operate any servers</li>
+        <li>We do not collect analytics or telemetry</li>
+        <li>We do not track your usage patterns</li>
+        <li>We do not have access to your transcriptions</li>
+        <li>We do not store your API key anywhere except on your computer</li>
+    </ul>
+
+    <h2>Third-Party Services</h2>
+    <h3>Groq API</h3>
+    <p>QuickSay uses Groq's API for speech-to-text conversion. When you use QuickSay:</p>
+    <ul>
+        <li>Your audio is sent to Groq's servers</li>
+        <li>Groq processes the audio and returns text</li>
+        <li>Groq's handling of your data is governed by their privacy policy</li>
+    </ul>
+    <p><strong>You are responsible for:</strong></p>
+    <ul>
+        <li>Reviewing and accepting Groq's terms of service</li>
+        <li>Managing your own Groq API key</li>
+        <li>Understanding Groq's data retention policies</li>
+    </ul>
+
+    <h2>Data Security</h2>
+    <h3>Encryption</h3>
+    <ul>
+        <li>Your Groq API key is encrypted using Windows DPAPI (Data Protection API)</li>
+        <li>DPAPI encryption is tied to your Windows user account</li>
+        <li>The encrypted key can only be decrypted on your computer by your user account</li>
+    </ul>
+
+    <h3>Local Storage</h3>
+    <ul>
+        <li>All local data is stored in your user profile directory</li>
+        <li>Data is protected by your Windows user account permissions</li>
+        <li>No data is transmitted to QuickSay developers</li>
+    </ul>
+
+    <h2>Your Rights and Controls</h2>
+    <h3>You Can:</h3>
+    <ul>
+        <li><strong>View</strong> all stored data in the Settings app (History, Statistics tabs)</li>
+        <li><strong>Delete</strong> your transcription history at any time</li>
+        <li><strong>Export</strong> your custom dictionary</li>
+        <li><strong>Uninstall</strong> QuickSay completely, removing all data</li>
+    </ul>
+
+    <h3>Data Deletion</h3>
+    <ul>
+        <li><strong>Transcription History:</strong> Settings &gt; History &gt; Clear History</li>
+        <li><strong>Complete Removal:</strong> Uninstall QuickSay to remove all local data</li>
+    </ul>
+
+    <h2>Children's Privacy</h2>
+    <p>QuickSay is not intended for use by children under 13. We do not knowingly collect data from children.</p>
+
+    <h2>Changes to This Policy</h2>
+    <p>We may update this Privacy Policy periodically. Changes will be indicated by updating the "Last Updated" date. Continued use of QuickSay after changes constitutes acceptance of the updated policy.</p>
+
+    <h2>Contact</h2>
+    <p>For privacy-related questions or concerns:</p>
+    <ul>
+        <li><strong>GitHub Issues:</strong> <a href="https://github.com/lucid4life/QuickSay/issues">github.com/lucid4life/QuickSay/issues</a></li>
+    </ul>
+
+    <div class="highlight">
+        <strong>Summary:</strong> QuickSay stores your data locally on your computer. The only cloud interaction is sending audio to Groq for transcription using YOUR API key. We (QuickSay developers) never see your data.
+    </div>
+</body>
+</html>

@@ -1,8 +1,8 @@
 ;@Ahk2Exe-SetCompanyName QuickSay
-;@Ahk2Exe-SetDescription QuickSay Beta v1.8 Setup
-;@Ahk2Exe-SetFileVersion 1.8.1.0
-;@Ahk2Exe-SetProductName QuickSay Beta v1.8
-;@Ahk2Exe-SetProductVersion 1.8.1.0
+;@Ahk2Exe-SetDescription QuickSay Beta v2.0 Setup
+;@Ahk2Exe-SetFileVersion 2.0.0.0
+;@Ahk2Exe-SetProductName QuickSay Beta v2.0
+;@Ahk2Exe-SetProductVersion 2.0.0.0
 ;@Ahk2Exe-SetCopyright Copyright (c) 2024-2026 QuickSay
 ;@Ahk2Exe-SetOrigFilename QuickSay-Setup.exe
 ;@Ahk2Exe-SetMainIcon gui\assets\icon.ico
@@ -13,17 +13,19 @@
 
 ; --- SET APP IDENTITY FOR WINDOWS TASKBAR ---
 ; Ensures this process groups with the main launcher (same AppUserModelID)
-DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.1.8")
+DllCall("Shell32\SetCurrentProcessExplicitAppUserModelID", "WStr", "QuickSay.VoiceToText.2.0")
 
 ; ==============================================================================
-; QuickSay Beta v1.8 Onboarding Wizard (WebView2)
+; QuickSay Beta v2.0 Onboarding Wizard (WebView2)
 ; First-run setup — walks user through getting a Groq API key
 ; ==============================================================================
 
+#Include %A_ScriptDir%\lib\datadir.ahk
 #Include %A_ScriptDir%\lib\WebView2.ahk
 #Include %A_ScriptDir%\lib\JSON.ahk
 #Include %A_ScriptDir%\lib\dpapi.ahk
 #Include %A_ScriptDir%\lib\http.ahk
+#Include %A_ScriptDir%\lib\languages.ahk
 
 ; Check if launched from QuickSay tray (parent is waiting via RunWait)
 global LaunchedFromTray := false
@@ -38,7 +40,9 @@ class OnboardingUI {
     static gui := ""
     static wv := ""
     static wvc := ""
-    static configFile := A_ScriptDir "\config.json"
+    ; T1.8 / T1.3-023: config lives under GetDataDir() (%APPDATA%\QuickSay\ when
+    ; installed) so the wizard writes the same config the tray/settings read.
+    static configFile := GetDataDir() "\config.json"
     static cachedConfig := ""
     static micActive := false
     static testRecordFile := A_Temp "\quicksay_mic_test.wav"
@@ -258,9 +262,23 @@ class OnboardingUI {
                 this.HandleFinishAndStartTour()
             } else if (action == "openURL") {
                 try Run(data)
+            } else if (action == "getHotkeyConflict") {
+                this.HandleGetHotkeyConflict()
             }
         } catch as err {
-            try FileAppend("[" A_Now "] OnWebMessage ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] OnWebMessage ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
+        }
+    }
+
+    static HandleGetHotkeyConflict() {
+        try {
+            cfg := this.LoadConfig()
+            hasConflict := cfg.Has("hotkeyConflict") && cfg["hotkeyConflict"]
+            msg := cfg.Has("hotkeyConflictMsg") ? cfg["hotkeyConflictMsg"] : ""
+            result := Map("conflict", hasConflict, "msg", msg)
+            this.SendToJS("receiveHotkeyConflict", result)
+        } catch {
+            ; Non-fatal — just don't show the banner
         }
     }
 
@@ -379,7 +397,7 @@ class OnboardingUI {
             FileMove(tmpPath, this.configFile, 1)
             this.InvalidateConfigCache()
         } catch as err {
-            try FileAppend("[" A_Now "] HandleSaveKey ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] HandleSaveKey ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -437,10 +455,10 @@ class OnboardingUI {
 
     static MarkOnboardingDone() {
         ; Write a simple marker file so we don't show onboarding again
-        markerFile := A_ScriptDir "\data\onboarding_done"
+        markerFile := GetDataDir() "\data\onboarding_done"
         try {
-            if !DirExist(A_ScriptDir "\data")
-                DirCreate(A_ScriptDir "\data")
+            if !DirExist(GetDataDir() "\data")
+                DirCreate(GetDataDir() "\data")
             f := FileOpen(markerFile, "w")
             f.Write("1")
             f.Close()
@@ -608,7 +626,7 @@ class OnboardingUI {
         } catch as err {
             this.transcriptionRecording := false
             this.SendTranscriptionError("Failed to start recording: " err.Message)
-            try FileAppend("[" A_Now "] StartTestTranscription ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] StartTestTranscription ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -656,15 +674,11 @@ class OnboardingUI {
 
             ; Read STT model and language from cached config
             sttModel := cfg.Has("sttModel") ? cfg["sttModel"] : "whisper-large-v3-turbo"
-            lang := "en"
-            if cfg.Has("language") {
-                langRaw := cfg["language"]
-                langCodes := Map("English", "en", "Spanish", "es", "French", "fr", "German", "de", "Japanese", "ja", "Chinese", "zh", "Korean", "ko")
-                lang := langCodes.Has(langRaw) ? langCodes[langRaw] : langRaw
-            }
+            langRaw := cfg.Has("language") ? cfg["language"] : "en"
 
             ; Build multipart form data and POST to Groq
-            formFields := Map("model", sttModel, "language", lang)
+            formFields := Map("model", sttModel)
+            AddLanguageField(formFields, langRaw)
             apiResult := HttpPostFile(whisperURL, apiKey, recFile, formFields)
 
             if (apiResult["error"] != "") {
@@ -674,7 +688,9 @@ class OnboardingUI {
 
             if (apiResult["status"] != 200) {
                 errorDetail := "API error (HTTP " apiResult["status"] ")"
-                if RegExMatch(apiResult["body"], '"message":\s*"([^"]+)"', &errMatch)
+                if (apiResult["status"] = 429)
+                    errorDetail := FormatRateLimitMessage(apiResult["retryAfter"])
+                else if RegExMatch(apiResult["body"], '"message":\s*"([^"]+)"', &errMatch)
                     errorDetail := errMatch[1]
                 this.SendTranscriptionError(errorDetail)
                 return
@@ -698,7 +714,7 @@ class OnboardingUI {
                 DllCall("winmm\mciSendString", "Str", "close transtest", "Ptr", 0, "UInt", 0, "Ptr", 0)
             }
             this.SendTranscriptionError(err.Message)
-            try FileAppend("[" A_Now "] StopTestTranscription ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] StopTestTranscription ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -726,7 +742,7 @@ class OnboardingUI {
             FileMove(tmpPath, this.configFile, 1)
             this.InvalidateConfigCache()
         } catch as err {
-            try FileAppend("[" A_Now "] HandleMicTestSkipped ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] HandleMicTestSkipped ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -783,7 +799,7 @@ class OnboardingUI {
             }
             ObjRelease(device)
         } catch as err {
-            try FileAppend("[" A_Now "] IncreaseMicVolume ERROR: " err.Message "`n", A_ScriptDir "\data\onboarding_debug.log")
+            try FileAppend("[" A_Now "] IncreaseMicVolume ERROR: " err.Message "`n", GetDataDir() "\data\onboarding_debug.log")
         }
     }
 
@@ -825,6 +841,10 @@ class OnboardingUI {
 }
 
 ; --- LAUNCH ---
+; T1.8 / T1.3-023: ensure the data root exists (and migrate any legacy {app}
+; data) before the wizard writes config / the onboarding-done marker.
+try BootstrapDataDir()
+
 try {
     OnboardingUI.Show()
 } catch as err {

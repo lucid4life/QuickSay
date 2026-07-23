@@ -1,0 +1,219 @@
+/* ==========================================
+   QuickSay Paywall — Dark Theme
+   Design tokens mirror gui/settings.css (single source of visual truth).
+   ========================================== */
+:root {
+    --bg-base: #0f0f12;
+    --bg-surface: #1e1e27;
+    --bg-elevated: #222230;
+    --bg-input: #151519;
+
+    --accent-primary: #22d3c5;
+    --accent-primary-hover: #1abfb2;
+    --accent-primary-pressed: #17a89d;
+    --accent-primary-muted: rgba(34, 211, 197, 0.12);
+    --accent-primary-glow: rgba(34, 211, 197, 0.25);
+
+    --accent-secondary: #ff783c;
+
+    --text-primary: #f0f0f3;
+    --text-secondary: #9494a3;
+    --text-tertiary: #8b8b9e;     /* WCAG AA fix from T1.7 */
+
+    --success: #34d399;
+    --error: #f87171;
+    --warning: #fbbf24;
+
+    --border-subtle: rgba(255, 255, 255, 0.14);
+    --border-default: rgba(255, 255, 255, 0.10);
+    --border-strong: rgba(255, 255, 255, 0.16);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #18181f 0%, var(--bg-base) 60%);
+    color: var(--text-primary);
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 24px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 36px 36px 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255,255,255,0.02);
+    text-align: center;
+}
+
+.logo {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 18px;
+    display: block;
+}
+
+h1 {
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    margin-bottom: 10px;
+    line-height: 1.25;
+}
+
+.subhead {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 18px;
+}
+
+/* Price line — populated at runtime from GET /pricing (never hardcoded). */
+.price-line {
+    background: var(--accent-primary-muted);
+    border: 1px solid var(--accent-primary-glow);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 22px;
+    min-height: 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+}
+.price-main { font-size: 17px; font-weight: 650; color: var(--text-primary); }
+.price-sub  { font-size: 12.5px; color: var(--accent-primary); font-weight: 600; }
+.price-loading { font-size: 13px; color: var(--text-tertiary); }
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 11px;
+    font-weight: 600;
+    transition: background 0.12s, transform 0.05s, border-color 0.12s;
+}
+button:active { transform: translateY(1px); }
+button:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    font-size: 15.5px;
+    background: var(--accent-primary);
+    color: #06302c;
+}
+.btn-primary:hover { background: var(--accent-primary-hover); }
+
+.btn-link {
+    background: none;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    padding: 12px 8px 4px;
+    width: 100%;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.btn-link:hover { color: var(--text-primary); }
+
+/* License-key entry (revealed by the secondary CTA) */
+.activate-panel { margin-top: 14px; display: none; }
+.activate-panel.open { display: block; }
+.activate-label {
+    display: block;
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    text-align: left;
+    margin-bottom: 6px;
+}
+.key-input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: 'Consolas', 'Cascadia Mono', monospace;
+    letter-spacing: 0.5px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    color: var(--text-primary);
+    user-select: text;
+    margin-bottom: 10px;
+}
+.key-input:focus { outline: none; border-color: var(--accent-primary); }
+.btn-activate {
+    width: 100%;
+    padding: 12px;
+    font-size: 14.5px;
+    background: var(--accent-secondary);
+    color: #2b0f04;
+}
+.btn-activate:hover { filter: brightness(1.07); }
+.btn-activate:disabled { opacity: 0.55; cursor: progress; }
+
+/* Machine hardware ID — shown so a developer license can be minted/bound to this exact PC. */
+.machine-id-row {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+}
+.machine-id-label { font-size: 11.5px; color: var(--text-tertiary); }
+.machine-id-value {
+    font-family: 'Consolas', 'Cascadia Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 6px 8px;
+    user-select: all;
+    word-break: break-all;
+}
+.machine-id-value:focus { outline: none; border-color: var(--accent-primary); }
+
+.msg {
+    font-size: 13px;
+    line-height: 1.45;
+    margin-top: 12px;
+    min-height: 18px;
+    text-align: center;
+}
+.msg.error   { color: var(--error); }
+.msg.success { color: var(--success); }
+.msg.info    { color: var(--text-tertiary); }
+
+.footer {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-default);
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.footer a {
+    color: var(--text-tertiary);
+    text-decoration: none;
+    cursor: pointer;
+}
+.footer a:hover { color: var(--text-secondary); text-decoration: underline; }
+.footer .sep { color: var(--text-quaternary, #3e3e50); }
+
+@media (prefers-reduced-motion: reduce) {
+    button, * { transition: none !important; }
+}

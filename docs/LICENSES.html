@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Open Source Licenses - QuickSay</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #FF6B35;
+            border-bottom: 3px solid #FF6B35;
+            padding-bottom: 12px;
+        }
+        h2 {
+            color: #444;
+            margin-top: 32px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .license-card {
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        .license-card h3 {
+            margin-top: 0;
+            color: #FF6B35;
+        }
+        .license-type {
+            display: inline-block;
+            background: #FF6B35;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .license-type.mit { background: #28a745; }
+        .license-type.gpl { background: #007bff; }
+        .license-type.bsd { background: #6c757d; }
+        pre {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        a {
+            color: #FF6B35;
+        }
+        ul {
+            padding-left: 24px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+        .note {
+            background: #fff8f5;
+            border-left: 4px solid #FF6B35;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Open Source Licenses</h1>
+    <p>QuickSay is built with the help of several open source projects. We are grateful to the developers and communities behind these projects.</p>
+
+    <h2>QuickSay</h2>
+    <div class="license-card">
+        <span class="license-type mit">MIT License</span>
+        <h3>QuickSay Application</h3>
+        <p><strong>Copyright (c) 2026 lucid4life</strong></p>
+        <pre>MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</pre>
+    </div>
+
+    <h2>FFmpeg</h2>
+    <div class="license-card">
+        <span class="license-type gpl">GPL v3.0</span>
+        <h3>FFmpeg - Audio Processing</h3>
+        <p>FFmpeg is a complete, cross-platform solution to record, convert and stream audio and video.</p>
+        <ul>
+            <li><strong>Used for:</strong> Audio capture from microphones (USB, Bluetooth, etc.)</li>
+            <li><strong>License:</strong> GNU General Public License v3.0</li>
+            <li><strong>Source:</strong> <a href="https://ffmpeg.org" target="_blank">ffmpeg.org</a></li>
+            <li><strong>Build:</strong> <a href="https://www.gyan.dev/ffmpeg/builds/" target="_blank">gyan.dev essentials build</a></li>
+        </ul>
+        <div class="note">
+            FFmpeg is distributed as a separate executable (ffmpeg.exe) and is not linked into QuickSay. The complete source code is available at the links above.
+        </div>
+    </div>
+
+    <h2>Microsoft WebView2</h2>
+    <div class="license-card">
+        <span class="license-type bsd">BSD-style</span>
+        <h3>Microsoft Edge WebView2 Runtime</h3>
+        <p>WebView2 enables web content embedding in native applications using Microsoft Edge (Chromium).</p>
+        <ul>
+            <li><strong>Used for:</strong> Settings UI and Onboarding wizard</li>
+            <li><strong>License:</strong> Microsoft Software License Terms (BSD-style)</li>
+            <li><strong>Source:</strong> <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/" target="_blank">Microsoft WebView2</a></li>
+        </ul>
+        <pre>Copyright (c) Microsoft Corporation. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.</pre>
+    </div>
+
+    <h2>thqby's AutoHotkey Libraries</h2>
+    <div class="license-card">
+        <span class="license-type mit">MIT License</span>
+        <h3>AHK2 Libraries</h3>
+        <p>High-quality AutoHotkey v2 libraries for WebView2 integration, JSON parsing, and async operations.</p>
+        <ul>
+            <li><strong>Components:</strong> WebView2.ahk, JSON.ahk, Promise.ahk</li>
+            <li><strong>Author:</strong> thqby</li>
+            <li><strong>License:</strong> MIT License</li>
+            <li><strong>Source:</strong> <a href="https://github.com/thqby/ahk2_lib" target="_blank">github.com/thqby/ahk2_lib</a></li>
+        </ul>
+    </div>
+
+    <h2>AutoHotkey v2</h2>
+    <div class="license-card">
+        <span class="license-type gpl">GPL v2.0</span>
+        <h3>AutoHotkey Runtime</h3>
+        <p>AutoHotkey is a free, open-source scripting language for Windows.</p>
+        <ul>
+            <li><strong>Used for:</strong> Application runtime and scripting</li>
+            <li><strong>License:</strong> GNU General Public License v2.0</li>
+            <li><strong>Source:</strong> <a href="https://github.com/AutoHotkey/AutoHotkey" target="_blank">github.com/AutoHotkey/AutoHotkey</a></li>
+        </ul>
+        <div class="note">
+            <strong>Important:</strong> As stated in AutoHotkey's licensing documentation, scripts written in AutoHotkey are NOT covered by the GPL. QuickSay's scripts are licensed under the MIT License.
+        </div>
+    </div>
+
+    <h2>Acknowledgments</h2>
+    <p>Special thanks to:</p>
+    <ul>
+        <li><strong>Groq</strong> - For providing fast, affordable AI inference</li>
+        <li><strong>OpenAI</strong> - For creating the Whisper speech recognition model</li>
+        <li><strong>The AutoHotkey Community</strong> - For excellent documentation and support</li>
+        <li><strong>All open source contributors</strong> - Who make projects like this possible</li>
+    </ul>
+
+    <hr style="margin-top: 40px; border: none; border-top: 1px solid #e5e7eb;">
+    <p style="font-size: 13px; color: #666; text-align: center;">
+        Full license texts are available in the LICENSES folder in your QuickSay installation directory.
+    </p>
+</body>
+</html>
